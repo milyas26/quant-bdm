@@ -1,0 +1,449 @@
+import { useState, useEffect } from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useSearchParams } from "react-router-dom"
+import { getTickers, deleteTicker, type GetTickersParams } from "@/lib/api"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Card, CardContent } from "@/components/ui/card"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { ChevronLeft, ChevronRight, Search, Trash2, MoreHorizontal } from "lucide-react"
+import { useDebounce } from "@/hooks/use-debounce"
+import { formatIDR } from "@/lib/utils"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+export default function MarketDataPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const queryClient = useQueryClient()
+  const [tickerToDelete, setTickerToDelete] = useState<string | null>(null)
+  const [selectedTickers, setSelectedTickers] = useState<string[]>([])
+  const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+  const debouncedSearch = useDebounce(searchTerm, 500)
+
+  const page = parseInt(searchParams.get("page") || "1")
+  const limit = parseInt(searchParams.get("limit") || "15")
+  const isLiquid =
+    searchParams.get("isLiquid") === "true"
+      ? true
+      : searchParams.get("isLiquid") === "false"
+        ? false
+        : undefined
+  const isSuspend =
+    searchParams.get("isSuspend") === "true"
+      ? true
+      : searchParams.get("isSuspend") === "false"
+        ? false
+        : undefined
+  const isUnusual =
+    searchParams.get("isUnusual") === "true"
+      ? true
+      : searchParams.get("isUnusual") === "false"
+        ? false
+        : undefined
+
+  const minPrice = searchParams.get("minPrice")
+    ? parseInt(searchParams.get("minPrice")!)
+    : undefined
+  const maxPrice = searchParams.get("maxPrice")
+    ? parseInt(searchParams.get("maxPrice")!)
+    : undefined
+
+  // Price inputs state
+  const [minPriceInput, setMinPriceInput] = useState(
+    searchParams.get("minPrice") || ""
+  )
+  const [maxPriceInput, setMaxPriceInput] = useState(
+    searchParams.get("maxPrice") || ""
+  )
+
+  const updateParams = (updates: Partial<GetTickersParams>) => {
+    const newParams = new URLSearchParams(searchParams)
+
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === undefined || value === "") {
+        newParams.delete(key)
+      } else {
+        newParams.set(key, String(value))
+      }
+    })
+
+    setSearchParams(newParams)
+  }
+
+  // Update URL when debounced search changes
+  useEffect(() => {
+    if (debouncedSearch !== (searchParams.get("search") || "")) {
+      updateParams({ search: debouncedSearch, page: 1 })
+    }
+  }, [debouncedSearch])
+
+  const handlePriceUpdate = () => {
+    updateParams({
+      minPrice: minPriceInput ? parseInt(minPriceInput) : undefined,
+      maxPrice: maxPriceInput ? parseInt(maxPriceInput) : undefined,
+      page: 1,
+    })
+  }
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: [
+      "tickers",
+      page,
+      limit,
+      debouncedSearch,
+      isLiquid,
+      isSuspend,
+      isUnusual,
+      minPrice,
+      maxPrice,
+    ],
+    queryFn: () =>
+      getTickers({
+        page,
+        limit,
+        search: debouncedSearch,
+        isLiquid,
+        isSuspend,
+        isUnusual,
+        minPrice,
+        maxPrice,
+      }),
+  })
+
+  const handleSwitchChange = (
+    key: keyof GetTickersParams,
+    checked: boolean
+  ) => {
+    updateParams({ [key]: checked ? true : undefined, page: 1 })
+  }
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allSymbols = data?.data.map((t) => t.symbol) || []
+      setSelectedTickers((prev) => {
+        const newSelection = new Set([...prev, ...allSymbols])
+        return Array.from(newSelection)
+      })
+    } else {
+      const pageSymbols = data?.data.map((t) => t.symbol) || []
+      setSelectedTickers((prev) => prev.filter((s) => !pageSymbols.includes(s)))
+    }
+  }
+
+  const handleSelectRow = (symbol: string, checked: boolean) => {
+    if (checked) {
+      setSelectedTickers((prev) => [...prev, symbol])
+    } else {
+      setSelectedTickers((prev) => prev.filter((s) => s !== symbol))
+    }
+  }
+
+  const { mutate: handleDelete, isPending: isDeleting } = useMutation({
+    mutationFn: deleteTicker,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tickers"] })
+      setTickerToDelete(null)
+    },
+  })
+
+  const { mutate: handleBulkDelete, isPending: isBulkDeleting } = useMutation({
+    mutationFn: async (symbols: string[]) => {
+      await Promise.all(symbols.map((symbol) => deleteTicker(symbol)))
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tickers"] })
+      setSelectedTickers([])
+      setIsBulkDeleteConfirmOpen(false)
+    },
+  })
+
+  return (
+    <div className="space-y-4">
+      <AlertDialog open={!!tickerToDelete} onOpenChange={(open) => !open && setTickerToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the ticker 
+              <span className="font-bold"> {tickerToDelete}</span> and all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => tickerToDelete && handleDelete(tickerToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={isBulkDeleteConfirmOpen} onOpenChange={setIsBulkDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete <span className="font-bold">{selectedTickers.length}</span> selected tickers and all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => handleBulkDelete(selectedTickers)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isBulkDeleting ? "Deleting..." : "Delete Selected"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Card>
+        <CardContent className="space-y-4">
+          <div className="flex flex-col flex-wrap gap-4 md:flex-row md:items-end">
+            <div className="w-full min-w-[200px] space-y-2 md:w-auto md:flex-1">
+              <Label htmlFor="search">Search</Label>
+              <div className="relative">
+                <Search className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="search"
+                  placeholder="Search symbol or name..."
+                  className="pl-8"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="w-full space-y-2 md:w-32">
+              <Label htmlFor="minPrice">Min Price</Label>
+              <Input
+                id="minPrice"
+                type="number"
+                placeholder="0"
+                value={minPriceInput}
+                onChange={(e) => setMinPriceInput(e.target.value)}
+                onBlur={handlePriceUpdate}
+                onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
+              />
+            </div>
+
+            <div className="w-full space-y-2 md:w-32">
+              <Label htmlFor="maxPrice">Max Price</Label>
+              <Input
+                id="maxPrice"
+                type="number"
+                placeholder="Max"
+                value={maxPriceInput}
+                onChange={(e) => setMaxPriceInput(e.target.value)}
+                onBlur={handlePriceUpdate}
+                onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
+              />
+            </div>
+
+            <div className="flex h-10 items-center space-x-2 rounded-md border p-2">
+              <Switch
+                id="isLiquid"
+                checked={isLiquid === true}
+                onCheckedChange={(checked) =>
+                  handleSwitchChange("isLiquid", checked)
+                }
+              />
+              <Label htmlFor="isLiquid">Liquid</Label>
+            </div>
+
+            <div className="flex h-10 items-center space-x-2 rounded-md border p-2">
+              <Switch
+                id="isSuspend"
+                checked={isSuspend === true}
+                onCheckedChange={(checked) =>
+                  handleSwitchChange("isSuspend", checked)
+                }
+              />
+              <Label htmlFor="isSuspend">Suspend</Label>
+            </div>
+
+            <div className="flex h-10 items-center space-x-2 rounded-md border p-2">
+              <Switch
+                id="isUnusual"
+                checked={isUnusual === true}
+                onCheckedChange={(checked) =>
+                  handleSwitchChange("isUnusual", checked)
+                }
+              />
+              <Label htmlFor="isUnusual">Unusual</Label>
+            </div>
+
+            {selectedTickers.length > 0 && (
+              <Button
+                variant="destructive"
+                onClick={() => setIsBulkDeleteConfirmOpen(true)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Selected ({selectedTickers.length})
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[50px]">
+                  <Checkbox
+                    checked={
+                      data?.data && data.data.length > 0 &&
+                      data.data.every((t) => selectedTickers.includes(t.symbol))
+                    }
+                    onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                  />
+                </TableHead>
+                <TableHead>Symbol</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>Tags</TableHead>
+                <TableHead className="w-[50px]"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : isError ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="h-24 text-center text-red-500"
+                  >
+                    Error: {(error as Error).message}
+                  </TableCell>
+                </TableRow>
+              ) : data?.data.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
+                    No results found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                data?.data.map((ticker) => (
+                  <TableRow key={ticker.symbol}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedTickers.includes(ticker.symbol)}
+                        onCheckedChange={(checked) =>
+                          handleSelectRow(ticker.symbol, !!checked)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {ticker.symbol}
+                    </TableCell>
+                    <TableCell>{ticker.name || "-"}</TableCell>
+                    <TableCell>{formatIDR(ticker.price)}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        {!ticker.isLiquid && (
+                          <Badge variant="secondary">Not Liquid</Badge>
+                        )}
+                        {ticker.isSuspend && (
+                          <Badge variant="destructive">Suspend</Badge>
+                        )}
+                        {ticker.isUnusual && (
+                          <Badge variant="outline">Unusual</Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem
+                            onClick={() => setTickerToDelete(ticker.symbol)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
+          Showing {data?.data.length || 0} of {data?.meta.total || 0} results
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => updateParams({ page: Math.max(1, page - 1) })}
+            disabled={page <= 1 || isLoading}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </Button>
+          <div className="text-sm font-medium">
+            Page {page} of {data?.meta.totalPages || 1}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => updateParams({ page: page + 1 })}
+            disabled={!data || page >= data.meta.totalPages || isLoading}
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
