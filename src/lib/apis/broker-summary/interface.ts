@@ -64,7 +64,7 @@ export interface BrokerSummary {
   brokersSell: BrokerSell[]
 }
 
-export interface BrokerSummary3MonthsResponse {
+export interface BrokerSummaryListResponse {
   message: string
   data: BrokerSummary[]
 }

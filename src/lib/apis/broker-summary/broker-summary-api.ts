@@ -1,9 +1,15 @@
 import api from "@/lib/interceptor"
-import type { BrokerSummary3MonthsResponse, BrokerSummaryParams, BrokerSummaryResponse } from "./interface"
+import type {
+  BrokerSummaryListResponse,
+  BrokerSummaryParams,
+  BrokerSummaryResponse,
+} from "./interface"
 
 export * from "./interface"
 
-export const getBrokerSummary = async (params: BrokerSummaryParams) => {
+export const fetchAndSaveBrokerSummary = async (
+  params: BrokerSummaryParams
+) => {
   const { data } = await api.get<BrokerSummaryResponse>(
     "/fetch-broker-summary",
     {
@@ -21,20 +27,22 @@ export const getBrokerSummary = async (params: BrokerSummaryParams) => {
   return data
 }
 
-export const getBrokerSummary3Months = async (
+export const getBrokerSummaryByDateRange = async (
   symbol: string,
   dateFrom: string,
-  dateTo: string
+  dateTo: string,
+  transactionType: "Net" | "Gross" = "Net"
 ) => {
-  const { data } = await api.get<BrokerSummary3MonthsResponse>(
-    "/broker-summary",
-    {
-      params: {
-        symbol,
-        from: dateFrom,
-        to: dateTo,
-      },
-    }
-  )
+  const { data } = await api.get<BrokerSummaryListResponse>("/broker-summary", {
+    params: {
+      symbol,
+      from: dateFrom,
+      to: dateTo,
+      transaction_type:
+        transactionType === "Net"
+          ? "TRANSACTION_TYPE_NET"
+          : "TRANSACTION_TYPE_GROSS",
+    },
+  })
   return data
 }

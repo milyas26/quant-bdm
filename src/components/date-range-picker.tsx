@@ -24,9 +24,28 @@ export function DatePickerWithRange({
   date,
   setDate,
 }: DatePickerWithRangeProps) {
+  const [open, setOpen] = React.useState(false)
+  const [internalDate, setInternalDate] = React.useState<DateRange | undefined>(
+    date
+  )
+
+  React.useEffect(() => {
+    setInternalDate(date)
+  }, [date, open])
+
+  const onCancel = () => {
+    setOpen(false)
+    setInternalDate(date)
+  }
+
+  const onApply = () => {
+    setDate(internalDate)
+    setOpen(false)
+  }
+
   return (
     <div className={cn("grid gap-2", className)}>
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             id="date"
@@ -55,17 +74,26 @@ export function DatePickerWithRange({
           <Calendar
             initialFocus
             mode="range"
-            defaultMonth={date?.from}
-            selected={date}
+            defaultMonth={internalDate?.from}
+            selected={internalDate}
             onSelect={(range, selectedDay) => {
-              if (date?.from && date?.to) {
-                setDate({ from: selectedDay, to: undefined })
+              if (internalDate?.from && internalDate?.to) {
+                setInternalDate({ from: selectedDay, to: undefined })
                 return
               }
-              setDate(range)
+              setInternalDate(range)
             }}
             numberOfMonths={2}
+            disabled={(date) => date > new Date()}
           />
+          <div className="flex items-center justify-end gap-2 border-t p-3">
+            <Button variant="outline" size="sm" onClick={onCancel}>
+              Batal
+            </Button>
+            <Button size="sm" onClick={onApply}>
+              Simpan
+            </Button>
+          </div>
         </PopoverContent>
       </Popover>
     </div>
