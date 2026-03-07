@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useSearchParams } from "react-router-dom"
-import { getTickers, deleteTicker, type GetTickersParams } from "@/lib/api"
+import {
+  getTickers,
+  deleteTicker,
+  toggleTickerInWatchlist,
+  type GetTickersParams,
+} from "@/lib/api"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -17,7 +22,14 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { ChevronLeft, ChevronRight, Search, Trash2, MoreHorizontal } from "lucide-react"
+import {
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  Trash2,
+  MoreHorizontal,
+  Star,
+} from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
 import { formatIDR } from "@/lib/utils"
 import {
@@ -37,8 +49,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { cn } from "@/lib/utils"
 
-export default function MarketDataPage() {
+export default function StocksPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const queryClient = useQueryClient()
   const [tickerToDelete, setTickerToDelete] = useState<string | null>(null)
@@ -46,6 +59,13 @@ export default function MarketDataPage() {
   const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
   const debouncedSearch = useDebounce(searchTerm, 500)
+
+  const { mutate: handleToggleWatchlist, isPending: isTogglingWatchlist } = useMutation({
+    mutationFn: toggleTickerInWatchlist,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tickers"] })
+    },
+  })
 
   const page = parseInt(searchParams.get("page") || "1")
   const limit = parseInt(searchParams.get("limit") || "15")
@@ -186,20 +206,25 @@ export default function MarketDataPage() {
 
   return (
     <div className="space-y-4">
-      <AlertDialog open={!!tickerToDelete} onOpenChange={(open) => !open && setTickerToDelete(null)}>
+      <AlertDialog
+        open={!!tickerToDelete}
+        onOpenChange={(open) => !open && setTickerToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the ticker 
-              <span className="font-bold"> {tickerToDelete}</span> and all associated data.
+              This action cannot be undone. This will permanently delete the
+              ticker
+              <span className="font-bold"> {tickerToDelete}</span> and all
+              associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={() => tickerToDelete && handleDelete(tickerToDelete)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
             >
               {isDeleting ? "Deleting..." : "Delete"}
             </AlertDialogAction>
@@ -207,19 +232,24 @@ export default function MarketDataPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={isBulkDeleteConfirmOpen} onOpenChange={setIsBulkDeleteConfirmOpen}>
+      <AlertDialog
+        open={isBulkDeleteConfirmOpen}
+        onOpenChange={setIsBulkDeleteConfirmOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete <span className="font-bold">{selectedTickers.length}</span> selected tickers and all associated data.
+              This action cannot be undone. This will permanently delete{" "}
+              <span className="font-bold">{selectedTickers.length}</span>{" "}
+              selected tickers and all associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={() => handleBulkDelete(selectedTickers)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
             >
               {isBulkDeleting ? "Deleting..." : "Delete Selected"}
             </AlertDialogAction>
@@ -308,8 +338,7 @@ export default function MarketDataPage() {
                 variant="destructive"
                 onClick={() => setIsBulkDeleteConfirmOpen(true)}
               >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Selected ({selectedTickers.length})
+                <Trash2 className="h-4 w-4" /> ({selectedTickers.length})
               </Button>
             )}
           </div>
@@ -324,7 +353,8 @@ export default function MarketDataPage() {
                 <TableHead className="w-[50px]">
                   <Checkbox
                     checked={
-                      data?.data && data.data.length > 0 &&
+                      data?.data &&
+                      data.data.length > 0 &&
                       data.data.every((t) => selectedTickers.includes(t.symbol))
                     }
                     onCheckedChange={(checked) => handleSelectAll(!!checked)}
@@ -371,7 +401,25 @@ export default function MarketDataPage() {
                       />
                     </TableCell>
                     <TableCell className="font-medium">
-                      {ticker.symbol}
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => handleToggleWatchlist(ticker.symbol)}
+                          disabled={isTogglingWatchlist}
+                        >
+                          <Star
+                            className={cn(
+                              "h-4 w-4",
+                              ticker.isOnWatchlist
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "text-muted-foreground"
+                            )}
+                          />
+                        </Button>
+                        {ticker.symbol}
+                      </div>
                     </TableCell>
                     <TableCell>{ticker.name || "-"}</TableCell>
                     <TableCell>{formatIDR(ticker.price)}</TableCell>

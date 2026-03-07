@@ -29,11 +29,6 @@ const data = {
         { title: "Accumulation Detector", url: "/accumulation-detector" },
       ],
     },
-    {
-      title: "Backoffice",
-      url: "#",
-      items: [{ title: "Market Data", url: "/backoffice/market-data" }],
-    },
   ],
 }
 
