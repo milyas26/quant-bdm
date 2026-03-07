@@ -1,17 +1,34 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { getWatchlists, toggleTickerInWatchlist } from "@/lib/api"
+import {
+  getWatchlists,
+  toggleTickerInWatchlist,
+  fetchAndSaveBrokerSummary,
+} from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Star } from "lucide-react"
-import { cn, formatIDR } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { useState } from "react"
-import { format } from "date-fns"
+import { format, subDays } from "date-fns"
 import { BigCalendar } from "@/components/big-calendar"
+import { DatePickerWithRange } from "@/components/date-range-picker"
+import type { DateRange } from "react-day-picker"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export default function WatchlistPage() {
   const queryClient = useQueryClient()
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null)
-  format(new Date(), "yyyy-MM-dd")
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 60),
+    to: new Date(),
+  })
+  const [valueType, setValueType] = useState<"Net" | "Gross">("Net")
 
   const {
     data: watchlists,
@@ -30,6 +47,18 @@ export default function WatchlistPage() {
         queryClient.invalidateQueries({ queryKey: ["watchlists"] })
       },
     })
+
+  const fetchMutation = useMutation({
+    mutationFn: () =>
+      fetchAndSaveBrokerSummary({
+        symbol: selectedTicker!,
+        from: date?.from ? format(date.from, "yyyy-MM-dd") : "",
+        to: date?.to ? format(date.to, "yyyy-MM-dd") : "",
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["broker-summary-range"] })
+    },
+  })
 
   if (isLoading) {
     return <div className="p-4">Loading watchlists...</div>
@@ -61,14 +90,14 @@ export default function WatchlistPage() {
             <CardTitle>{watchlist.name}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-2">
+            <div className="grid grid-cols-12 gap-2">
+              <div className="col-span-1">
                 {watchlist.tickers.length === 0 ? (
                   <p className="text-muted-foreground">
                     No tickers in this watchlist.
                   </p>
                 ) : (
-                  <ul className="grid gap-2">
+                  <ul className="grid gap-1">
                     {watchlist.tickers.map((ticker) => (
                       <li
                         key={ticker.symbol}
@@ -84,7 +113,7 @@ export default function WatchlistPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-6 w-6"
+                            className="h-4 w-4"
                             onClick={(e) => {
                               e.stopPropagation()
                               handleToggleWatchlist(ticker.symbol)
@@ -107,18 +136,57 @@ export default function WatchlistPage() {
                             {ticker.symbol}
                           </span>
                         </div>
-                        <span className="font-medium">
-                          {formatIDR(ticker.price)}
-                        </span>
                       </li>
                     ))}
                   </ul>
                 )}
               </div>
-              <div className="col-span-10 h-screen border-l pl-4">
+              <div className="col-span-11 pl-2">
                 {selectedTicker ? (
                   <div className="space-y-4">
-                    <BigCalendar selectedTicker={selectedTicker} />
+                    <div className="flex items-baseline justify-between">
+                      <div>
+                        <h3 className="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100">
+                          Broker Summary {selectedTicker}
+                        </h3>
+                        <div className="flex items-center gap-2">
+                          <DatePickerWithRange date={date} setDate={setDate} />
+                          <Select
+                            value={valueType}
+                            onValueChange={(val) =>
+                              setValueType(val as "Net" | "Gross")
+                            }
+                          >
+                            <SelectTrigger className="w-[100px]">
+                              <SelectValue placeholder="Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Net">Net</SelectItem>
+                              <SelectItem value="Gross">Gross</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => fetchMutation.mutate()}
+                          disabled={
+                            fetchMutation.isPending || !date?.from || !date?.to
+                          }
+                        >
+                          {fetchMutation.isPending
+                            ? "Fetching..."
+                            : "Fetch Broker Summary"}
+                        </Button>
+                      </div>
+                    </div>
+                    <BigCalendar
+                      selectedTicker={selectedTicker}
+                      date={date}
+                      valueType={valueType}
+                    />
                   </div>
                 ) : (
                   <p className="text-muted-foreground">

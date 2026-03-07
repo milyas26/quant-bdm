@@ -1,40 +1,37 @@
 import { useMemo, useState } from "react"
 import { format, subDays, getDay, differenceInDays } from "date-fns"
 import { id } from "date-fns/locale"
-import { cn, formatNumber, getBrokerColor } from "@/lib/utils"
+import { cn, getBrokerColor, formatNumber } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import {
-  getBrokerSummaryByDateRange,
-  fetchAndSaveBrokerSummary,
-} from "@/lib/api"
+import { useQuery } from "@tanstack/react-query"
+import { getBrokerSummaryByDateRange } from "@/lib/api"
 import type { BrokerSummary, BrokerBuy, BrokerSell } from "@/lib/api"
 import type { DateRange } from "react-day-picker"
-import { DatePickerWithRange } from "@/components/date-range-picker"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { BrokerSummaryHoverCard } from "@/components/broker-summary-hover-card"
-import { Button } from "./ui/button"
+import { BrokerSummaryPopover } from "@/components/broker-summary-popover"
 
 interface BigCalendarProps {
   className?: string
   selectedTicker: string
+  date: DateRange | undefined
+  valueType: "Net" | "Gross"
 }
 
 const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"]
 
-export function BigCalendar({ className, selectedTicker }: BigCalendarProps) {
-  const queryClient = useQueryClient()
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 60), // Default to approx 2 months
-    to: new Date(),
-  })
-  const [valueType, setValueType] = useState<"Net" | "Gross">("Net")
+export function BigCalendar({
+  className,
+  selectedTicker,
+  date,
+  valueType,
+}: BigCalendarProps) {
+  const [highlightedBroker, setHighlightedBroker] = useState<string | null>(
+    null
+  )
+
+  const handleBrokerClick = (e: React.MouseEvent, code: string) => {
+    e.stopPropagation()
+    setHighlightedBroker((prev) => (prev === code ? null : code))
+  }
 
   const { data: brokerSummaryData, isLoading } = useQuery({
     queryKey: [
@@ -52,18 +49,6 @@ export function BigCalendar({ className, selectedTicker }: BigCalendarProps) {
         valueType
       ),
     enabled: !!selectedTicker && !!date?.from && !!date?.to,
-  })
-
-  const fetchMutation = useMutation({
-    mutationFn: () =>
-      fetchAndSaveBrokerSummary({
-        symbol: selectedTicker,
-        from: date?.from ? format(date.from, "yyyy-MM-dd") : "",
-        to: date?.to ? format(date.to, "yyyy-MM-dd") : "",
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["broker-summary-range"] })
-    },
   })
 
   const dailyData = useMemo(() => {
@@ -154,46 +139,14 @@ export function BigCalendar({ className, selectedTicker }: BigCalendarProps) {
 
   return (
     <div className={cn("w-full", className)}>
-      <div className="mb-4 flex items-baseline-last justify-between">
-        <div>
-          <h3 className="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100">
-            Broker Summary {selectedTicker}
-          </h3>
-          <div className="flex items-center gap-2">
-            <DatePickerWithRange date={date} setDate={setDate} />
-            <Select
-              value={valueType}
-              onValueChange={(val) => setValueType(val as "Net" | "Gross")}
-            >
-              <SelectTrigger className="w-[100px]">
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Net">Net</SelectItem>
-                <SelectItem value="Gross">Gross</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {isLoading && (
-            <div className="text-sm text-blue-500">Loading data...</div>
-          )}
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => fetchMutation.mutate()}
-            disabled={fetchMutation.isPending || !date?.from || !date?.to}
-          >
-            {fetchMutation.isPending ? "Fetching..." : "Fetch Broker Summary"}
-          </Button>
-        </div>
-      </div>
+      {isLoading && (
+        <div className="mb-2 text-sm text-blue-500">Loading data...</div>
+      )}
 
       <div className="max-h-[80vh] overflow-auto rounded-lg border">
         <div className="grid grid-cols-3 gap-2 p-2 sm:grid-cols-4 md:grid-cols-6">
           {days.map((day, index) => (
-            <BrokerSummaryHoverCard key={index} data={day.data}>
+            <BrokerSummaryPopover key={index} data={day.data}>
               <Card
                 className={cn(
                   "h-32 min-h-32 cursor-pointer rounded-md p-2 transition-all duration-200 hover:shadow-md",
@@ -244,9 +197,14 @@ export function BigCalendar({ className, selectedTicker }: BigCalendarProps) {
                             >
                               <span
                                 className={cn(
-                                  "text-[10px] font-bold",
-                                  getBrokerColor(buy.type)
+                                  "cursor-pointer text-[10px] font-bold",
+                                  getBrokerColor(buy.type),
+                                  highlightedBroker === buy.netbsBrokerCode &&
+                                    "rounded bg-yellow-200 p-1 dark:bg-yellow-900"
                                 )}
+                                onClick={(e) =>
+                                  handleBrokerClick(e, buy.netbsBrokerCode)
+                                }
                               >
                                 {buy.netbsBrokerCode}
                               </span>
@@ -269,9 +227,14 @@ export function BigCalendar({ className, selectedTicker }: BigCalendarProps) {
                             >
                               <span
                                 className={cn(
-                                  "text-[10px] font-bold",
-                                  getBrokerColor(sell.type)
+                                  "cursor-pointer text-[10px] font-bold",
+                                  getBrokerColor(sell.type),
+                                  highlightedBroker === sell.netbsBrokerCode &&
+                                    "rounded bg-yellow-200 p-1 dark:bg-yellow-900"
                                 )}
+                                onClick={(e) =>
+                                  handleBrokerClick(e, sell.netbsBrokerCode)
+                                }
                               >
                                 {sell.netbsBrokerCode}
                               </span>
@@ -288,7 +251,7 @@ export function BigCalendar({ className, selectedTicker }: BigCalendarProps) {
                   </div>
                 </div>
               </Card>
-            </BrokerSummaryHoverCard>
+            </BrokerSummaryPopover>
           ))}
         </div>
       </div>
