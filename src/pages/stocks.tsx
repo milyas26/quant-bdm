@@ -1,12 +1,7 @@
 import { useState, useEffect } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useSearchParams } from "react-router-dom"
-import {
-  getTickers,
-  deleteTicker,
-  toggleTickerInWatchlist,
-  type GetTickersParams,
-} from "@/lib/api"
+import { getTickers, deleteTicker, toggleTickerInWatchlist } from "@/lib/api"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -50,6 +45,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import type { GetTickersParams } from "@/lib/apis/ticker/interface"
 
 export default function StocksPage() {
   const [searchParams, setSearchParams] = useSearchParams()
