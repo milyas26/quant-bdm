@@ -1,4 +1,5 @@
 import * as React from "react"
+import { Link, useLocation } from "react-router-dom"
 
 import {
   Sidebar,
@@ -20,23 +21,29 @@ const data = {
       title: "Menu",
       url: "#",
       items: [
-        { title: "Dashboard", url: "#", isActive: true },
-        { title: "Market Scanner", url: "#" },
-        { title: "Smart Watchlist", url: "#" },
-        { title: "Sector Flow", url: "#" },
-        { title: "Stock Detail", url: "#" },
-        { title: "Broker Analysis", url: "#" },
-        { title: "Accumulation Detector", url: "#" },
+        { title: "Dashboard", url: "/" },
+        { title: "Watchlist", url: "/watchlist" },
+        { title: "Stocks", url: "/stocks" },
+        { title: "Market Scanner", url: "/market-scanner" },
+        { title: "Broker Analysis", url: "/broker-analysis" },
+        { title: "Accumulation Detector", url: "/accumulation-detector" },
       ],
+    },
+    {
+      title: "Backoffice",
+      url: "#",
+      items: [{ title: "Market Data", url: "/backoffice/market-data" }],
     },
   ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const location = useLocation()
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <div className="font-semibold text-2xl">STOCKPICKER</div>
+        <div className="px-4 py-2 text-2xl font-semibold">Quant BDM</div>
       </SidebarHeader>
       <SidebarContent>
         {data.navMain.map((item) => (
@@ -44,10 +51,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {item.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={item.isActive}>
-                      <a href={item.url}>{item.title}</a>
+                {item.items.map((subItem) => (
+                  <SidebarMenuItem key={subItem.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={
+                        location.pathname === subItem.url ||
+                        (subItem.url !== "/" &&
+                          location.pathname.startsWith(subItem.url))
+                      }
+                    >
+                      <Link to={subItem.url}>{subItem.title}</Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
