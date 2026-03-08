@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { cn, formatNumber, formatNumberWithDecimal } from "@/lib/utils"
+import { BrokerInventoryChart } from "./broker-inventory-chart"
 
 interface BrokerBalanceProps {
   selectedTicker: string
@@ -51,10 +52,16 @@ export function BrokerBalance({
   const runningBalanceData = useMemo(() => {
     if (!brokerBalance) return []
     let currentTotal = 0
+    let currentTotalVal = 0
     const reversed = [...brokerBalance.data].reverse()
     const withBalance = reversed.map((item) => {
       currentTotal += item.netLot
-      return { ...item, runningBalance: currentTotal }
+      currentTotalVal += item.netVal
+      return {
+        ...item,
+        runningBalance: currentTotal,
+        runningBalanceVal: currentTotalVal,
+      }
     })
     return withBalance
   }, [brokerBalance])
@@ -124,7 +131,9 @@ export function BrokerBalance({
                               : ""
                         )}
                       >
-                        {formatNumber(item.runningBalance)}
+                        {formatNumber(
+                          parseFloat(item.runningBalance.toFixed(0))
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -161,6 +170,32 @@ export function BrokerBalance({
                   </TableRow>
                 </TableBody>
               </Table>
+            </div>
+          </div>
+          <div className="col-span-7 space-y-4">
+            <div>
+              <p className="mb-2 text-left font-semibold">
+                Inventory (Accumulation/Distribution)
+              </p>
+              <BrokerInventoryChart
+                data={runningBalanceData}
+                dataKey="netLot"
+                valueKey="netVal"
+                label="Net Lot"
+                title=""
+              />
+            </div>
+            <div>
+              <p className="mb-2 text-left font-semibold">
+                Balance Position (Running Balance)
+              </p>
+              <BrokerInventoryChart
+                data={runningBalanceData}
+                dataKey="runningBalance"
+                valueKey="runningBalanceVal"
+                label="Inventory"
+                title=""
+              />
             </div>
           </div>
         </div>
