@@ -341,7 +341,6 @@ export default function StocksPage() {
             </TableHead>
             <TableHead>Ticker</TableHead>
             <TableHead>Sector</TableHead>
-            <TableHead>Sub Sector</TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
@@ -421,14 +420,12 @@ export default function StocksPage() {
                 </TableCell>
                 <TableCell>
                   {ticker.sector ? (
-                    <Badge variant="secondary">{ticker.sector}</Badge>
+                    <Badge variant="default">{ticker.sector}</Badge>
                   ) : (
                     "-"
                   )}
-                </TableCell>
-                <TableCell>
                   {ticker.subSector ? (
-                    <Badge variant="outline">{ticker.subSector}</Badge>
+                    <Badge variant="secondary">{ticker.subSector}</Badge>
                   ) : (
                     "-"
                   )}

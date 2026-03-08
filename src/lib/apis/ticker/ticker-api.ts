@@ -21,3 +21,8 @@ export const fetchAllTickerInfo = async () => {
   const { data } = await api.get(`/fetch-all-ticker`)
   return data
 }
+
+export const getTickerDetail = async (symbol: string) => {
+  const { data } = await api.get(`/tickers/${symbol}`)
+  return data
+}

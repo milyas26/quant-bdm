@@ -1,5 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { fetchAndSaveBrokerSummary, fetchAndSaveTickerInfo } from "@/lib/api"
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query"
+import {
+  fetchAndSaveBrokerSummary,
+  fetchAndSaveTickerInfo,
+  getTickerDetail,
+} from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect, useRef } from "react"
@@ -25,6 +29,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import TradingViewWidget from "@/components/tradingview-widget"
 import { BrokerBalance } from "@/components/broker-balance"
 import { ArrowLeftIcon, ChevronDown } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 export default function StockDetail() {
   const queryClient = useQueryClient()
@@ -33,6 +38,12 @@ export default function StockDetail() {
   const selectedTicker = ticker?.toUpperCase() || ""
   const [inputValue, setInputValue] = useState(selectedTicker)
   const [brokerCode, setBrokerCode] = useState("")
+
+  const { data: tickerInfo, refetch: refetchTickerInfo } = useQuery({
+    queryKey: ["ticker-detail", selectedTicker],
+    queryFn: () => getTickerDetail(selectedTicker),
+    enabled: !!selectedTicker,
+  })
 
   const handleBrokerClick = (code: string) => {
     setBrokerCode(code)
@@ -77,7 +88,7 @@ export default function StockDetail() {
   const fetchTickerInfoMutation = useMutation({
     mutationFn: () => fetchAndSaveTickerInfo(selectedTicker!),
     onSuccess: () => {
-      console.log("Ticker info updated")
+      refetchTickerInfo()
     },
   })
 
@@ -93,7 +104,31 @@ export default function StockDetail() {
             >
               <ArrowLeftIcon className="h-4 w-4" /> Back
             </Button>
-            <div className="relative">
+            <div className="flex items-center gap-4">
+              {tickerInfo?.logo && (
+                <img
+                  src={tickerInfo.logo}
+                  alt={selectedTicker}
+                  className="h-12 w-12 rounded-full object-cover"
+                />
+              )}
+              <div className="flex flex-col gap-1">
+                <h1 className="text-2xl font-bold">
+                  {tickerInfo?.name || selectedTicker}
+                </h1>
+                <div className="flex gap-2">
+                  {tickerInfo?.sector && (
+                    <Badge variant="default">{tickerInfo.sector}</Badge>
+                  )}
+                  {tickerInfo?.subSector && (
+                    <Badge variant="secondary">{tickerInfo.subSector}</Badge>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex w-full items-center gap-4">
+            <div className="relative w-[300px] border-b bg-white py-1">
               <Input
                 ref={inputRef}
                 value={inputValue}
@@ -103,28 +138,28 @@ export default function StockDetail() {
                     navigate(`/stock/${inputValue}`)
                   }
                 }}
-                className="h-8 w-40 px-2 text-lg font-bold"
+                className="text-2dxl h-8 w-full border-none px-2 font-bold shadow-none focus-visible:ring-0"
                 placeholder="Ticker"
               />
               <p className="absolute top-1/2 right-1 -translate-y-1/2 rounded-sm bg-slate-100 px-2 py-0.5 text-sm font-bold text-gray-500 dark:bg-slate-700">
                 /
               </p>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <DatePickerWithRange date={date} setDate={setDate} />
-            <Select
-              value={valueType}
-              onValueChange={(val) => setValueType(val as "Net" | "Gross")}
-            >
-              <SelectTrigger className="w-[100px]">
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Net">Net</SelectItem>
-                <SelectItem value="Gross">Gross</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+              <DatePickerWithRange date={date} setDate={setDate} />
+              <Select
+                value={valueType}
+                onValueChange={(val) => setValueType(val as "Net" | "Gross")}
+              >
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Net">Net</SelectItem>
+                  <SelectItem value="Gross">Gross</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
@@ -148,12 +183,12 @@ export default function StockDetail() {
                 onClick={() => fetchMutation.mutate()}
                 disabled={!date?.from || !date?.to}
               >
-                Fetch Broker Summary
+                Broker Summary
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => fetchTickerInfoMutation.mutate()}
               >
-                Fetch Ticker Info
+                Ticker Info
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

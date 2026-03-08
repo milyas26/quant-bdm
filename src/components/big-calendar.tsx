@@ -345,7 +345,7 @@ export function BigCalendar({
             ))}
           </div>
         </div>
-        <div className="col-span-3 max-h-[80vh] overflow-auto rounded-lg bg-white pl-2 dark:bg-gray-900">
+        <div className="col-span-3 max-h-[80vh] overflow-auto rounded-lg bg-white p-4 pl-2 dark:bg-gray-900">
           <BrokerSummaryContent data={selectedDateData} />
         </div>
       </div>
