@@ -56,3 +56,29 @@ export const getBrokerSummaryByDateRange = async (
     throw error
   }
 }
+
+export const getBrokerBalance = async (
+  symbol: string,
+  brokerCode: string,
+  dateFrom: string,
+  dateTo: string
+) => {
+  try {
+    const { data } = await api.get<{
+      data: any[]
+    }>("/broker-balance", {
+      params: {
+        symbol,
+        broker_code: brokerCode,
+        date_from: dateFrom,
+        date_to: dateTo,
+      },
+    })
+    return data.data
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.error || "Failed to fetch data")
+    }
+    throw error
+  }
+}

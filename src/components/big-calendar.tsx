@@ -10,7 +10,7 @@ import {
 } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
 import { useQuery } from "@tanstack/react-query"
-import { getBrokerSummaryByDateRange } from "@/lib/api"
+import { getBrokerSummaryByDateRange, getBrokerBalance } from "@/lib/api"
 import type { BrokerSummary, BrokerBuy, BrokerSell } from "@/lib/api"
 import type { DateRange } from "react-day-picker"
 import { BrokerSummaryContent } from "@/components/broker-summary-content"
@@ -38,6 +38,27 @@ export function BigCalendar({
     e.stopPropagation()
     setHighlightedBroker((prev) => (prev === code ? null : code))
   }
+
+  const { data: brokerBalance } = useQuery({
+    queryKey: [
+      "broker-balance",
+      selectedTicker,
+      highlightedBroker,
+      date?.from ? format(date.from, "yyyy-MM-dd") : undefined,
+      date?.to ? format(date.to, "yyyy-MM-dd") : undefined,
+    ],
+    queryFn: () =>
+      getBrokerBalance(
+        selectedTicker,
+        highlightedBroker!,
+        date?.from ? format(date.from, "yyyy-MM-dd") : "",
+        date?.to ? format(date.to, "yyyy-MM-dd") : ""
+      ),
+    enabled:
+      !!selectedTicker && !!highlightedBroker && !!date?.from && !!date?.to,
+  })
+
+  console.log("brokerBalance", brokerBalance)
 
   const {
     data: brokerSummaryData,
@@ -219,7 +240,7 @@ export function BigCalendar({
                     : "hover:bg-gray-50 dark:hover:bg-gray-700",
                   selectedDateData &&
                     selectedDateData === day.data &&
-                    "ring-2 ring-blue-500 dark:ring-blue-400"
+                    "ring-2 ring-slate-500 dark:ring-slate-400"
                 )}
                 onClick={() => {
                   if (day.data) handleDateClick(day.data)
