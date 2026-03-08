@@ -123,17 +123,6 @@ export function BrokerBalance({
             <div className="max-h-[80vh] overflow-auto rounded-md border pr-4">
               <Table>
                 <TableHeader>
-                  <TableRow className="text-sm">
-                    <TableHead>Date</TableHead>
-                    <TableHead>Avg Price</TableHead>
-                    <TableHead className="text-right">Buy (Lot)</TableHead>
-                    <TableHead className="text-right">Buy (Value)</TableHead>
-                    <TableHead className="text-right">Sell (Lot)</TableHead>
-                    <TableHead className="text-right">Sell (Value)</TableHead>
-                    <TableHead className="text-right">Curr. (Lot)</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
                   <TableRow className="bg-muted/50 font-bold">
                     <TableCell>Total</TableCell>
 
@@ -165,9 +154,20 @@ export function BrokerBalance({
                       {formatNumber(brokerBalance.resume.netLot)}
                     </TableCell>
                   </TableRow>
+                  <TableRow className="text-sm">
+                    <TableHead>Date</TableHead>
+                    <TableHead>Avg Price</TableHead>
+                    <TableHead className="text-right">Buy (Lot)</TableHead>
+                    <TableHead className="text-right">Buy (Value)</TableHead>
+                    <TableHead className="text-right">Sell (Lot)</TableHead>
+                    <TableHead className="text-right">Sell (Value)</TableHead>
+                    <TableHead className="text-right">Curr. (Lot)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {runningBalanceData.map((item, index) => (
                     <TableRow key={index}>
-                      <TableCell className="text-sm font-medium">
+                      <TableCell className="text-xs font-medium">
                         {format(new Date(item.date), "dd MMM yyyy")}
                       </TableCell>
                       <TableCell className="text-right">

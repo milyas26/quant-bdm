@@ -154,7 +154,7 @@ export default function StockDetail() {
                 <SelectTrigger className="w-[100px]">
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="text-xs">
                   <SelectItem value="Net">Net</SelectItem>
                   <SelectItem value="Gross">Gross</SelectItem>
                 </SelectContent>
@@ -217,6 +217,7 @@ export default function StockDetail() {
               {brokerCode}
             </span>
           </TabsTrigger>
+          <TabsTrigger value="inventory">Inventory</TabsTrigger>
         </TabsList>
         <TabsContent value="chart" className="mt-2">
           <TradingViewWidget symbol={selectedTicker} />
@@ -236,6 +237,9 @@ export default function StockDetail() {
             date={date}
             brokerCode={brokerCode}
           />
+        </TabsContent>
+        <TabsContent value="inventory" className="mt-2">
+          {/*  */}
         </TabsContent>
       </Tabs>
     </div>

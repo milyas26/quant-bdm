@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 const navItems = [
   { title: "Stocks", url: "/stock" },
   { title: "Watchlist", url: "/watchlist" },
-  // { title: "Extra Info", url: "/extra-info" },
+  { title: "Extra Info", url: "/extra-info" },
 ]
 
 export default function Layout() {
@@ -14,15 +14,17 @@ export default function Layout() {
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <Link to="/" className="flex items-center space-x-2">
             <span className="font-mono text-2xl font-bold italic sm:inline-block">
-              Quant. BDM
+              Sisipasi
             </span>
           </Link>
-          <nav className="flex items-center gap-0 font-mono">
+          <nav className="flex cursor-pointer items-center gap-0 font-mono">
             {navItems.map((item) => (
               <Link
                 key={item.url}
                 to={item.url}
-                className={cn("cursor-pointer border-l bg-[#F5F5F0] px-6 py-4")}
+                className={cn(
+                  "cursor-pointer border-l bg-[#F5F5F0] px-6 py-4 text-sm font-medium"
+                )}
               >
                 {item.title}
               </Link>

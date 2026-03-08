@@ -370,12 +370,12 @@ export default function StocksPage() {
                 className="cursor-pointer"
                 onClick={() => navigate(`/stock/${ticker.symbol}`)}
               >
-                <TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
                   <Checkbox
                     checked={selectedTickers.includes(ticker.symbol)}
-                    onCheckedChange={(checked) =>
+                    onCheckedChange={(checked) => {
                       handleSelectRow(ticker.symbol, !!checked)
-                    }
+                    }}
                   />
                 </TableCell>
                 <TableCell className="font-medium">
