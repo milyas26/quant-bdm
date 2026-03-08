@@ -4,6 +4,7 @@ import NotFound from "./pages/not-found"
 // import Dashboard from "./pages/dashboard"
 import StocksPage from "./pages/stocks"
 import StockDetail from "./pages/stock-detail"
+import ExtraInfo from "./pages/extra-info"
 
 export function App() {
   return (
@@ -14,6 +15,7 @@ export function App() {
         {/* <Route index element={<Dashboard />} /> */}
         <Route path="stock" element={<StocksPage />} />
         <Route path="stock/:ticker" element={<StockDetail />} />
+        <Route path="extra-info" element={<ExtraInfo />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

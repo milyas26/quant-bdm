@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils"
 const navItems = [
   { title: "Stocks", url: "/stock" },
   { title: "Watchlist", url: "/watchlist" },
+  // { title: "Extra Info", url: "/extra-info" },
 ]
 
 export default function Layout() {
