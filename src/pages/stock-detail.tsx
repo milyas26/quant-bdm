@@ -14,9 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useParams, useNavigate } from "react-router-dom"
 import TradingViewWidget from "@/components/tradingview-widget"
-import { Separator } from "@/components/ui/separator"
+import { BrokerBalance } from "@/components/broker-balance"
 
 export default function StockDetail() {
   const queryClient = useQueryClient()
@@ -24,6 +25,11 @@ export default function StockDetail() {
   const { ticker } = useParams()
   const selectedTicker = ticker?.toUpperCase() || ""
   const [inputValue, setInputValue] = useState(selectedTicker)
+  const [brokerCode, setBrokerCode] = useState("")
+
+  const handleBrokerClick = (code: string) => {
+    setBrokerCode(code)
+  }
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -120,15 +126,33 @@ export default function StockDetail() {
           )}
         </div>
       </div>
-      <BigCalendar
-        selectedTicker={selectedTicker}
-        date={date}
-        valueType={valueType}
-      />
-      <Separator className="my-4" />
-      <div className="mb-4">
-        <TradingViewWidget symbol={selectedTicker} />
-      </div>
+
+      <Tabs defaultValue="chart" className="w-full">
+        <TabsList>
+          <TabsTrigger value="chart">Chart</TabsTrigger>
+          <TabsTrigger value="broker-summary">Broker Summary</TabsTrigger>
+          <TabsTrigger value="broker-balance">Broker Balance</TabsTrigger>
+        </TabsList>
+        <TabsContent value="chart" className="mt-2">
+          <TradingViewWidget symbol={selectedTicker} />
+        </TabsContent>
+        <TabsContent value="broker-summary" className="mt-2">
+          <BigCalendar
+            selectedTicker={selectedTicker}
+            date={date}
+            valueType={valueType}
+            onBrokerClick={handleBrokerClick}
+            highlightedBroker={brokerCode}
+          />
+        </TabsContent>
+        <TabsContent value="broker-balance" className="mt-2">
+          <BrokerBalance
+            selectedTicker={selectedTicker}
+            date={date}
+            brokerCode={brokerCode}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

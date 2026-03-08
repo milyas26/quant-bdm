@@ -1,5 +1,6 @@
 import api from "@/lib/interceptor"
 import type {
+  BrokerBalanceData,
   BrokerSummaryListResponse,
   BrokerSummaryParams,
   BrokerSummaryResponse,
@@ -65,7 +66,7 @@ export const getBrokerBalance = async (
 ) => {
   try {
     const { data } = await api.get<{
-      data: any[]
+      data: BrokerBalanceData[]
     }>("/broker-balance", {
       params: {
         symbol,
@@ -74,6 +75,7 @@ export const getBrokerBalance = async (
         date_to: dateTo,
       },
     })
+    console.log("data", data)
     return data.data
   } catch (error: any) {
     if (error.response && error.response.data) {

@@ -14,6 +14,13 @@ export const formatIDR = (value: number) => {
   }).format(value)
 }
 
+export const formatNumberWithDecimal = (value: number) => {
+  return new Intl.NumberFormat("id-ID", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value)
+}
+
 export const formatNumber = (num: number) => {
   const absNum = Math.abs(num)
   if (absNum >= 1e9) return (num / 1e9).toFixed(1) + "B"

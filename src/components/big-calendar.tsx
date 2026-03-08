@@ -10,7 +10,7 @@ import {
 } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
 import { useQuery } from "@tanstack/react-query"
-import { getBrokerSummaryByDateRange, getBrokerBalance } from "@/lib/api"
+import { getBrokerSummaryByDateRange } from "@/lib/api"
 import type { BrokerSummary, BrokerBuy, BrokerSell } from "@/lib/api"
 import type { DateRange } from "react-day-picker"
 import { BrokerSummaryContent } from "@/components/broker-summary-content"
@@ -20,6 +20,8 @@ interface BigCalendarProps {
   selectedTicker: string
   date: DateRange | undefined
   valueType: "Net" | "Gross"
+  onBrokerClick?: (brokerCode: string) => void
+  highlightedBroker?: string | null
 }
 
 const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"]
@@ -29,36 +31,26 @@ export function BigCalendar({
   selectedTicker,
   date,
   valueType,
+  onBrokerClick,
+  highlightedBroker: externalHighlightedBroker,
 }: BigCalendarProps) {
-  const [highlightedBroker, setHighlightedBroker] = useState<string | null>(
-    null
-  )
+  const [internalHighlightedBroker, setInternalHighlightedBroker] = useState<
+    string | null
+  >(null)
+
+  const highlightedBroker =
+    externalHighlightedBroker !== undefined
+      ? externalHighlightedBroker
+      : internalHighlightedBroker
 
   const handleBrokerClick = (e: React.MouseEvent, code: string) => {
     e.stopPropagation()
-    setHighlightedBroker((prev) => (prev === code ? null : code))
+    const newBroker = highlightedBroker === code ? null : code
+    if (externalHighlightedBroker === undefined) {
+      setInternalHighlightedBroker(newBroker)
+    }
+    onBrokerClick?.(code)
   }
-
-  const { data: brokerBalance } = useQuery({
-    queryKey: [
-      "broker-balance",
-      selectedTicker,
-      highlightedBroker,
-      date?.from ? format(date.from, "yyyy-MM-dd") : undefined,
-      date?.to ? format(date.to, "yyyy-MM-dd") : undefined,
-    ],
-    queryFn: () =>
-      getBrokerBalance(
-        selectedTicker,
-        highlightedBroker!,
-        date?.from ? format(date.from, "yyyy-MM-dd") : "",
-        date?.to ? format(date.to, "yyyy-MM-dd") : ""
-      ),
-    enabled:
-      !!selectedTicker && !!highlightedBroker && !!date?.from && !!date?.to,
-  })
-
-  console.log("brokerBalance", brokerBalance)
 
   const {
     data: brokerSummaryData,
@@ -82,6 +74,8 @@ export function BigCalendar({
       ),
     enabled: !!selectedTicker && !!date?.from && !!date?.to,
     retry: false,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false,
   })
 
   const dailyData = useMemo(() => {
