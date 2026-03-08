@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { useSearchParams } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { getTickers, deleteTicker, toggleTickerInWatchlist } from "@/lib/api"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -55,13 +55,15 @@ export default function StocksPage() {
   const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
   const debouncedSearch = useDebounce(searchTerm, 500)
+  const navigate = useNavigate()
 
-  const { mutate: handleToggleWatchlist, isPending: isTogglingWatchlist } = useMutation({
-    mutationFn: toggleTickerInWatchlist,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tickers"] })
-    },
-  })
+  const { mutate: handleToggleWatchlist, isPending: isTogglingWatchlist } =
+    useMutation({
+      mutationFn: toggleTickerInWatchlist,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["tickers"] })
+      },
+    })
 
   const page = parseInt(searchParams.get("page") || "1")
   const limit = parseInt(searchParams.get("limit") || "15")
@@ -414,7 +416,12 @@ export default function StocksPage() {
                             )}
                           />
                         </Button>
-                        {ticker.symbol}
+                        <span
+                          className="text-sm font-medium"
+                          onClick={() => navigate(`/stock/${ticker.symbol}`)}
+                        >
+                          {ticker.symbol}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>{ticker.name || "-"}</TableCell>

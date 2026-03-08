@@ -33,16 +33,26 @@ export const getBrokerSummaryByDateRange = async (
   dateTo: string,
   transactionType: "Net" | "Gross" = "Net"
 ) => {
-  const { data } = await api.get<BrokerSummaryListResponse>("/broker-summary", {
-    params: {
-      symbol,
-      from: dateFrom,
-      to: dateTo,
-      transaction_type:
-        transactionType === "Net"
-          ? "TRANSACTION_TYPE_NET"
-          : "TRANSACTION_TYPE_GROSS",
-    },
-  })
-  return data
+  try {
+    const { data } = await api.get<BrokerSummaryListResponse>(
+      "/broker-summary",
+      {
+        params: {
+          symbol,
+          from: dateFrom,
+          to: dateTo,
+          transaction_type:
+            transactionType === "Net"
+              ? "TRANSACTION_TYPE_NET"
+              : "TRANSACTION_TYPE_GROSS",
+        },
+      }
+    )
+    return data
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.error || "Failed to fetch data")
+    }
+    throw error
+  }
 }

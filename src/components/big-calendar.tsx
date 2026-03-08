@@ -1,13 +1,19 @@
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { format, subDays, getDay, differenceInDays } from "date-fns"
 import { id } from "date-fns/locale"
-import { cn, getBrokerColor, formatNumber } from "@/lib/utils"
+import {
+  calculateBandarStatus,
+  cn,
+  formatNumber,
+  getBandarBgColor,
+  getBrokerColor,
+} from "@/lib/utils"
 import { Card } from "@/components/ui/card"
 import { useQuery } from "@tanstack/react-query"
 import { getBrokerSummaryByDateRange } from "@/lib/api"
 import type { BrokerSummary, BrokerBuy, BrokerSell } from "@/lib/api"
 import type { DateRange } from "react-day-picker"
-import { BrokerSummaryPopover } from "@/components/broker-summary-popover"
+import { BrokerSummaryContent } from "@/components/broker-summary-content"
 
 interface BigCalendarProps {
   className?: string
@@ -33,7 +39,12 @@ export function BigCalendar({
     setHighlightedBroker((prev) => (prev === code ? null : code))
   }
 
-  const { data: brokerSummaryData, isLoading } = useQuery({
+  const {
+    data: brokerSummaryData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: [
       "broker-summary-range",
       selectedTicker,
@@ -49,6 +60,7 @@ export function BigCalendar({
         valueType
       ),
     enabled: !!selectedTicker && !!date?.from && !!date?.to,
+    retry: false,
   })
 
   const dailyData = useMemo(() => {
@@ -107,6 +119,7 @@ export function BigCalendar({
       // Calculate top buyers and sellers
       let topBuyers: BrokerBuy[] = []
       let topSellers: BrokerSell[] = []
+      let bandarStatus = "Neutral"
 
       if (dayData) {
         if (dayData.buys.length > 0) {
@@ -119,6 +132,16 @@ export function BigCalendar({
             .sort((a, b) => parseFloat(b.sval) - parseFloat(a.sval))
             .slice(0, 5)
         }
+
+        const totalVol = dayData.buys.reduce(
+          (acc, curr) => acc + parseFloat(curr.blot || "0"),
+          0
+        )
+        bandarStatus = calculateBandarStatus(
+          dayData.buys,
+          dayData.sells,
+          totalVol
+        )
       }
 
       result.push({
@@ -131,11 +154,50 @@ export function BigCalendar({
         data: dayData,
         topBuyers,
         topSellers,
+        bandarStatus,
       })
     }
 
     return result // Return in chronological order (newest first)
   }, [dailyData, date])
+
+  const [selectedDateData, setSelectedDateData] = useState<
+    { buys: BrokerBuy[]; sells: BrokerSell[] } | undefined
+  >(undefined)
+
+  const handleDateClick = (data: {
+    buys: BrokerBuy[]
+    sells: BrokerSell[]
+  }) => {
+    setSelectedDateData(data)
+  }
+
+  // Set default selected date to the latest available data when data is loaded
+  useEffect(() => {
+    if (days.length > 0) {
+      // Find the first day with data (latest date)
+      const latestDayWithData = days.find((day) => day.data)
+      if (latestDayWithData) {
+        setSelectedDateData(() => {
+          // Always update to the new latest date when days/ticker changes
+          return latestDayWithData.data
+        })
+      } else {
+        setSelectedDateData(undefined)
+      }
+    } else {
+      setSelectedDateData(undefined)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [days, selectedTicker])
+
+  if (isError) {
+    return (
+      <div className={cn("w-full py-4 text-red-500", className)}>
+        Error: {(error as Error).message}
+      </div>
+    )
+  }
 
   return (
     <div className={cn("w-full", className)}>
@@ -143,19 +205,32 @@ export function BigCalendar({
         <div className="mb-2 text-sm text-blue-500">Loading data...</div>
       )}
 
-      <div className="max-h-[80vh] overflow-auto rounded-lg border">
-        <div className="grid grid-cols-3 gap-2 p-2 sm:grid-cols-4 md:grid-cols-6">
-          {days.map((day, index) => (
-            <BrokerSummaryPopover key={index} data={day.data}>
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-9 max-h-[80vh] overflow-auto rounded-lg border">
+          <div className="grid grid-cols-3 gap-2 p-2 sm:grid-cols-4 md:grid-cols-5">
+            {days.map((day, index) => (
               <Card
+                key={index}
                 className={cn(
-                  "h-32 min-h-32 cursor-pointer rounded-md p-2 transition-all duration-200 hover:shadow-md",
+                  "relative h-32 min-h-32 cursor-pointer rounded-md p-2 transition-all duration-200 hover:shadow-md",
                   "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800",
                   day.isToday
                     ? "shadow-lg ring-2 ring-blue-500 dark:ring-blue-400"
-                    : "hover:bg-gray-50 dark:hover:bg-gray-700"
+                    : "hover:bg-gray-50 dark:hover:bg-gray-700",
+                  selectedDateData === day.data &&
+                    "ring-2 ring-blue-500 dark:ring-blue-400"
                 )}
+                onClick={() => {
+                  if (day.data) handleDateClick(day.data)
+                }}
               >
+                {/* Bandar Status Indicator */}
+                <div
+                  className={cn(
+                    "absolute right-0 bottom-0 left-0 h-1.5 rounded-b-md",
+                    getBandarBgColor(day.bandarStatus)
+                  )}
+                />
                 <div className="relative flex h-full flex-col">
                   {/* Date positioned in top right corner */}
                   <div className="absolute top-0 right-0 flex items-baseline gap-1 text-right">
@@ -251,8 +326,11 @@ export function BigCalendar({
                   </div>
                 </div>
               </Card>
-            </BrokerSummaryPopover>
-          ))}
+            ))}
+          </div>
+        </div>
+        <div className="col-span-3 max-h-[80vh] overflow-auto rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-900">
+          <BrokerSummaryContent data={selectedDateData} />
         </div>
       </div>
     </div>
