@@ -17,7 +17,7 @@ function TradingViewWidget({ symbol }: { symbol: string }) {
     script.innerHTML = `
         {
           "width": "100%",
-          "height": "600",
+          "height": "700",
           "symbol": "IDX:${symbol}",
           "interval": "D",
           "timezone": "Asia/Jakarta",
@@ -25,7 +25,7 @@ function TradingViewWidget({ symbol }: { symbol: string }) {
           "style": "1",
           "locale": "en",
           "enable_publishing": false,
-          "allow_symbol_change": true,
+          "allow_symbol_change": false,
           "calendar": false,
           "support_host": "https://www.tradingview.com"
         }`

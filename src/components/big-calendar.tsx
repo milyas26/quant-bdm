@@ -205,9 +205,9 @@ export function BigCalendar({
         <div className="mb-2 text-sm text-blue-500">Loading data...</div>
       )}
 
-      <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-9 max-h-[80vh] overflow-auto rounded-lg border">
-          <div className="grid grid-cols-3 gap-2 p-2 sm:grid-cols-4 md:grid-cols-5">
+      <div className="grid grid-cols-12 gap-2">
+        <div className="col-span-9 max-h-[80vh] overflow-auto">
+          <div className="grid grid-cols-3 gap-2 p-1 sm:grid-cols-4 md:grid-cols-6">
             {days.map((day, index) => (
               <Card
                 key={index}
@@ -217,7 +217,8 @@ export function BigCalendar({
                   day.isToday
                     ? "shadow-lg ring-2 ring-blue-500 dark:ring-blue-400"
                     : "hover:bg-gray-50 dark:hover:bg-gray-700",
-                  selectedDateData === day.data &&
+                  selectedDateData &&
+                    selectedDateData === day.data &&
                     "ring-2 ring-blue-500 dark:ring-blue-400"
                 )}
                 onClick={() => {
@@ -329,7 +330,7 @@ export function BigCalendar({
             ))}
           </div>
         </div>
-        <div className="col-span-3 max-h-[80vh] overflow-auto rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-900">
+        <div className="col-span-3 max-h-[80vh] overflow-auto rounded-lg bg-white pl-2 dark:bg-gray-900">
           <BrokerSummaryContent data={selectedDateData} />
         </div>
       </div>

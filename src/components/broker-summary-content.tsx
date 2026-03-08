@@ -142,8 +142,6 @@ export function BrokerSummaryContent({
 
   const detectorRows = [top1, top3, top5, averageRow]
 
-  console.log("detectorRows", detectorRows)
-
   // 5. Broker Summary Stats (Middle Section)
   const buyerCount = sortedBuys.length
   const sellerCount = sortedSells.length
@@ -169,7 +167,7 @@ export function BrokerSummaryContent({
         <p className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
           Bandar Detector
         </p>
-        <div className="mb-4 overflow-hidden rounded-md border">
+        <div className="mb-4 overflow-hidden">
           <table className="w-full text-xs">
             <thead className="bg-gray-50 font-semibold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
               <tr className="border-b">
@@ -184,7 +182,7 @@ export function BrokerSummaryContent({
               {detectorRows.map((row, idx) => (
                 <tr
                   key={idx}
-                  className="border-b last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   <td className="p-2 font-semibold">{row.label}</td>
                   <td className="p-2 text-right">
@@ -247,9 +245,9 @@ export function BrokerSummaryContent({
         <p className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
           Broker Summary
         </p>
-        <div className="rounded-md border text-xs">
+        <div className="text-xs">
           {/* Header */}
-          <div className="grid grid-cols-2 gap-4 rounded-t-md border-b bg-gray-50 p-2 font-semibold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+          <div className="grid grid-cols-2 gap-4 border-b bg-gray-50 p-2 font-semibold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
             <div className="grid grid-cols-4 gap-1">
               <span>BY</span>
               <span className="text-right">B.val</span>
@@ -268,7 +266,7 @@ export function BrokerSummaryContent({
             {rows.map((row, idx) => (
               <div
                 key={idx}
-                className="grid grid-cols-2 gap-4 border-b px-2 py-1 last:border-0 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800"
+                className="grid grid-cols-2 gap-4 px-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 {/* Buy Side */}
                 <div className="grid grid-cols-4 items-center gap-1">

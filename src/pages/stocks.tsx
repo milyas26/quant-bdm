@@ -389,7 +389,11 @@ export default function StocksPage() {
                 </TableRow>
               ) : (
                 data?.data.map((ticker) => (
-                  <TableRow key={ticker.symbol}>
+                  <TableRow
+                    key={ticker.symbol}
+                    className="cursor-pointer"
+                    onClick={() => navigate(`/stock/${ticker.symbol}`)}
+                  >
                     <TableCell>
                       <Checkbox
                         checked={selectedTickers.includes(ticker.symbol)}
@@ -403,8 +407,11 @@ export default function StocksPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6"
-                          onClick={() => handleToggleWatchlist(ticker.symbol)}
+                          className="h-6 w-6 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleToggleWatchlist(ticker.symbol)
+                          }}
                           disabled={isTogglingWatchlist}
                         >
                           <Star
@@ -416,10 +423,7 @@ export default function StocksPage() {
                             )}
                           />
                         </Button>
-                        <span
-                          className="text-sm font-medium"
-                          onClick={() => navigate(`/stock/${ticker.symbol}`)}
-                        >
+                        <span className="text-sm font-medium">
                           {ticker.symbol}
                         </span>
                       </div>

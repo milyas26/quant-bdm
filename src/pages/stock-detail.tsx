@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select"
 import { useParams, useNavigate } from "react-router-dom"
 import TradingViewWidget from "@/components/tradingview-widget"
+import { Separator } from "@/components/ui/separator"
 
 export default function StockDetail() {
   const queryClient = useQueryClient()
@@ -43,7 +44,7 @@ export default function StockDetail() {
   }, [])
 
   const [date, setDate] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 60),
+    from: subDays(new Date(), 120),
     to: new Date(),
   })
   const [valueType, setValueType] = useState<"Net" | "Gross">("Net")
@@ -66,7 +67,7 @@ export default function StockDetail() {
         <div>
           <div className="mb-2 flex items-center gap-2">
             <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-              DETAIL 
+              DETAIL
             </span>
             <div className="relative">
               <Input
@@ -81,7 +82,7 @@ export default function StockDetail() {
                 className="h-8 w-40 px-2 text-lg font-bold"
                 placeholder="Ticker"
               />
-              <p className="absolute top-1/2 right-1 font-bold -translate-y-1/2 rounded-sm bg-slate-100 dark:bg-slate-700 px-2 py-0.5 text-sm text-gray-500">
+              <p className="absolute top-1/2 right-1 -translate-y-1/2 rounded-sm bg-slate-100 px-2 py-0.5 text-sm font-bold text-gray-500 dark:bg-slate-700">
                 /
               </p>
             </div>
@@ -124,6 +125,7 @@ export default function StockDetail() {
         date={date}
         valueType={valueType}
       />
+      <Separator className="my-4" />
       <div className="mb-4">
         <TradingViewWidget symbol={selectedTicker} />
       </div>
