@@ -32,6 +32,8 @@ export const formatNumber = (num: number) => {
 
 export function getBrokerColor(type: string) {
   switch (type?.toUpperCase()) {
+    case "RETAIL":
+      return "text-yellow-600 dark:text-yellow-400"
     case "LOKAL":
       return "text-purple-600 dark:text-purple-400"
     case "PEMERINTAH":

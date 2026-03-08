@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useParams, useNavigate } from "react-router-dom"
 import TradingViewWidget from "@/components/tradingview-widget"
 import { BrokerBalance } from "@/components/broker-balance"
+import { ArrowLeftIcon } from "lucide-react"
 
 export default function StockDetail() {
   const queryClient = useQueryClient()
@@ -72,9 +73,13 @@ export default function StockDetail() {
       <div className="flex items-baseline justify-between">
         <div>
           <div className="mb-2 flex items-center gap-2">
-            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-              DETAIL
-            </span>
+            <Button
+              onClick={() => navigate("/stock")}
+              variant="ghost"
+              className="cursor-pointer"
+            >
+              <ArrowLeftIcon className="h-4 w-4" /> Back
+            </Button>
             <div className="relative">
               <Input
                 ref={inputRef}
@@ -127,7 +132,7 @@ export default function StockDetail() {
         </div>
       </div>
 
-      <Tabs defaultValue="chart" className="w-full">
+      <Tabs defaultValue="broker-summary" className="w-full">
         <TabsList>
           <TabsTrigger value="chart">Chart</TabsTrigger>
           <TabsTrigger value="broker-summary">Broker Summary</TabsTrigger>

@@ -1,7 +1,7 @@
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
-import { getBrokerBalance } from "@/lib/api"
+import { getBrokerBalance, getBrokers } from "@/lib/api"
 import type { DateRange } from "react-day-picker"
 import {
   Table,
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table"
 import { cn, formatNumber, formatNumberWithDecimal } from "@/lib/utils"
 import { BrokerInventoryChart } from "./broker-inventory-chart"
+import { BrokerMultiSelect, type BrokerOption } from "./broker-multi-select"
 
 interface BrokerBalanceProps {
   selectedTicker: string
@@ -25,6 +26,38 @@ export function BrokerBalance({
   date,
   brokerCode,
 }: BrokerBalanceProps) {
+  const [selectedBrokers, setSelectedBrokers] = useState<string[]>(
+    brokerCode ? [brokerCode] : []
+  )
+
+  // Fetch all brokers for the select options
+  const { data: brokers = {} } = useQuery({
+    queryKey: ["brokers"],
+    queryFn: getBrokers,
+    staleTime: Infinity, // Broker list rarely changes
+  })
+
+  const brokerOptions = useMemo(() => {
+    const options: Record<string, BrokerOption[]> = {}
+    Object.entries(brokers).forEach(([type, brokerList]) => {
+      options[type] = brokerList.map((b) => ({
+        value: b.code,
+        label: b.code,
+        type: b.type,
+        name: b.name,
+      }))
+    })
+    return options
+  }, [brokers])
+
+  // If initial brokerCode changes, update selectedBrokers
+  useMemo(() => {
+    if (brokerCode && !selectedBrokers.includes(brokerCode)) {
+      setSelectedBrokers((prev) => [...prev, brokerCode])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [brokerCode])
+
   const {
     data: brokerBalance,
     isError,
@@ -33,18 +66,22 @@ export function BrokerBalance({
     queryKey: [
       "broker-balance",
       selectedTicker,
-      brokerCode,
+      selectedBrokers.join(","),
       date?.from ? format(date.from, "yyyy-MM-dd") : undefined,
       date?.to ? format(date.to, "yyyy-MM-dd") : undefined,
     ],
     queryFn: () =>
       getBrokerBalance(
         selectedTicker,
-        brokerCode,
+        selectedBrokers.join(","),
         date?.from ? format(date.from, "yyyy-MM-dd") : "",
         date?.to ? format(date.to, "yyyy-MM-dd") : ""
       ),
-    enabled: !!selectedTicker && !!brokerCode && !!date?.from && !!date?.to,
+    enabled:
+      !!selectedTicker &&
+      selectedBrokers.length > 0 &&
+      !!date?.from &&
+      !!date?.to,
     staleTime: 1000 * 60 * 5, // 5 minutes
     refetchOnWindowFocus: false,
   })
@@ -63,18 +100,8 @@ export function BrokerBalance({
         runningBalanceVal: currentTotalVal,
       }
     })
-    return withBalance
+    return withBalance.reverse()
   }, [brokerBalance])
-
-  console.log(
-    "price",
-    brokerBalance &&
-      brokerBalance.data
-        // .filter((item) => item.avgNetPrice > 0)
-        .reduce((acc, curr) => acc + curr.avgNetPrice, 0)
-  )
-
-  console.log("length", brokerBalance && brokerBalance.data.length)
 
   return (
     <div className="space-y-4">
@@ -82,9 +109,18 @@ export function BrokerBalance({
         <div className="text-red-500">Error: {(error as Error).message}</div>
       )}
 
+      <div className="mb-2">
+        <BrokerMultiSelect
+          options={brokerOptions}
+          selected={selectedBrokers}
+          onChange={setSelectedBrokers}
+          placeholder="Select brokers..."
+        />
+      </div>
       {brokerBalance && (
         <div className="grid grid-cols-12 gap-2">
           <div className="col-span-5">
+            {/* broker code select */}
             <div className="max-h-[80vh] overflow-auto rounded-md border pr-4">
               <Table>
                 <TableHeader>
@@ -99,6 +135,37 @@ export function BrokerBalance({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
+                  <TableRow className="bg-muted/50 font-bold">
+                    <TableCell>Total</TableCell>
+
+                    <TableCell colSpan={3} />
+                    <TableCell className="text-right">
+                      {formatNumberWithDecimal(
+                        brokerBalance.resume.avgNetPrice
+                      )}
+                    </TableCell>
+
+                    <TableCell
+                      className={cn(
+                        "text-right",
+                        brokerBalance.resume.netVal < 0
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-green-600 dark:text-green-400"
+                      )}
+                    >
+                      {formatNumber(brokerBalance.resume.netVal)}
+                    </TableCell>
+                    <TableCell
+                      className={cn(
+                        "text-right",
+                        brokerBalance.resume.netLot < 0
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-green-600 dark:text-green-400"
+                      )}
+                    >
+                      {formatNumber(brokerBalance.resume.netLot)}
+                    </TableCell>
+                  </TableRow>
                   {runningBalanceData.map((item, index) => (
                     <TableRow key={index}>
                       <TableCell className="text-sm font-medium">
@@ -137,37 +204,6 @@ export function BrokerBalance({
                       </TableCell>
                     </TableRow>
                   ))}
-                  <TableRow className="bg-muted/50 font-bold">
-                    <TableCell>Total</TableCell>
-
-                    <TableCell colSpan={3} />
-                    <TableCell className="text-right">
-                      {formatNumberWithDecimal(
-                        brokerBalance.resume.avgNetPrice
-                      )}
-                    </TableCell>
-
-                    <TableCell
-                      className={cn(
-                        "text-right",
-                        brokerBalance.resume.netVal < 0
-                          ? "text-red-600 dark:text-red-400"
-                          : "text-green-600 dark:text-green-400"
-                      )}
-                    >
-                      {formatNumber(brokerBalance.resume.netVal)}
-                    </TableCell>
-                    <TableCell
-                      className={cn(
-                        "text-right",
-                        brokerBalance.resume.netLot < 0
-                          ? "text-red-600 dark:text-red-400"
-                          : "text-green-600 dark:text-green-400"
-                      )}
-                    >
-                      {formatNumber(brokerBalance.resume.netLot)}
-                    </TableCell>
-                  </TableRow>
                 </TableBody>
               </Table>
             </div>

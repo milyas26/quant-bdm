@@ -50,15 +50,17 @@ export function BrokerInventoryChart({
         {
           label: label,
           data: sortedData.map((item) => item[dataKey]),
-          backgroundColor: sortedData.map((item) =>
-            item[dataKey] >= 0
-              ? "rgba(34, 197, 94, 0.7)" // green-500
-              : "rgba(239, 68, 68, 0.7)" // red-500
+          backgroundColor: sortedData.map(
+            (item) =>
+              item[dataKey] >= 0
+                ? "rgba(34, 197, 94, 0.7)" // green-500
+                : "rgba(239, 68, 68, 0.7)" // red-500
           ),
-          borderColor: sortedData.map((item) =>
-            item[dataKey] >= 0
-              ? "rgb(22, 163, 74)" // green-600
-              : "rgb(220, 38, 38)" // red-600
+          borderColor: sortedData.map(
+            (item) =>
+              item[dataKey] >= 0
+                ? "rgb(22, 163, 74)" // green-600
+                : "rgb(220, 38, 38)" // red-600
           ),
           borderWidth: 1,
         },
