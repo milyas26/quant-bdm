@@ -51,13 +51,23 @@ export function BrokerBalance({
   const runningBalanceData = useMemo(() => {
     if (!brokerBalance) return []
     let currentTotal = 0
-    const reversed = [...brokerBalance].reverse()
+    const reversed = [...brokerBalance.data].reverse()
     const withBalance = reversed.map((item) => {
       currentTotal += item.netLot
       return { ...item, runningBalance: currentTotal }
     })
     return withBalance
   }, [brokerBalance])
+
+  console.log(
+    "price",
+    brokerBalance &&
+      brokerBalance.data
+        // .filter((item) => item.avgNetPrice > 0)
+        .reduce((acc, curr) => acc + curr.avgNetPrice, 0)
+  )
+
+  console.log("length", brokerBalance && brokerBalance.data.length)
 
   return (
     <div className="space-y-4">
@@ -66,109 +76,93 @@ export function BrokerBalance({
       )}
 
       {brokerBalance && (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Broker</TableHead>
-                <TableHead>Avg Price</TableHead>
-                <TableHead className="text-right">Buy (Lot)</TableHead>
-                <TableHead className="text-right">Buy (Value)</TableHead>
-                <TableHead className="text-right">Sell (Lot)</TableHead>
-                <TableHead className="text-right">Sell (Value)</TableHead>
-                <TableHead className="text-right">
-                  Curr. Balance (Lot)
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {runningBalanceData.map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">
-                    {format(new Date(item.date), "dd MMM yyyy")}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {brokerCode || "-"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {item.avgNetPrice
-                      ? formatNumberWithDecimal(item.avgNetPrice)
-                      : "-"}
-                  </TableCell>
-                  <TableCell className="text-right text-green-600 dark:text-green-400">
-                    {item.netLot > 0 ? formatNumber(item.netLot) : "-"}
-                  </TableCell>
-                  <TableCell className="text-right text-green-600 dark:text-green-400">
-                    {item.netLot > 0 ? formatNumber(item.netVal) : "-"}
-                  </TableCell>
-                  <TableCell className="text-right text-red-600 dark:text-red-400">
-                    {item.netLot < 0 ? formatNumber(item.netLot) : "-"}
-                  </TableCell>
-                  <TableCell className="text-right text-red-600 dark:text-red-400">
-                    {item.netLot < 0 ? formatNumber(item.netVal) : "-"}
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "text-right font-bold",
-                      item.runningBalance > 0
-                        ? "text-green-600 dark:text-green-400"
-                        : item.runningBalance < 0
+        <div className="grid grid-cols-12 gap-2">
+          <div className="col-span-5">
+            <div className="max-h-[80vh] overflow-auto rounded-md border pr-4">
+              <Table>
+                <TableHeader>
+                  <TableRow className="text-sm">
+                    <TableHead>Date</TableHead>
+                    <TableHead>Avg Price</TableHead>
+                    <TableHead className="text-right">Buy (Lot)</TableHead>
+                    <TableHead className="text-right">Buy (Value)</TableHead>
+                    <TableHead className="text-right">Sell (Lot)</TableHead>
+                    <TableHead className="text-right">Sell (Value)</TableHead>
+                    <TableHead className="text-right">Curr. (Lot)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {runningBalanceData.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="text-sm font-medium">
+                        {format(new Date(item.date), "dd MMM yyyy")}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {item.avgNetPrice
+                          ? formatNumberWithDecimal(item.avgNetPrice)
+                          : "-"}
+                      </TableCell>
+                      <TableCell className="text-right text-green-600 dark:text-green-400">
+                        {item.netLot > 0 ? formatNumber(item.netLot) : "-"}
+                      </TableCell>
+                      <TableCell className="text-right text-green-600 dark:text-green-400">
+                        {item.netLot > 0 ? formatNumber(item.netVal) : "-"}
+                      </TableCell>
+                      <TableCell className="text-right text-red-600 dark:text-red-400">
+                        {item.netLot < 0 ? formatNumber(item.netLot) : "-"}
+                      </TableCell>
+                      <TableCell className="text-right text-red-600 dark:text-red-400">
+                        {item.netLot < 0 ? formatNumber(item.netVal) : "-"}
+                      </TableCell>
+                      <TableCell
+                        className={cn(
+                          "text-right font-bold",
+                          item.runningBalance > 0
+                            ? "text-green-600 dark:text-green-400"
+                            : item.runningBalance < 0
+                              ? "text-red-600 dark:text-red-400"
+                              : ""
+                        )}
+                      >
+                        {formatNumber(item.runningBalance)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow className="bg-muted/50 font-bold">
+                    <TableCell>Total</TableCell>
+
+                    <TableCell colSpan={3} />
+                    <TableCell className="text-right">
+                      {formatNumberWithDecimal(
+                        brokerBalance.resume.avgNetPrice
+                      )}
+                    </TableCell>
+
+                    <TableCell
+                      className={cn(
+                        "text-right",
+                        brokerBalance.resume.netVal < 0
                           ? "text-red-600 dark:text-red-400"
-                          : ""
-                    )}
-                  >
-                    {formatNumber(item.runningBalance)}
-                  </TableCell>
-                </TableRow>
-              ))}
-              <TableRow className="bg-muted/50 font-bold">
-                <TableCell>Total</TableCell>
-                <TableCell className="text-right text-green-600 dark:text-green-400">
-                </TableCell>
-                <TableCell className="text-right text-green-600 dark:text-green-400">
-                </TableCell>
-                <TableCell className="text-right text-green-600 dark:text-green-400">
-                  {formatNumber(
-                    brokerBalance.reduce((acc, curr) => acc + curr.netLot, 0)
-                  )}
-                </TableCell>
-                <TableCell className="text-right text-green-600 dark:text-green-400">
-                  {formatNumber(
-                    brokerBalance.reduce((acc, curr) => acc + curr.netVal, 0)
-                  )}
-                </TableCell>
-                <TableCell className="text-right text-red-600 dark:text-red-400">
-                  {formatNumber(
-                    brokerBalance.reduce((acc, curr) => acc + curr.netLot, 0)
-                  )}
-                </TableCell>
-                <TableCell className="text-right text-red-600 dark:text-red-400">
-                  {formatNumber(
-                    brokerBalance.reduce((acc, curr) => acc + curr.netVal, 0)
-                  )}
-                </TableCell>
-                <TableCell
-                  className={cn(
-                    "text-right",
-                    brokerBalance.reduce((acc, curr) => acc + curr.netLot, 0) >
-                      0
-                      ? "text-green-600 dark:text-green-400"
-                      : brokerBalance.reduce(
-                            (acc, curr) => acc + curr.netLot,
-                            0
-                          ) < 0
-                        ? "text-red-600 dark:text-red-400"
-                        : ""
-                  )}
-                >
-                  {formatNumber(
-                    brokerBalance.reduce((acc, curr) => acc + curr.netLot, 0)
-                  )}
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+                          : "text-green-600 dark:text-green-400"
+                      )}
+                    >
+                      {formatNumber(brokerBalance.resume.netVal)}
+                    </TableCell>
+                    <TableCell
+                      className={cn(
+                        "text-right",
+                        brokerBalance.resume.netLot < 0
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-green-600 dark:text-green-400"
+                      )}
+                    >
+                      {formatNumber(brokerBalance.resume.netLot)}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </div>
         </div>
       )}
     </div>

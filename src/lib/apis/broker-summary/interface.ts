@@ -71,6 +71,12 @@ export interface BrokerBalanceData {
   netVal: number
 }
 
+export interface BrokerBalanceResume {
+  netLot: number
+  netVal: number
+  avgNetPrice: number
+}
+
 export interface BrokerSummaryListResponse {
   message: string
   data: BrokerSummary[]

@@ -131,7 +131,12 @@ export default function StockDetail() {
         <TabsList>
           <TabsTrigger value="chart">Chart</TabsTrigger>
           <TabsTrigger value="broker-summary">Broker Summary</TabsTrigger>
-          <TabsTrigger value="broker-balance">Broker Balance</TabsTrigger>
+          <TabsTrigger value="broker-balance">
+            Broker Balance{" "}
+            <span className="text-sm font-bold text-green-600">
+              {brokerCode}
+            </span>
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="chart" className="mt-2">
           <TradingViewWidget symbol={selectedTicker} />
