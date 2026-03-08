@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { fetchAndSaveBrokerSummary } from "@/lib/api"
+import { fetchAndSaveBrokerSummary, fetchAndSaveTickerInfo } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect, useRef } from "react"
@@ -14,11 +14,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useParams, useNavigate } from "react-router-dom"
 import TradingViewWidget from "@/components/tradingview-widget"
 import { BrokerBalance } from "@/components/broker-balance"
-import { ArrowLeftIcon } from "lucide-react"
+import { ArrowLeftIcon, ChevronDown } from "lucide-react"
 
 export default function StockDetail() {
   const queryClient = useQueryClient()
@@ -65,6 +71,13 @@ export default function StockDetail() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["broker-summary-range"] })
+    },
+  })
+
+  const fetchTickerInfoMutation = useMutation({
+    mutationFn: () => fetchAndSaveTickerInfo(selectedTicker!),
+    onSuccess: () => {
+      console.log("Ticker info updated")
     },
   })
 
@@ -115,18 +128,45 @@ export default function StockDetail() {
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => fetchMutation.mutate()}
-            disabled={fetchMutation.isPending || !date?.from || !date?.to}
-          >
-            {fetchMutation.isPending ? "Fetching..." : "Fetch Broker Summary"}
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="default"
+                size="sm"
+                disabled={
+                  fetchMutation.isPending || fetchTickerInfoMutation.isPending
+                }
+              >
+                {fetchMutation.isPending || fetchTickerInfoMutation.isPending
+                  ? "Fetching..."
+                  : "Fetch Data"}
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => fetchMutation.mutate()}
+                disabled={!date?.from || !date?.to}
+              >
+                Fetch Broker Summary
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => fetchTickerInfoMutation.mutate()}
+              >
+                Fetch Ticker Info
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           {fetchMutation.isError && (
             <div className="text-right text-xs text-red-500">
               {(fetchMutation.error as any)?.response?.data?.error ||
                 (fetchMutation.error as Error).message}
+            </div>
+          )}
+          {fetchTickerInfoMutation.isError && (
+            <div className="text-right text-xs text-red-500">
+              {(fetchTickerInfoMutation.error as any)?.response?.data?.error ||
+                (fetchTickerInfoMutation.error as Error).message}
             </div>
           )}
         </div>

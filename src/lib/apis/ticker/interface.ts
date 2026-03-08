@@ -2,10 +2,11 @@
 export interface Ticker {
   symbol: string
   name: string | null
-  price: number
+  logo: string | null
+  sector: string | null
+  subSector: string | null
   isOnWatchlist: boolean
 }
-
 export interface Meta {
   total: number
   page: number

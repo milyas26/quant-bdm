@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useSearchParams } from "react-router-dom"
-import { getTickers, deleteTicker, toggleTickerInWatchlist } from "@/lib/api"
+import {
+  getTickers,
+  deleteTicker,
+  toggleTickerInWatchlist,
+  fetchAllTickerInfo,
+} from "@/lib/api"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Table,
@@ -15,7 +19,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Card, CardContent } from "@/components/ui/card"
-import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import {
   ChevronLeft,
@@ -24,9 +27,9 @@ import {
   Trash2,
   MoreHorizontal,
   Star,
+  RefreshCw,
 } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
-import { formatIDR } from "@/lib/utils"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,8 +47,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import type { GetTickersParams } from "@/lib/apis/ticker/interface"
+import { toast } from "sonner"
 
 export default function StocksPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -147,20 +152,10 @@ export default function StocksPage() {
         page,
         limit,
         search: debouncedSearch,
-        isLiquid,
-        isSuspend,
-        isUnusual,
         minPrice,
         maxPrice,
       }),
   })
-
-  const handleSwitchChange = (
-    key: keyof GetTickersParams,
-    checked: boolean
-  ) => {
-    updateParams({ [key]: checked ? true : undefined, page: 1 })
-  }
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -199,6 +194,16 @@ export default function StocksPage() {
       queryClient.invalidateQueries({ queryKey: ["tickers"] })
       setSelectedTickers([])
       setIsBulkDeleteConfirmOpen(false)
+    },
+  })
+
+  const { mutate: handleFetchAllInfo, isPending: isFetchingAll } = useMutation({
+    mutationFn: fetchAllTickerInfo,
+    onSuccess: () => {
+      toast.success("Fetching all tickers info in background started.")
+    },
+    onError: (error) => {
+      toast.error(`Failed to start fetching: ${(error as Error).message}`)
     },
   })
 
@@ -298,39 +303,6 @@ export default function StocksPage() {
               />
             </div>
 
-            <div className="flex h-10 items-center space-x-2 rounded-md border p-2">
-              <Switch
-                id="isLiquid"
-                checked={isLiquid === true}
-                onCheckedChange={(checked) =>
-                  handleSwitchChange("isLiquid", checked)
-                }
-              />
-              <Label htmlFor="isLiquid">Liquid</Label>
-            </div>
-
-            <div className="flex h-10 items-center space-x-2 rounded-md border p-2">
-              <Switch
-                id="isSuspend"
-                checked={isSuspend === true}
-                onCheckedChange={(checked) =>
-                  handleSwitchChange("isSuspend", checked)
-                }
-              />
-              <Label htmlFor="isSuspend">Suspend</Label>
-            </div>
-
-            <div className="flex h-10 items-center space-x-2 rounded-md border p-2">
-              <Switch
-                id="isUnusual"
-                checked={isUnusual === true}
-                onCheckedChange={(checked) =>
-                  handleSwitchChange("isUnusual", checked)
-                }
-              />
-              <Label htmlFor="isUnusual">Unusual</Label>
-            </div>
-
             {selectedTickers.length > 0 && (
               <Button
                 variant="destructive"
@@ -339,137 +311,153 @@ export default function StocksPage() {
                 <Trash2 className="h-4 w-4" /> ({selectedTickers.length})
               </Button>
             )}
+
+            <Button
+              variant="outline"
+              onClick={() => handleFetchAllInfo()}
+              disabled={isFetchingAll}
+            >
+              <RefreshCw
+                className={cn("mr-2 h-4 w-4", isFetchingAll && "animate-spin")}
+              />
+              {isFetchingAll ? "Fetching..." : "Fetch All Info"}
+            </Button>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[50px]">
+              <Checkbox
+                checked={
+                  data?.data &&
+                  data.data.length > 0 &&
+                  data.data.every((t) => selectedTickers.includes(t.symbol))
+                }
+                onCheckedChange={(checked) => handleSelectAll(!!checked)}
+              />
+            </TableHead>
+            <TableHead>Ticker</TableHead>
+            <TableHead>Sector</TableHead>
+            <TableHead>Sub Sector</TableHead>
+            <TableHead className="w-[50px]"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-cen∏ter h-24">
+                Loading...
+              </TableCell>
+            </TableRow>
+          ) : isError ? (
+            <TableRow>
+              <TableCell colSpan={6} className="h-24 text-center text-red-500">
+                Error: {(error as Error).message}
+              </TableCell>
+            </TableRow>
+          ) : data?.data.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="h-24 text-center">
+                No results found.
+              </TableCell>
+            </TableRow>
+          ) : (
+            data?.data.map((ticker) => (
+              <TableRow
+                key={ticker.symbol}
+                className="cursor-pointer"
+                onClick={() => navigate(`/stock/${ticker.symbol}`)}
+              >
+                <TableCell>
                   <Checkbox
-                    checked={
-                      data?.data &&
-                      data.data.length > 0 &&
-                      data.data.every((t) => selectedTickers.includes(t.symbol))
+                    checked={selectedTickers.includes(ticker.symbol)}
+                    onCheckedChange={(checked) =>
+                      handleSelectRow(ticker.symbol, !!checked)
                     }
-                    onCheckedChange={(checked) => handleSelectAll(!!checked)}
                   />
-                </TableHead>
-                <TableHead>Symbol</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Tags</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    Loading...
-                  </TableCell>
-                </TableRow>
-              ) : isError ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="h-24 text-center text-red-500"
-                  >
-                    Error: {(error as Error).message}
-                  </TableCell>
-                </TableRow>
-              ) : data?.data.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    No results found.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                data?.data.map((ticker) => (
-                  <TableRow
-                    key={ticker.symbol}
-                    className="cursor-pointer"
-                    onClick={() => navigate(`/stock/${ticker.symbol}`)}
-                  >
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedTickers.includes(ticker.symbol)}
-                        onCheckedChange={(checked) =>
-                          handleSelectRow(ticker.symbol, !!checked)
-                        }
+                </TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleToggleWatchlist(ticker.symbol)
+                      }}
+                      disabled={isTogglingWatchlist}
+                    >
+                      <Star
+                        className={cn(
+                          "h-4 w-4",
+                          ticker.isOnWatchlist
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-muted-foreground"
+                        )}
                       />
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleToggleWatchlist(ticker.symbol)
-                          }}
-                          disabled={isTogglingWatchlist}
-                        >
-                          <Star
-                            className={cn(
-                              "h-4 w-4",
-                              ticker.isOnWatchlist
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-muted-foreground"
-                            )}
-                          />
-                        </Button>
-                        <span className="text-sm font-medium">
+                    </Button>
+                    <div className="flex items-center gap-2">
+                      {ticker.logo && (
+                        <img
+                          src={ticker.logo}
+                          alt={ticker.symbol}
+                          className="h-8 w-8 rounded-full object-cover"
+                        />
+                      )}
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold">
                           {ticker.symbol}
                         </span>
+                        <span className="text-xs text-muted-foreground">
+                          {ticker.name || "-"}
+                        </span>
                       </div>
-                    </TableCell>
-                    <TableCell>{ticker.name || "-"}</TableCell>
-                    <TableCell>{formatIDR(ticker.price)}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        {!ticker.isLiquid && (
-                          <Badge variant="secondary">Not Liquid</Badge>
-                        )}
-                        {ticker.isSuspend && (
-                          <Badge variant="destructive">Suspend</Badge>
-                        )}
-                        {ticker.isUnusual && (
-                          <Badge variant="outline">Unusual</Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem
-                            onClick={() => setTickerToDelete(ticker.symbol)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {ticker.sector ? (
+                    <Badge variant="secondary">{ticker.sector}</Badge>
+                  ) : (
+                    "-"
+                  )}
+                </TableCell>
+                <TableCell>
+                  {ticker.subSector ? (
+                    <Badge variant="outline">{ticker.subSector}</Badge>
+                  ) : (
+                    "-"
+                  )}
+                </TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuItem
+                        onClick={() => setTickerToDelete(ticker.symbol)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
 
       <div className="flex items-center justify-between">
         <div className="text-sm text-muted-foreground">

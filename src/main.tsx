@@ -7,6 +7,9 @@ import "./index.css"
 import App from "./App.tsx"
 import { ThemeProvider } from "@/components/theme-provider.tsx"
 
+import { Toaster } from "@/components/ui/sonner"
+
+
 const queryClient = new QueryClient()
 
 createRoot(document.getElementById("root")!).render(
@@ -14,6 +17,7 @@ createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <ThemeProvider>
+          <Toaster position="top-right" />
           <App />
         </ThemeProvider>
       </BrowserRouter>

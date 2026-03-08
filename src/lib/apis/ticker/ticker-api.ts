@@ -11,3 +11,13 @@ export const getTickers = async (params: GetTickersParams) => {
 export const deleteTicker = async (symbol: string) => {
   await api.delete(`/tickers/${symbol}`)
 }
+
+export const fetchAndSaveTickerInfo = async (symbol: string) => {
+  const { data } = await api.get(`/fetch-ticker/${symbol}`)
+  return data
+}
+
+export const fetchAllTickerInfo = async () => {
+  const { data } = await api.get(`/fetch-all-ticker`)
+  return data
+}
