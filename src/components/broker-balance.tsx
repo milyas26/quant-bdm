@@ -109,7 +109,7 @@ export function BrokerBalance({
         <div className="text-red-500">Error: {(error as Error).message}</div>
       )}
 
-      <div className="mb-2">
+      <div className="mb-2 max-w-[400px]">
         <BrokerMultiSelect
           options={brokerOptions}
           selected={selectedBrokers}
@@ -120,7 +120,6 @@ export function BrokerBalance({
       {brokerBalance && (
         <div className="grid grid-cols-12 gap-2">
           <div className="col-span-5">
-            {/* broker code select */}
             <div className="max-h-[80vh] overflow-auto rounded-md border pr-4">
               <Table>
                 <TableHeader>

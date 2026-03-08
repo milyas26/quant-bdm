@@ -52,16 +52,21 @@ export function BrokerMultiSelect({
     LOKAL: true,
     ASING: true,
     PEMERINTAH: true,
-    RETAIL: true,
+    RITEL: true,
   })
+
+  const isInitialized = React.useRef(false)
 
   // Default to RETAIL if nothing is selected
   React.useEffect(() => {
-    if (Object.keys(options).length > 0 && selected.length === 0) {
-      const retailGroup = options["RETAIL"]
-      if (retailGroup && retailGroup.length > 0) {
-        onChange(retailGroup.map((item) => item.value))
+    if (!isInitialized.current && Object.keys(options).length > 0) {
+      if (selected.length === 0) {
+        const retailGroup = options["RITEL"]
+        if (retailGroup && retailGroup.length > 0) {
+          onChange(retailGroup.map((item) => item.value))
+        }
       }
+      isInitialized.current = true
     }
   }, [options, selected, onChange])
 
@@ -153,6 +158,17 @@ export function BrokerMultiSelect({
         </Badge>
       )
     })
+
+    if (badges.length > 4) {
+      const remaining = badges.length - 4
+      const visibleBadges = badges.slice(0, 4)
+      visibleBadges.push(
+        <Badge key="more" variant="secondary" className="mr-1">
+          +{remaining} lainnya
+        </Badge>
+      )
+      return visibleBadges
+    }
 
     return badges
   }

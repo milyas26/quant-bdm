@@ -6,11 +6,7 @@ export interface Watchlist {
   updatedAt: string
   tickers: {
     symbol: string
-    price: number
     name: string | null
-    isLiquid: boolean
-    isSuspend: boolean
-    isUnusual: boolean
   }[]
 }
 
