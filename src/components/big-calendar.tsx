@@ -227,7 +227,7 @@ export function BigCalendar({
 
   if (isError) {
     return (
-      <div className={cn("w-full py-4 text-red-500", className)}>
+      <div className={cn("w-full py-4 text-destructive", className)}>
         Error: {(error as Error).message}
       </div>
     )
@@ -236,7 +236,9 @@ export function BigCalendar({
   return (
     <div className={cn("w-full", className)}>
       {isLoading && (
-        <div className="mb-2 text-sm text-blue-500">Loading data...</div>
+        <div className="mb-2 text-sm text-blue-500 dark:text-blue-400">
+          Loading data...
+        </div>
       )}
 
       <div className="grid grid-cols-12 gap-2">
@@ -248,10 +250,10 @@ export function BigCalendar({
                 key={index}
                 className={cn(
                   "relative h-32 min-h-32 cursor-pointer rounded-md p-2 transition-all duration-200 hover:shadow-md",
-                  "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800",
+                  "border-border bg-card",
                   day.isToday
                     ? "shadow-lg ring-2 ring-blue-500 dark:ring-blue-400"
-                    : "hover:bg-gray-50 dark:hover:bg-gray-700",
+                    : "hover:bg-muted/50",
                   selectedDateData &&
                     selectedDateData === day.data &&
                     "ring-2 ring-slate-500 dark:ring-slate-400"
@@ -275,7 +277,7 @@ export function BigCalendar({
                         "text-[10px]",
                         day.isToday
                           ? "text-blue-600 dark:text-blue-400"
-                          : "text-gray-500 dark:text-gray-400"
+                          : "text-muted-foreground"
                       )}
                     >
                       {day.dayName},
@@ -285,12 +287,12 @@ export function BigCalendar({
                         "text-xs leading-none font-medium",
                         day.isToday
                           ? "text-blue-600 dark:text-blue-400"
-                          : "text-gray-900 dark:text-gray-100"
+                          : "text-foreground"
                       )}
                     >
                       {day.dayNumber}
                     </div>
-                    <div className="text-[10px] leading-none text-gray-400 dark:text-gray-500">
+                    <div className="text-[10px] leading-none text-muted-foreground">
                       {day.month}
                     </div>
                   </div>
@@ -319,13 +321,15 @@ export function BigCalendar({
                               >
                                 {buy.netbsBrokerCode}
                               </span>
-                              <span className="text-[9px] text-gray-500 dark:text-gray-400">
+                              <span className="text-[9px] text-muted-foreground">
                                 {formatNumber(parseFloat(buy.bval))}
                               </span>
                             </div>
                           ))
                         ) : (
-                          <div className="text-[9px] text-gray-300">-</div>
+                          <div className="text-[9px] text-muted-foreground/50">
+                            -
+                          </div>
                         )}
                       </div>
                       {/* Sell Side */}
@@ -349,13 +353,15 @@ export function BigCalendar({
                               >
                                 {sell.netbsBrokerCode}
                               </span>
-                              <span className="text-[9px] text-gray-500 dark:text-gray-400">
+                              <span className="text-[9px] text-muted-foreground">
                                 {formatNumber(parseFloat(sell.sval))}
                               </span>
                             </div>
                           ))
                         ) : (
-                          <div className="text-[9px] text-gray-300">-</div>
+                          <div className="text-[9px] text-muted-foreground/50">
+                            -
+                          </div>
                         )}
                       </div>
                     </div>
@@ -365,7 +371,7 @@ export function BigCalendar({
             ))}
           </div>
         </div>
-        <div className="col-span-3 rounded-lg dark:bg-gray-900">
+        <div className="col-span-3 rounded-lg">
           <BrokerSummaryContent data={selectedDateData} />
         </div>
       </div>

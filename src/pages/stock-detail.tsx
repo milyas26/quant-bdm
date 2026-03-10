@@ -127,7 +127,7 @@ export default function StockDetail() {
             </div>
           </div>
           <div className="flex w-full items-center gap-4">
-            <div className="relative w-[300px] border-b bg-white py-1">
+            <div className="relative w-[300px] border-b bg-background py-1">
               <Input
                 ref={inputRef}
                 value={inputValue}
@@ -140,7 +140,7 @@ export default function StockDetail() {
                 className="text-2dxl h-8 w-full border-none px-2 font-bold shadow-none focus-visible:ring-0"
                 placeholder="Ticker"
               />
-              <p className="absolute top-1/2 right-1 -translate-y-1/2 rounded-sm bg-slate-100 px-2 py-0.5 text-sm font-bold text-gray-500 dark:bg-slate-700">
+              <p className="absolute top-1/2 right-1 -translate-y-1/2 rounded-sm bg-muted px-2 py-0.5 text-sm font-bold text-muted-foreground">
                 /
               </p>
             </div>
@@ -207,7 +207,7 @@ export default function StockDetail() {
       </div>
 
       <Tabs defaultValue="broker-summary" className="w-full">
-        <TabsList>
+        <TabsList className="bg-transparent">
           <TabsTrigger
             className="relative rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
             value="broker-summary"
@@ -218,40 +218,27 @@ export default function StockDetail() {
             className="relative rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
             value="inventory"
           >
-            Inventory
+            Inventory{" "}
+            <span className="ml-1 text-sm font-bold text-green-600">
+              {brokerCode}
+            </span>
           </TabsTrigger>
         </TabsList>
         <TabsContent value="broker-summary" className="mt-2">
-          <Tabs defaultValue="calendar" className="w-full">
-            <TabsList className="h-auto w-full justify-start rounded-none border-b bg-transparent p-0 pb-2">
-              <TabsTrigger value="calendar">Calendar</TabsTrigger>
-              <TabsTrigger value="broker-balance">
-                Broker Balance{" "}
-                <span className="ml-1 text-sm font-bold text-green-600">
-                  {brokerCode}
-                </span>
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="calendar">
-              <BigCalendar
-                selectedTicker={selectedTicker}
-                date={date}
-                valueType={valueType}
-                onBrokerClick={handleBrokerClick}
-                highlightedBroker={brokerCode}
-              />
-            </TabsContent>
-            <TabsContent value="broker-balance">
-              <BrokerBalance
-                selectedTicker={selectedTicker}
-                date={date}
-                brokerCode={brokerCode}
-              />
-            </TabsContent>
-          </Tabs>
+          <BigCalendar
+            selectedTicker={selectedTicker}
+            date={date}
+            valueType={valueType}
+            onBrokerClick={handleBrokerClick}
+            highlightedBroker={brokerCode}
+          />
         </TabsContent>
         <TabsContent value="inventory" className="mt-2">
-          {/*  */}
+          <BrokerBalance
+            selectedTicker={selectedTicker}
+            date={date}
+            brokerCode={brokerCode}
+          />
         </TabsContent>
       </Tabs>
     </div>

@@ -1,7 +1,9 @@
 import { useEffect, useRef, memo } from "react"
+import { useTheme } from "@/components/theme-provider"
 
 function TradingViewWidget({ symbol }: { symbol: string }) {
   const container = useRef<HTMLDivElement>(null)
+  const { theme } = useTheme()
 
   useEffect(() => {
     if (!container.current) return
@@ -14,6 +16,15 @@ function TradingViewWidget({ symbol }: { symbol: string }) {
       "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js"
     script.type = "text/javascript"
     script.async = true
+
+    // Determine the actual theme to use (resolve 'system')
+    let widgetTheme = theme
+    if (theme === "system") {
+      widgetTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"
+    }
+
     script.innerHTML = `
         {
           "width": "100%",
@@ -21,7 +32,7 @@ function TradingViewWidget({ symbol }: { symbol: string }) {
           "symbol": "IDX:${symbol}",
           "interval": "D",
           "timezone": "Asia/Jakarta",
-          "theme": "light",
+          "theme": "${widgetTheme}",
           "style": "1",
           "locale": "en",
           "hide_side_toolbar": true,
@@ -33,11 +44,11 @@ function TradingViewWidget({ symbol }: { symbol: string }) {
           "support_host": "https://www.tradingview.com"
         }`
     container.current.appendChild(script)
-  }, [symbol])
+  }, [symbol, theme])
 
   return (
     <div
-      className="tradingview-widget-container overflow-hidden rounded-lg border"
+      className="tradingview-widget-container overflow-hidden rounded-lg border bg-card"
       ref={container}
     >
       <div className="tradingview-widget-container__widget"></div>

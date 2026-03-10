@@ -29,7 +29,7 @@ export function BrokerSummaryPopover({
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent
-        className="max-h-[500px] w-[800px] max-w-none overflow-y-auto border border-gray-200 bg-white p-1 text-gray-900 shadow-xl dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+        className="max-h-[500px] w-[800px] max-w-none overflow-y-auto border border-border bg-popover p-1 text-popover-foreground shadow-xl"
         side="top"
         align="start"
       >
@@ -79,7 +79,7 @@ export function BrokerSummaryContent({
 
   if (!data)
     return (
-      <div className="flex h-32 items-center justify-center text-sm text-gray-500">
+      <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
         No data available
       </div>
     )
@@ -163,13 +163,13 @@ export function BrokerSummaryContent({
 
   return (
     <div className="space-y-2">
-      <div className="bg-white p-4 text-sm shadow-sm">
-        <p className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+      <div className="bg-card px-4 py-3 text-sm shadow-sm">
+        <p className="mb-1 text-sm font-semibold text-card-foreground">
           Bandar Detector
         </p>
         <div className="mb-4 overflow-hidden">
           <table className="w-full text-xs">
-            <thead className="bg-gray-50 font-semibold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+            <thead className="bg-muted font-semibold text-muted-foreground">
               <tr className="border-b">
                 <th className="p-2 text-left"></th>
                 <th className="p-2 text-right">Volume</th>
@@ -180,10 +180,7 @@ export function BrokerSummaryContent({
             </thead>
             <tbody>
               {detectorRows.map((row, idx) => (
-                <tr
-                  key={idx}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-800"
-                >
+                <tr key={idx} className="hover:bg-muted/50">
                   <td className="p-2 font-semibold">{row.label}</td>
                   <td className="p-2 text-right">
                     {formatNumber(parseFloat(row.volume as string))}
@@ -241,82 +238,67 @@ export function BrokerSummaryContent({
           </div>
         </div>
       </div>
-      <div className="bg-white p-4 shadow-sm">
-        <p className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+      <div className="bg-card px-4 py-3 shadow-sm">
+        <p className="mb-1 text-sm font-semibold text-card-foreground">
           Broker Summary
         </p>
-        <div className="text-xs">
-          {/* Header */}
-          <div className="grid grid-cols-2 gap-4 border-b bg-gray-50 p-2 font-semibold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-            <div className="grid grid-cols-4 gap-1">
-              <span>BY</span>
-              <span className="text-right">B.val</span>
-              <span className="text-right">B.lot</span>
-              <span className="text-right">B.avg</span>
-            </div>
-            <div className="grid grid-cols-4 gap-1">
-              <span>SL</span>
-              <span className="text-right">S.val</span>
-              <span className="text-right">S.lot</span>
-              <span className="text-right">S.avg</span>
-            </div>
-          </div>
-          {/* Rows */}
-          <div className="max-h-[60vh] overflow-auto">
-            {rows.map((row, idx) => (
-              <div
-                key={idx}
-                className="grid grid-cols-2 gap-4 px-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-800"
-              >
-                {/* Buy Side */}
-                <div className="grid grid-cols-4 items-center gap-1">
-                  {row.buy ? (
-                    <>
-                      <span
-                        className={`font-bold ${getBrokerColor(row.buy.type)}`}
-                      >
+        <div className="max-h-[500px] overflow-auto rounded-md text-[12px]">
+          <table className="w-full">
+            <thead className="bg-muted text-[12px] font-semibold text-muted-foreground">
+              <tr>
+                <th className="w-[10%] p-1 text-left">BY</th>
+                <th className="w-[13%] p-1 text-right">B.val</th>
+                <th className="w-[13%] p-1 text-right">B.lot</th>
+                <th className="w-[13%] p-1 text-right">B.avg</th>
+                <th className="w-[10%] p-1 text-left">SL</th>
+                <th className="w-[13%] p-1 text-right">S.val</th>
+                <th className="w-[13%] p-1 text-right">S.lot</th>
+                <th className="w-[13%] p-1 text-right">S.avg</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y-0">
+              {rows.map((row, idx) => (
+                <tr key={idx} className="hover:bg-muted/50">
+                  {/* Buy Side */}
+                  <td className="p-1 font-bold">
+                    {row.buy && (
+                      <span className={getBrokerColor(row.buy.type)}>
                         {row.buy.netbsBrokerCode}
                       </span>
-                      <span className="text-right text-green-600 dark:text-green-400">
-                        {formatNumber(parseFloat(row.buy.bval))}
-                      </span>
-                      <span className="text-right text-green-600 dark:text-green-400">
-                        {formatNumber(parseFloat(row.buy.blot))}
-                      </span>
-                      <span className="text-right text-green-600 dark:text-green-400">
-                        {formatAvg(parseFloat(row.buy.netbsBuyAvgPrice))}
-                      </span>
-                    </>
-                  ) : (
-                    <div className="col-span-4"></div>
-                  )}
-                </div>
-                {/* Sell Side */}
-                <div className="grid grid-cols-4 items-center gap-1">
-                  {row.sell ? (
-                    <>
-                      <span
-                        className={`font-bold ${getBrokerColor(row.sell.type)}`}
-                      >
+                    )}
+                  </td>
+                  <td className="p-1 text-right text-green-600 dark:text-green-400">
+                    {row.buy && formatNumber(parseFloat(row.buy.bval))}
+                  </td>
+                  <td className="p-1 text-right text-green-600 dark:text-green-400">
+                    {row.buy && formatNumber(parseFloat(row.buy.blot))}
+                  </td>
+                  <td className="p-1 text-right text-green-600 dark:text-green-400">
+                    {row.buy && formatAvg(parseFloat(row.buy.netbsBuyAvgPrice))}
+                  </td>
+
+                  {/* Sell Side */}
+                  <td className="p-1 font-bold">
+                    {row.sell && (
+                      <span className={getBrokerColor(row.sell.type)}>
                         {row.sell.netbsBrokerCode}
                       </span>
-                      <span className="text-right text-red-600 dark:text-red-400">
-                        {formatNumber(parseFloat(row.sell.sval))}
-                      </span>
-                      <span className="text-right text-red-600 dark:text-red-400">
-                        {formatNumber(parseFloat(row.sell.slot))}
-                      </span>
-                      <span className="text-right text-red-600 dark:text-red-400">
-                        {formatAvg(parseFloat(row.sell.netbsSellAvgPrice))}
-                      </span>
-                    </>
-                  ) : (
-                    <div className="col-span-4"></div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+                    )}
+                  </td>
+                  <td className="p-1 text-right text-red-600 dark:text-red-400">
+                    {row.sell && formatNumber(parseFloat(row.sell.sval))}
+                  </td>
+                  <td className="p-1 text-right text-red-600 dark:text-red-400">
+                    {row.sell && formatNumber(parseFloat(row.sell.slot))}
+                  </td>
+                  <td className="p-1 text-right text-red-600 dark:text-red-400">
+                    {row.sell &&
+                      formatAvg(parseFloat(row.sell.netbsSellAvgPrice))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

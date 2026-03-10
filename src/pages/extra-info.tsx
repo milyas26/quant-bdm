@@ -150,14 +150,14 @@ const ExtraInfo = () => {
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button size="icon" variant="ghost" onClick={handleAdd}>
-                      <Save className="h-4 w-4 text-green-600" />
+                      <Save className="h-4 w-4 text-green-600 dark:text-green-400" />
                     </Button>
                     <Button
                       size="icon"
                       variant="ghost"
                       onClick={() => setIsAdding(false)}
                     >
-                      <X className="h-4 w-4 text-red-600" />
+                      <X className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
                 </TableCell>
@@ -219,14 +219,14 @@ const ExtraInfo = () => {
                             variant="ghost"
                             onClick={() => handleSaveEdit(item.id)}
                           >
-                            <Save className="h-4 w-4 text-green-600" />
+                            <Save className="h-4 w-4 text-green-600 dark:text-green-400" />
                           </Button>
                           <Button
                             size="icon"
                             variant="ghost"
                             onClick={handleCancelEdit}
                           >
-                            <X className="h-4 w-4 text-red-600" />
+                            <X className="h-4 w-4 text-destructive" />
                           </Button>
                         </>
                       ) : (
@@ -243,7 +243,7 @@ const ExtraInfo = () => {
                             variant="ghost"
                             onClick={() => handleDelete(item.id)}
                           >
-                            <Trash2 className="h-4 w-4 text-red-600" />
+                            <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </>
                       )}

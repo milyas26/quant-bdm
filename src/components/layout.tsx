@@ -1,5 +1,6 @@
 import { Link, Outlet } from "react-router-dom"
 import { cn } from "@/lib/utils"
+import { ModeToggle } from "@/components/mode-toggle"
 
 const navItems = [
   { title: "Stocks", url: "/stock" },
@@ -10,26 +11,29 @@ const navItems = [
 export default function Layout() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <Link to="/" className="flex items-center space-x-2">
             <span className="font-mono text-2xl font-bold italic sm:inline-block">
               Sisipasi
             </span>
           </Link>
-          <nav className="flex cursor-pointer items-center gap-0 font-mono">
-            {navItems.map((item) => (
-              <Link
-                key={item.url}
-                to={item.url}
-                className={cn(
-                  "cursor-pointer border-l bg-[#F5F5F0] px-6 py-4 text-sm font-medium"
-                )}
-              >
-                {item.title}
-              </Link>
-            ))}
-          </nav>
+          <div className="flex items-center gap-4">
+            <nav className="flex cursor-pointer items-center gap-0 font-mono">
+              {navItems.map((item) => (
+                <Link
+                  key={item.url}
+                  to={item.url}
+                  className={cn(
+                    "cursor-pointer border-l bg-muted px-6 py-4 text-sm font-medium transition-colors hover:bg-muted/80"
+                  )}
+                >
+                  {item.title}
+                </Link>
+              ))}
+            </nav>
+            <ModeToggle />
+          </div>
         </div>
       </header>
       <main className="flex-1">
