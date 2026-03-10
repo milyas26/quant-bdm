@@ -5,8 +5,7 @@ import {
   getTickerDetail,
 } from "@/lib/api"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import { format, startOfMonth, subMonths } from "date-fns"
 import { BigCalendar } from "@/components/big-calendar"
 import { DatePickerWithRange } from "@/components/date-range-picker"
@@ -35,7 +34,6 @@ export default function StockDetail() {
   const navigate = useNavigate()
   const { ticker } = useParams()
   const selectedTicker = ticker?.toUpperCase() || ""
-  const [inputValue, setInputValue] = useState(selectedTicker)
   const [brokerCode, setBrokerCode] = useState("")
 
   const { data: tickerInfo, refetch: refetchTickerInfo } = useQuery({
@@ -47,24 +45,6 @@ export default function StockDetail() {
   const handleBrokerClick = (code: string) => {
     setBrokerCode(code)
   }
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    setInputValue(selectedTicker)
-  }, [selectedTicker])
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "/") {
-        e.preventDefault()
-        inputRef.current?.focus()
-        inputRef.current?.select()
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown)
-    return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [])
 
   const [date, setDate] = useState<DateRange | undefined>({
     from: startOfMonth(subMonths(new Date(), 1)),
@@ -124,40 +104,6 @@ export default function StockDetail() {
                   )}
                 </div>
               </div>
-            </div>
-          </div>
-          <div className="flex w-full items-center gap-4">
-            <div className="relative w-[300px] border-b border-input bg-background py-1 transition-colors focus-within:border-primary">
-              <Input
-                ref={inputRef}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value.toUpperCase())}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    navigate(`/stock/${inputValue}`)
-                  }
-                }}
-                className="text-2dxl h-8 w-full border-none px-2 font-bold shadow-none focus-visible:ring-0"
-                placeholder="Ticker"
-              />
-              <p className="absolute top-1/2 right-1 -translate-y-1/2 rounded-sm bg-muted px-2 py-0.5 text-sm font-bold text-muted-foreground">
-                /
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <DatePickerWithRange date={date} setDate={setDate} />
-              <Select
-                value={valueType}
-                onValueChange={(val) => setValueType(val as "Net" | "Gross")}
-              >
-                <SelectTrigger className="w-[100px]">
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent className="text-xs">
-                  <SelectItem value="Net">Net</SelectItem>
-                  <SelectItem value="Gross">Gross</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
         </div>
@@ -225,6 +171,21 @@ export default function StockDetail() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="broker-summary" className="mt-2">
+          <div className="mb-4 flex items-center gap-2">
+            <DatePickerWithRange date={date} setDate={setDate} />
+            <Select
+              value={valueType}
+              onValueChange={(val) => setValueType(val as "Net" | "Gross")}
+            >
+              <SelectTrigger className="w-[100px]">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent className="text-xs">
+                <SelectItem value="Net">Net</SelectItem>
+                <SelectItem value="Gross">Gross</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <BigCalendar
             selectedTicker={selectedTicker}
             date={date}

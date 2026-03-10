@@ -74,15 +74,6 @@ export default function StocksPage() {
         target.isContentEditable
 
       if (isInput) return
-
-      // Hotkey "/" to focus search input
-      if (e.key === "/") {
-        e.preventDefault()
-        if (searchInputRef.current) {
-          searchInputRef.current.focus()
-          searchInputRef.current.select()
-        }
-      }
     }
 
     window.addEventListener("keydown", handleKeyDown)
@@ -99,24 +90,6 @@ export default function StocksPage() {
 
   const page = parseInt(searchParams.get("page") || "1")
   const limit = parseInt(searchParams.get("limit") || "15")
-  const isLiquid =
-    searchParams.get("isLiquid") === "true"
-      ? true
-      : searchParams.get("isLiquid") === "false"
-        ? false
-        : undefined
-  const isSuspend =
-    searchParams.get("isSuspend") === "true"
-      ? true
-      : searchParams.get("isSuspend") === "false"
-        ? false
-        : undefined
-  const isUnusual =
-    searchParams.get("isUnusual") === "true"
-      ? true
-      : searchParams.get("isUnusual") === "false"
-        ? false
-        : undefined
 
   const minPrice = searchParams.get("minPrice")
     ? parseInt(searchParams.get("minPrice")!)
@@ -163,17 +136,7 @@ export default function StocksPage() {
   }
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: [
-      "tickers",
-      page,
-      limit,
-      debouncedSearch,
-      isLiquid,
-      isSuspend,
-      isUnusual,
-      minPrice,
-      maxPrice,
-    ],
+    queryKey: ["tickers", page, limit, debouncedSearch, minPrice, maxPrice],
     queryFn: () =>
       getTickers({
         page,
