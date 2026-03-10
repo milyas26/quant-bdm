@@ -115,8 +115,8 @@ export default function StocksPage() {
       setIsAddTickerDialogOpen(false)
       setNewTickerSymbol("")
     },
-    onError: (error) => {
-      toast.error(`Failed to add ticker: ${(error as Error).message}`)
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to add ticker")
     },
   })
 

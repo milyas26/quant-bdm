@@ -3,14 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { getBrokerBalance, getBrokers } from "@/lib/api"
 import type { DateRange } from "react-day-picker"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { Table, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { cn, formatNumber, formatNumberWithDecimal } from "@/lib/utils"
 import { BrokerInventoryChart } from "./broker-inventory-chart"
 import { BrokerMultiSelect, type BrokerOption } from "./broker-multi-select"
@@ -153,54 +146,7 @@ export function BrokerBalance({
                     {formatNumber(brokerBalance?.resume.netLot || 0)}
                   </TableCell>
                 </TableRow>
-                <TableRow className="text-sm">
-                  <TableHead>Date</TableHead>
-                  <TableHead>Avg Price</TableHead>
-                  <TableHead className="text-right">Buy (Lot)</TableHead>
-                  <TableHead className="text-right">Buy (Value)</TableHead>
-                  <TableHead className="text-right">Sell (Lot)</TableHead>
-                  <TableHead className="text-right">Sell (Value)</TableHead>
-                  <TableHead className="text-right">Curr. (Lot)</TableHead>
-                </TableRow>
               </TableHeader>
-              <TableBody>
-                {runningBalanceData.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="text-xs font-medium">
-                      {format(new Date(item.date), "dd MMM yyyy")}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {item.avgNetPrice
-                        ? formatNumberWithDecimal(item.avgNetPrice)
-                        : "-"}
-                    </TableCell>
-                    <TableCell className="text-right text-green-600 dark:text-green-400">
-                      {item.netLot > 0 ? formatNumber(item.netLot) : "-"}
-                    </TableCell>
-                    <TableCell className="text-right text-green-600 dark:text-green-400">
-                      {item.netLot > 0 ? formatNumber(item.netVal) : "-"}
-                    </TableCell>
-                    <TableCell className="text-right text-red-600 dark:text-red-400">
-                      {item.netLot < 0 ? formatNumber(item.netLot) : "-"}
-                    </TableCell>
-                    <TableCell className="text-right text-red-600 dark:text-red-400">
-                      {item.netLot < 0 ? formatNumber(item.netVal) : "-"}
-                    </TableCell>
-                    <TableCell
-                      className={cn(
-                        "text-right font-bold",
-                        item.runningBalance > 0
-                          ? "text-green-600 dark:text-green-400"
-                          : item.runningBalance < 0
-                            ? "text-red-600 dark:text-red-400"
-                            : ""
-                      )}
-                    >
-                      {formatNumber(parseFloat(item.runningBalance.toFixed(0)))}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
             </Table>
           </div>
         </div>

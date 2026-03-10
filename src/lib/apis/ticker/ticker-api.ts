@@ -28,6 +28,13 @@ export const getTickerDetail = async (symbol: string) => {
 }
 
 export const addTicker = async (symbol: string) => {
-  const { data } = await api.post("/add-ticker", { symbol })
-  return data
+  try {
+    const { data } = await api.post("/add-ticker", { symbol })
+    return data
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.error || "Failed to add ticker")
+    }
+    throw error
+  }
 }
