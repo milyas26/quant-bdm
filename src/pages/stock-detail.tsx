@@ -28,6 +28,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { BrokerBalance } from "@/components/broker-balance"
 import { ArrowLeftIcon, ChevronDown } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { BrokerInventory } from "@/components/broker-inventory"
 
 export default function StockDetail() {
   const queryClient = useQueryClient()
@@ -164,10 +165,7 @@ export default function StockDetail() {
             className="relative rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
             value="inventory"
           >
-            Inventory{" "}
-            <span className="ml-1 text-sm font-bold text-green-600">
-              {brokerCode}
-            </span>
+            Inventory
           </TabsTrigger>
         </TabsList>
         <TabsContent value="broker-summary" className="mt-2">
@@ -193,13 +191,14 @@ export default function StockDetail() {
             onBrokerClick={handleBrokerClick}
             highlightedBroker={brokerCode}
           />
-        </TabsContent>
-        <TabsContent value="inventory" className="mt-2">
           <BrokerBalance
             selectedTicker={selectedTicker}
             date={date}
             brokerCode={brokerCode}
           />
+        </TabsContent>
+        <TabsContent value="inventory" className="mt-2">
+          <BrokerInventory selectedTicker={selectedTicker} />
         </TabsContent>
       </Tabs>
     </div>

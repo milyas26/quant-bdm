@@ -81,3 +81,52 @@ export interface BrokerSummaryListResponse {
   message: string
   data: BrokerSummary[]
 }
+
+export interface BrokerInventoryData {
+  date: string
+  netALot: number
+  netRLot: number
+  netLLot: number;
+  netPLot: number;
+  netSMLot: number;
+  netDMLot: number;
+  netAVal: number;
+  netRVal: number;
+  netLVal: number;
+  netPVal: number;
+  netSMVal: number;
+  netDMVal: number;
+  avgNetAPrice: number;
+  avgNetRPrice: number;
+  avgNetLPrice: number;
+  avgNetPPrice: number;
+  avgNetSMPrice: number;
+  avgNetDMPrice: number;
+}
+
+export interface BrokerInventoryResume {
+  netALot: number;
+  netRLot: number;
+  netLLot: number;
+  netPLot: number;
+  netSMLot: number;
+  netDMLot: number;
+  netAVal: number;
+  netRVal: number;
+  netLVal: number;
+  netPVal: number;
+  netSMVal: number;
+  netDMVal: number;
+  avgNetAPrice: number;
+  avgNetRPrice: number;
+  avgNetLPrice: number;
+  avgNetPPrice: number;
+  avgNetSMPrice: number;
+  avgNetDMPrice: number;
+}
+
+export interface BrokerInventoryResponse {
+  message: string
+  data: BrokerInventoryData[]
+  resume: BrokerInventoryResume
+}

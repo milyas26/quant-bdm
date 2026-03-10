@@ -5,9 +5,30 @@ import type {
   BrokerSummaryListResponse,
   BrokerSummaryParams,
   BrokerSummaryResponse,
+  BrokerInventoryResponse,
 } from "./interface"
 
 export * from "./interface"
+
+export const getBrokerInventory = async (
+  symbol: string,
+  period: "1 month" | "3 month" | "6 month"
+) => {
+  try {
+    const { data } = await api.get<BrokerInventoryResponse>("/broker-inventory", {
+      params: {
+        symbol,
+        period,
+      },
+    })
+    return data
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.error || "Failed to fetch data")
+    }
+    throw error
+  }
+}
 
 export const fetchAndSaveBrokerSummary = async (
   params: BrokerSummaryParams
