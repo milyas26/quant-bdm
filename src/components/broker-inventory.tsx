@@ -1,15 +1,8 @@
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { getBrokerInventory } from "@/lib/api"
-import {
-  Table,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { cn, formatNumber, formatNumberWithDecimal } from "@/lib/utils"
 import { BrokerInventoryChart } from "./broker-inventory-chart"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Select,
   SelectContent,
@@ -17,6 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 
 interface BrokerInventoryProps {
   selectedTicker: string
@@ -63,9 +58,18 @@ const TYPE_MAP = {
   },
 } as const
 
+const TYPE_ORDER: (keyof typeof TYPE_MAP)[] = [
+  "SMART_MONEY",
+  "DUMB_MONEY",
+  "ASING",
+  "RITEL",
+  "PEMERINTAH",
+  "LOKAL",
+]
+
 export function BrokerInventory({ selectedTicker }: BrokerInventoryProps) {
-  const [period, setPeriod] = useState<Period>("1 month")
-  const [activeTab, setActiveTab] = useState<keyof typeof TYPE_MAP>("ASING")
+  const [period, setPeriod] = useState<Period>("3 month")
+  const [showRunningBalance, setShowRunningBalance] = useState(false)
 
   const {
     data: brokerInventory,
@@ -79,21 +83,22 @@ export function BrokerInventory({ selectedTicker }: BrokerInventoryProps) {
     refetchOnWindowFocus: false,
   })
 
-  const currentTypeData = useMemo(() => {
-    if (!brokerInventory) return []
+  // Helper to process data for a specific type
+  const getProcessedData = (typeKey: keyof typeof TYPE_MAP) => {
+    if (!brokerInventory) return { chartData: [], resume: null }
 
-    const keys = TYPE_MAP[activeTab]
+    const keys = TYPE_MAP[typeKey]
     let currentTotalLot = 0
     let currentTotalVal = 0
 
     // Data is from API is ascending (Oldest to Newest)
-    const withRunningBalance = brokerInventory.data.map((item: any) => {
+    const chartData = brokerInventory.data.map((item: any) => {
       const netLot = item[keys.lot]
       const netVal = item[keys.val]
-      
+
       currentTotalLot += netLot
       currentTotalVal += netVal
-      
+
       return {
         ...item,
         netLot, // For Inventory Chart
@@ -103,135 +108,132 @@ export function BrokerInventory({ selectedTicker }: BrokerInventoryProps) {
       }
     })
 
-    return withRunningBalance
-  }, [brokerInventory, activeTab])
-
-  const resumeData = useMemo(() => {
-    if (!brokerInventory) return null
-    const keys = TYPE_MAP[activeTab]
-    return {
+    const resume = {
       netLot: brokerInventory.resume[keys.lot],
       netVal: brokerInventory.resume[keys.val],
       avgNetPrice: brokerInventory.resume[keys.avg],
     }
-  }, [brokerInventory, activeTab])
+
+    return { chartData, resume }
+  }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {isError && (
         <div className="text-red-500">Error: {(error as Error).message}</div>
       )}
 
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Broker Inventory Analysis</h2>
-        <Select
-          value={period}
-          onValueChange={(value) => setPeriod(value as Period)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select period" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1 month">1 Month</SelectItem>
-            <SelectItem value="3 month">3 Months</SelectItem>
-            <SelectItem value="6 month">6 Months</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <Tabs
-        defaultValue="ASING"
-        value={activeTab}
-        onValueChange={(val) => setActiveTab(val as keyof typeof TYPE_MAP)}
-        className="w-full"
-      >
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
-          {Object.entries(TYPE_MAP).map(([key, config]) => (
-            <TabsTrigger key={key} value={key}>
-              {config.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        
-        <TabsContent value={activeTab} className="mt-4">
-          <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-12 lg:col-span-7 space-y-6">
-              <div>
-                <p className="mb-2 text-left font-semibold">
-                  Inventory (Accumulation/Distribution) - {TYPE_MAP[activeTab].label}
-                </p>
-                <BrokerInventoryChart
-                  data={currentTypeData}
-                  dataKey="netLot"
-                  valueKey="netVal"
-                  label="Net Lot"
-                  title=""
-                />
-              </div>
-              <div>
-                <p className="mb-2 text-left font-semibold">
-                  Balance Position (Running Balance) - {TYPE_MAP[activeTab].label}
-                </p>
-                <BrokerInventoryChart
-                  data={currentTypeData}
-                  dataKey="runningBalance"
-                  valueKey="runningBalanceVal"
-                  label="Inventory"
-                  title=""
-                />
-              </div>
+      <div className="grid grid-cols-12 gap-2">
+        <div className="col-span-8"></div>
+        <div className="col-span-4 space-y-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="show-running-balance"
+                checked={showRunningBalance}
+                onCheckedChange={setShowRunningBalance}
+                size="sm"
+              />
+              <Label htmlFor="show-running-balance" className="text-xs">
+                Show Running Balance
+              </Label>
             </div>
-            
-            <div className="col-span-12 lg:col-span-5">
-              <div className="rounded-md border p-4">
-                 <h3 className="mb-4 font-semibold text-lg">Summary ({period})</h3>
-                 <Table>
-                  <TableHeader>
-                    <TableRow className="bg-muted/50 font-bold">
-                      <TableCell>Metric</TableCell>
-                      <TableCell className="text-right">Value</TableCell>
-                    </TableRow>
-                  </TableHeader>
-                  <tbody>
-                    <TableRow>
-                      <TableCell>Total Net Lot</TableCell>
-                      <TableCell
-                        className={cn(
-                          "text-right",
-                          (resumeData?.netLot || 0) < 0
-                            ? "text-red-600 dark:text-red-400"
-                            : "text-green-600 dark:text-green-400"
-                        )}
-                      >
-                        {formatNumber(resumeData?.netLot || 0)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Total Net Value</TableCell>
-                      <TableCell
-                        className={cn(
-                          "text-right",
-                          (resumeData?.netVal || 0) < 0
-                            ? "text-red-600 dark:text-red-400"
-                            : "text-green-600 dark:text-green-400"
-                        )}
-                      >
-                        {formatNumber(resumeData?.netVal || 0)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Avg Net Price</TableCell>
-                      <TableCell className="text-right">
-                        {formatNumberWithDecimal(resumeData?.avgNetPrice || 0)}
-                      </TableCell>
-                    </TableRow>
-                  </tbody>
-                </Table>
-              </div>
-            </div>
+            <Select
+              value={period}
+              onValueChange={(value) => setPeriod(value as Period)}
+            >
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Select period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1 month">1 Month</SelectItem>
+                <SelectItem value="3 month">3 Months</SelectItem>
+                <SelectItem value="6 month">6 Months</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </TabsContent>
-      </Tabs>
+
+          <div className="grid gap-2">
+            {TYPE_ORDER.map((type) => {
+              const config = TYPE_MAP[type]
+              const { chartData, resume } = getProcessedData(type)
+
+              if (!resume) return null
+
+              return (
+                <div key={type} className="overflow-hidden">
+                  <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                    <p className="text-sm font-medium">{config.label}</p>
+                    <div className="flex flex-wrap gap-4 text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">Net Lot:</span>
+                        <span
+                          className={cn(
+                            "font-mono font-medium",
+                            resume.netLot < 0
+                              ? "text-red-600 dark:text-red-400"
+                              : "text-green-600 dark:text-green-400"
+                          )}
+                        >
+                          {formatNumber(resume.netLot)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">
+                          Net Value:
+                        </span>
+                        <span
+                          className={cn(
+                            "font-mono font-medium",
+                            resume.netVal < 0
+                              ? "text-red-600 dark:text-red-400"
+                              : "text-green-600 dark:text-green-400"
+                          )}
+                        >
+                          {formatNumber(resume.netVal)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">
+                          Avg Price:
+                        </span>
+                        <span className="font-mono font-medium">
+                          {formatNumberWithDecimal(resume.avgNetPrice)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1">
+                    <div className="col-span-1">
+                      {showRunningBalance ? (
+                        <div>
+                          <BrokerInventoryChart
+                            data={chartData}
+                            dataKey="runningBalance"
+                            valueKey="runningBalanceVal"
+                            label="Inventory"
+                            title=""
+                          />
+                        </div>
+                      ) : (
+                        <div>
+                          <BrokerInventoryChart
+                            data={chartData}
+                            dataKey="netLot"
+                            valueKey="netVal"
+                            label="Net Lot"
+                            title=""
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

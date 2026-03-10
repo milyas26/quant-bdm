@@ -1,4 +1,3 @@
-
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,14 +12,7 @@ import { format } from "date-fns"
 import { useMemo } from "react"
 import { formatNumber } from "@/lib/utils"
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-)
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 interface BrokerInventoryChartProps {
   data: any[]
@@ -68,6 +60,14 @@ export function BrokerInventoryChart({
     }
   }, [sortedData, dataKey, label])
 
+  const maxAbsValue = useMemo(() => {
+    if (!sortedData.length) return 0
+    const values = sortedData.map((item) => Number(item[dataKey] || 0))
+    const max = Math.max(...values)
+    const min = Math.min(...values)
+    return Math.max(Math.abs(max), Math.abs(min)) * 1.1 // Add 10% padding
+  }, [sortedData, dataKey])
+
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -76,7 +76,7 @@ export function BrokerInventoryChart({
         display: false,
       },
       title: {
-        display: !!title,
+        display: false,
         text: title,
       },
       tooltip: {
@@ -105,12 +105,37 @@ export function BrokerInventoryChart({
     },
     scales: {
       y: {
+        min: -maxAbsValue,
+        max: maxAbsValue,
         grid: {
-          color: "rgba(100, 100, 100, 0.1)",
+          color: (context: any) => {
+            if (context.tick.value === 0) {
+              return "rgba(100, 100, 100, 0.5)" // Darker line for 0
+            }
+            return "rgba(100, 100, 100, 0.1)"
+          },
+          lineWidth: (context: any) => {
+            if (context.tick.value === 0) {
+              return 2 // Thicker line for 0
+            }
+            return 1
+          },
+        },
+        ticks: {
+          display: false, // Hide Y-axis labels (values)
+        },
+        border: {
+          display: false,
         },
       },
       x: {
         grid: {
+          display: false,
+        },
+        ticks: {
+          display: false, // Hide X-axis labels (dates)
+        },
+        border: {
           display: false,
         },
       },
@@ -118,7 +143,10 @@ export function BrokerInventoryChart({
   }
 
   return (
-    <div className="h-[300px] w-full rounded-md border p-4">
+    <div className="relative h-[100px] w-full border p-1">
+      <p className="absolute text-[10px] font-semibold text-muted-foreground">
+        {title}
+      </p>
       <Bar options={options} data={chartData} />
     </div>
   )
