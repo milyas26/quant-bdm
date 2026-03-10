@@ -14,6 +14,9 @@ import {
   getBrokerColor,
 } from "@/lib/utils"
 
+import { BrokerBalance } from "@/components/broker-balance"
+import type { DateRange } from "react-day-picker"
+
 export interface BrokerSummaryPopoverProps {
   children: React.ReactNode
   data: { buys: BrokerBuy[]; sells: BrokerSell[] } | undefined
@@ -41,8 +44,14 @@ export function BrokerSummaryPopover({
 
 export function BrokerSummaryContent({
   data,
+  selectedTicker,
+  date,
+  brokerCode,
 }: {
   data: { buys: BrokerBuy[]; sells: BrokerSell[] } | undefined
+  selectedTicker?: string
+  date?: DateRange
+  brokerCode?: string
 }) {
   // Helper to format average price
   const formatAvg = (num: number) => Math.round(num).toLocaleString()
@@ -76,13 +85,6 @@ export function BrokerSummaryContent({
       sortedBuys.reduce((acc, curr) => acc + parseFloat(curr.bval || "0"), 0),
     [sortedBuys]
   )
-
-  if (!data)
-    return (
-      <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-        No data available
-      </div>
-    )
 
   // 3. Calculate Top N (Buy - Sell)
   const calculateTopN = (n: number) => {
@@ -152,18 +154,57 @@ export function BrokerSummaryContent({
   const avgPrice = totalVol === 0 ? 0 : totalVal / (totalVol * 100) // Assuming Lot = 100 shares
 
   // 6. Prepare Rows for Detailed Table
-  const rows = []
-  const maxRows = Math.max(sortedBuys.length, sortedSells.length)
-  for (let i = 0; i < maxRows; i++) {
-    rows.push({
-      buy: sortedBuys[i],
-      sell: sortedSells[i],
-    })
-  }
+  const rows = React.useMemo(() => {
+    const res = []
+    const maxRows = Math.max(sortedBuys.length, sortedSells.length)
+    for (let i = 0; i < maxRows; i++) {
+      res.push({
+        buy: sortedBuys[i],
+        sell: sortedSells[i],
+      })
+    }
+    return res
+  }, [sortedBuys, sortedSells])
+
+  if (!data)
+    return (
+      <div className="flex flex-col items-center justify-center space-y-4 text-sm text-muted-foreground">
+        {brokerCode && selectedTicker && date ? (
+          <div className="w-full">
+            <div className="rounded-md border bg-card px-4 py-3 text-sm shadow-sm">
+              <BrokerBalance
+                brokerCode={brokerCode}
+                selectedTicker={selectedTicker}
+                date={date}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="flex h-32 items-center justify-center">
+            No data available
+          </div>
+        )}
+      </div>
+    )
 
   return (
     <div className="space-y-2">
-      <div className="bg-card px-4 py-3 text-sm shadow-sm">
+      {/* Broker Balance Section */}
+      <div className="flex flex-col items-center justify-center space-y-4 text-sm text-muted-foreground">
+        {brokerCode && selectedTicker && date && (
+          <div className="w-full">
+            <div className="rounded-md border bg-card px-4 py-3 text-sm shadow-sm">
+              <BrokerBalance
+                brokerCode={brokerCode}
+                selectedTicker={selectedTicker}
+                date={date}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-md border bg-card px-4 py-3 text-sm shadow-sm">
         <p className="mb-1 text-sm font-semibold text-card-foreground">
           Bandar Detector
         </p>

@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useParams, useNavigate } from "react-router-dom"
-import { BrokerBalance } from "@/components/broker-balance"
 import { ArrowLeftIcon, ChevronDown } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { BrokerInventory } from "@/components/broker-inventory"
@@ -190,11 +189,6 @@ export default function StockDetail() {
             valueType={valueType}
             onBrokerClick={handleBrokerClick}
             highlightedBroker={brokerCode}
-          />
-          <BrokerBalance
-            selectedTicker={selectedTicker}
-            date={date}
-            brokerCode={brokerCode}
           />
         </TabsContent>
         <TabsContent value="inventory" className="mt-2">

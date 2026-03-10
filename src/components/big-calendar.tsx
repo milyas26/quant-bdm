@@ -372,7 +372,12 @@ export function BigCalendar({
           </div>
         </div>
         <div className="col-span-3 rounded-lg">
-          <BrokerSummaryContent data={selectedDateData} />
+          <BrokerSummaryContent
+            data={selectedDateData}
+            selectedTicker={selectedTicker}
+            date={date}
+            brokerCode={highlightedBroker || undefined}
+          />
         </div>
       </div>
     </div>

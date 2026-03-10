@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
-import { getBrokerBalance, getBrokers } from "@/lib/api"
+import { getBrokerBalance } from "@/lib/api"
 import type { DateRange } from "react-day-picker"
-import { Table, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { cn, formatNumber, formatNumberWithDecimal } from "@/lib/utils"
 import { BrokerInventoryChart } from "./broker-inventory-chart"
-import { BrokerMultiSelect, type BrokerOption } from "./broker-multi-select"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 
 interface BrokerBalanceProps {
   selectedTicker: string
@@ -19,37 +19,11 @@ export function BrokerBalance({
   date,
   brokerCode,
 }: BrokerBalanceProps) {
-  const [selectedBrokers, setSelectedBrokers] = useState<string[]>(
-    brokerCode ? [brokerCode] : []
+  const [showRunningBalance, setShowRunningBalance] = useState(false)
+  const selectedBrokers = useMemo(
+    () => (brokerCode ? [brokerCode] : []),
+    [brokerCode]
   )
-
-  // Fetch all brokers for the select options
-  const { data: brokers = {} } = useQuery({
-    queryKey: ["brokers"],
-    queryFn: getBrokers,
-    staleTime: Infinity, // Broker list rarely changes
-  })
-
-  const brokerOptions = useMemo(() => {
-    const options: Record<string, BrokerOption[]> = {}
-    Object.entries(brokers).forEach(([type, brokerList]) => {
-      options[type] = brokerList.map((b) => ({
-        value: b.code,
-        label: b.code,
-        type: b.type,
-        name: b.name,
-      }))
-    })
-    return options
-  }, [brokers])
-
-  // If initial brokerCode changes, update selectedBrokers
-  useMemo(() => {
-    if (brokerCode && !selectedBrokers.includes(brokerCode)) {
-      setSelectedBrokers((prev) => [...prev, brokerCode])
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [brokerCode])
 
   const {
     data: brokerBalance,
@@ -83,7 +57,9 @@ export function BrokerBalance({
     if (!brokerBalance) return []
     let currentTotal = 0
     let currentTotalVal = 0
+    // API returns newest first (desc)
     const reversed = [...brokerBalance.data].reverse()
+
     const withBalance = reversed.map((item) => {
       currentTotal += item.netLot
       currentTotalVal += item.netVal
@@ -93,87 +69,101 @@ export function BrokerBalance({
         runningBalanceVal: currentTotalVal,
       }
     })
-    return withBalance.reverse()
+    // Charts need oldest first (asc), so we keep it reversed
+    return withBalance // Oldest to newest
   }, [brokerBalance])
 
+  if (!brokerCode) return null
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {isError && (
         <div className="text-red-500">Error: {(error as Error).message}</div>
       )}
 
-      <div className="mb-2 max-w-[400px]">
-        <BrokerMultiSelect
-          options={brokerOptions}
-          selected={selectedBrokers}
-          onChange={setSelectedBrokers}
-          placeholder="Select brokers..."
-        />
-      </div>
-      <div className="grid grid-cols-12 gap-2">
-        <div className="col-span-7 space-y-4">
-          <div>
-            <p className="mb-2 text-left font-semibold">
-              Inventory (Accumulation/Distribution)
-            </p>
-            <BrokerInventoryChart
-              data={runningBalanceData}
-              dataKey="netLot"
-              valueKey="netVal"
-              label="Net Lot"
-              title=""
-            />
-          </div>
-          <div>
-            <p className="mb-2 text-left font-semibold">
-              Balance Position (Running Balance)
-            </p>
-            <BrokerInventoryChart
-              data={runningBalanceData}
-              dataKey="runningBalance"
-              valueKey="runningBalanceVal"
-              label="Inventory"
-              title=""
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="show-running-balance-single" className="text-xs">
+              Show Running Balance
+            </Label>
+            <Switch
+              id="show-running-balance-single"
+              checked={showRunningBalance}
+              onCheckedChange={setShowRunningBalance}
+              size="sm"
             />
           </div>
         </div>
-        <div className="col-span-5">
-          <div className="max-h-[80vh] overflow-auto rounded-md border pr-4">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50 font-bold">
-                  <TableCell>Total</TableCell>
+      </div>
 
-                  <TableCell colSpan={3} />
-                  <TableCell className="text-right">
-                    {formatNumberWithDecimal(
-                      brokerBalance?.resume.avgNetPrice || 0
-                    )}
-                  </TableCell>
+      <div className="overflow-hidden">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-end">
+          <div className="flex flex-wrap gap-4 text-[11px]">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Net Lot:</span>
+              <span
+                className={cn(
+                  "font-mono font-medium",
+                  (brokerBalance?.resume.netLot || 0) < 0
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-green-600 dark:text-green-400"
+                )}
+              >
+                {formatNumber(brokerBalance?.resume.netLot || 0)}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Net Value:</span>
+              <span
+                className={cn(
+                  "font-mono font-medium",
+                  (brokerBalance?.resume.netVal || 0) < 0
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-green-600 dark:text-green-400"
+                )}
+              >
+                {formatNumber(brokerBalance?.resume.netVal || 0)}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Avg Price:</span>
+              <span className="font-mono font-medium">
+                {formatNumberWithDecimal(
+                  brokerBalance?.resume.avgNetPrice || 0
+                )}
+              </span>
+            </div>
+          </div>
+        </div>
 
-                  <TableCell
-                    className={cn(
-                      "text-right",
-                      (brokerBalance?.resume.netVal || 0) < 0
-                        ? "text-red-600 dark:text-red-400"
-                        : "text-green-600 dark:text-green-400"
-                    )}
-                  >
-                    {formatNumber(brokerBalance?.resume.netVal || 0)}
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "text-right",
-                      (brokerBalance?.resume.netLot || 0) < 0
-                        ? "text-red-600 dark:text-red-400"
-                        : "text-green-600 dark:text-green-400"
-                    )}
-                  >
-                    {formatNumber(brokerBalance?.resume.netLot || 0)}
-                  </TableCell>
-                </TableRow>
-              </TableHeader>
-            </Table>
+        <div className="mt-2 grid grid-cols-1">
+          <div className="col-span-1">
+            {showRunningBalance ? (
+              <div>
+                <div className="h-[150px]">
+                  <BrokerInventoryChart
+                    data={runningBalanceData}
+                    dataKey="runningBalance"
+                    valueKey="runningBalanceVal"
+                    label="Inventory"
+                    title=""
+                  />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="h-[150px]">
+                  <BrokerInventoryChart
+                    data={runningBalanceData}
+                    dataKey="netLot"
+                    valueKey="netVal"
+                    label="Net Lot"
+                    title=""
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

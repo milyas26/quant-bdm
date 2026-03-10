@@ -143,7 +143,7 @@ export function BrokerInventoryChart({
   }
 
   return (
-    <div className="relative h-[100px] w-full border p-1">
+    <div className="relative h-full w-full border p-1">
       <p className="absolute text-[10px] font-semibold text-muted-foreground">
         {title}
       </p>

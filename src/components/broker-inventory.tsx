@@ -163,7 +163,7 @@ export function BrokerInventory({ selectedTicker }: BrokerInventoryProps) {
               return (
                 <div key={type} className="overflow-hidden">
                   <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                    <p className="text-sm font-medium">{config.label}</p>
+                    <p className="text-xs font-medium">{config.label}</p>
                     <div className="flex flex-wrap gap-4 text-xs">
                       <div className="flex items-center gap-2">
                         <span className="text-muted-foreground">Net Lot:</span>
