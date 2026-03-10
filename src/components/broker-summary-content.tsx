@@ -162,8 +162,8 @@ export function BrokerSummaryContent({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="text-sm">
+    <div className="space-y-2">
+      <div className="bg-white p-4 text-sm shadow-sm">
         <p className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
           Bandar Detector
         </p>
@@ -241,7 +241,7 @@ export function BrokerSummaryContent({
           </div>
         </div>
       </div>
-      <div className="">
+      <div className="bg-white p-4 shadow-sm">
         <p className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
           Broker Summary
         </p>
@@ -262,7 +262,7 @@ export function BrokerSummaryContent({
             </div>
           </div>
           {/* Rows */}
-          <div className="">
+          <div className="max-h-[60vh] overflow-auto">
             {rows.map((row, idx) => (
               <div
                 key={idx}

@@ -14,6 +14,7 @@ import { getBrokerSummaryByDateRange } from "@/lib/api"
 import type { BrokerSummary, BrokerBuy, BrokerSell } from "@/lib/api"
 import type { DateRange } from "react-day-picker"
 import { BrokerSummaryContent } from "@/components/broker-summary-content"
+import TradingviewWidget from "./tradingview-widget"
 
 interface BigCalendarProps {
   className?: string
@@ -49,7 +50,7 @@ export function BigCalendar({
     if (externalHighlightedBroker === undefined) {
       setInternalHighlightedBroker(newBroker)
     }
-    onBrokerClick?.(code)
+    onBrokerClick?.(newBroker || "")
   }
 
   const {
@@ -239,7 +240,8 @@ export function BigCalendar({
       )}
 
       <div className="grid grid-cols-12 gap-2">
-        <div className="col-span-9 max-h-[80vh] overflow-auto">
+        <div className="col-span-9 space-y-2 overflow-auto">
+          <TradingviewWidget symbol={selectedTicker} />
           <div className="grid grid-cols-3 gap-2 p-1 sm:grid-cols-4 md:grid-cols-6">
             {days.map((day, index) => (
               <Card
@@ -363,7 +365,7 @@ export function BigCalendar({
             ))}
           </div>
         </div>
-        <div className="col-span-3 max-h-[80vh] overflow-auto rounded-lg bg-white p-4 pl-2 dark:bg-gray-900">
+        <div className="col-span-3 rounded-lg dark:bg-gray-900">
           <BrokerSummaryContent data={selectedDateData} />
         </div>
       </div>

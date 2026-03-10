@@ -111,6 +111,32 @@ export function BrokerBalance({
         />
       </div>
       <div className="grid grid-cols-12 gap-2">
+        <div className="col-span-7 space-y-4">
+          <div>
+            <p className="mb-2 text-left font-semibold">
+              Inventory (Accumulation/Distribution)
+            </p>
+            <BrokerInventoryChart
+              data={runningBalanceData}
+              dataKey="netLot"
+              valueKey="netVal"
+              label="Net Lot"
+              title=""
+            />
+          </div>
+          <div>
+            <p className="mb-2 text-left font-semibold">
+              Balance Position (Running Balance)
+            </p>
+            <BrokerInventoryChart
+              data={runningBalanceData}
+              dataKey="runningBalance"
+              valueKey="runningBalanceVal"
+              label="Inventory"
+              title=""
+            />
+          </div>
+        </div>
         <div className="col-span-5">
           <div className="max-h-[80vh] overflow-auto rounded-md border pr-4">
             <Table>
@@ -148,32 +174,6 @@ export function BrokerBalance({
                 </TableRow>
               </TableHeader>
             </Table>
-          </div>
-        </div>
-        <div className="col-span-7 space-y-4">
-          <div>
-            <p className="mb-2 text-left font-semibold">
-              Inventory (Accumulation/Distribution)
-            </p>
-            <BrokerInventoryChart
-              data={runningBalanceData}
-              dataKey="netLot"
-              valueKey="netVal"
-              label="Net Lot"
-              title=""
-            />
-          </div>
-          <div>
-            <p className="mb-2 text-left font-semibold">
-              Balance Position (Running Balance)
-            </p>
-            <BrokerInventoryChart
-              data={runningBalanceData}
-              dataKey="runningBalance"
-              valueKey="runningBalanceVal"
-              label="Inventory"
-              title=""
-            />
           </div>
         </div>
       </div>

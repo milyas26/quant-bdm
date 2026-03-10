@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useParams, useNavigate } from "react-router-dom"
-import TradingViewWidget from "@/components/tradingview-widget"
 import { BrokerBalance } from "@/components/broker-balance"
 import { ArrowLeftIcon, ChevronDown } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -211,12 +210,6 @@ export default function StockDetail() {
         <TabsList>
           <TabsTrigger
             className="relative rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
-            value="chart"
-          >
-            Chart
-          </TabsTrigger>
-          <TabsTrigger
-            className="relative rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
             value="broker-summary"
           >
             Broker Summary
@@ -228,9 +221,6 @@ export default function StockDetail() {
             Inventory
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="chart" className="mt-2">
-          <TradingViewWidget symbol={selectedTicker} />
-        </TabsContent>
         <TabsContent value="broker-summary" className="mt-2">
           <Tabs defaultValue="calendar" className="w-full">
             <TabsList className="h-auto w-full justify-start rounded-none border-b bg-transparent p-0 pb-2">

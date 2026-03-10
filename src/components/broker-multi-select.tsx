@@ -53,6 +53,7 @@ export function BrokerMultiSelect({
     ASING: true,
     PEMERINTAH: true,
     RITEL: true,
+    SMART_MONEY: true,
   })
 
   const isInitialized = React.useRef(false)
