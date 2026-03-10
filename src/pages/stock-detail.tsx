@@ -30,6 +30,8 @@ import { ArrowLeftIcon, ChevronDown } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { BrokerInventory } from "@/components/broker-inventory"
 
+import { cn } from "@/lib/utils"
+
 export default function StockDetail() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -103,9 +105,45 @@ export default function StockDetail() {
                 />
               )}
               <div className="flex flex-col gap-1">
-                <h1 className="text-2xl font-bold">
-                  {tickerInfo?.name || selectedTicker}
-                </h1>
+                <div className="flex items-center gap-4">
+                  <h1 className="text-2xl font-bold">
+                    {tickerInfo?.name || selectedTicker}
+                  </h1>
+                  {tickerInfo?.latestHistoricalData && (
+                    <div className="flex items-center gap-2 border-l border-gray-300 px-2">
+                      <span className="text-xl font-bold">
+                        {parseInt(
+                          tickerInfo.latestHistoricalData.close
+                        ).toLocaleString()}
+                      </span>
+                      <span
+                        className={cn(
+                          "text-sm font-medium",
+                          parseFloat(
+                            tickerInfo.latestHistoricalData.change_percentage
+                          ) > 0
+                            ? "text-green-600"
+                            : parseFloat(
+                                  tickerInfo.latestHistoricalData
+                                    .change_percentage
+                                ) < 0
+                              ? "text-red-600"
+                              : "text-gray-600"
+                        )}
+                      >
+                        {parseFloat(
+                          tickerInfo.latestHistoricalData.change_percentage
+                        ) > 0
+                          ? "+"
+                          : ""}
+                        {parseFloat(
+                          tickerInfo.latestHistoricalData.change_percentage
+                        ).toFixed(2)}
+                        %
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <div className="flex gap-2">
                   {tickerInfo?.sector && (
                     <Badge variant="default">{tickerInfo.sector}</Badge>

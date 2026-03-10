@@ -314,7 +314,8 @@ export function BrokerSummaryContent({
                     {row.buy && formatNumber(parseFloat(row.buy.bval))}
                   </td>
                   <td className="p-1 text-right text-green-600 dark:text-green-400">
-                    {row.buy && formatNumber(parseFloat(row.buy.blot))}
+                    {row.buy &&
+                      formatNumber(parseFloat(row.buy.blot).toFixed(0) as any)}
                   </td>
                   <td className="p-1 text-right text-green-600 dark:text-green-400">
                     {row.buy && formatAvg(parseFloat(row.buy.netbsBuyAvgPrice))}
@@ -332,7 +333,8 @@ export function BrokerSummaryContent({
                     {row.sell && formatNumber(parseFloat(row.sell.sval))}
                   </td>
                   <td className="p-1 text-right text-red-600 dark:text-red-400">
-                    {row.sell && formatNumber(parseFloat(row.sell.slot))}
+                    {row.sell &&
+                      formatNumber(parseFloat(row.sell.slot).toFixed(0) as any)}
                   </td>
                   <td className="p-1 text-right text-red-600 dark:text-red-400">
                     {row.sell &&
