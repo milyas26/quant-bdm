@@ -168,15 +168,17 @@ export function BrokerSummaryContent({
 
   if (!data)
     return (
-      <div className="flex flex-col items-center justify-center space-y-4 text-sm text-muted-foreground">
+      <div>
         {brokerCode && selectedTicker && date ? (
-          <div className="w-full">
-            <div className="rounded-md border bg-card px-4 py-3 text-sm shadow-sm">
-              <BrokerBalance
-                brokerCode={brokerCode}
-                selectedTicker={selectedTicker}
-                date={date}
-              />
+          <div className="flex flex-col items-center justify-center space-y-4 text-sm text-muted-foreground">
+            <div className="w-full">
+              <div className="rounded-md border bg-card px-4 py-3 text-sm shadow-sm">
+                <BrokerBalance
+                  brokerCode={brokerCode}
+                  selectedTicker={selectedTicker}
+                  date={date}
+                />
+              </div>
             </div>
           </div>
         ) : (
@@ -190,8 +192,8 @@ export function BrokerSummaryContent({
   return (
     <div className="space-y-2">
       {/* Broker Balance Section */}
-      <div className="flex flex-col items-center justify-center space-y-4 text-sm text-muted-foreground">
-        {brokerCode && selectedTicker && date && (
+      {brokerCode && selectedTicker && date && (
+        <div className="flex flex-col items-center justify-center space-y-4 text-sm text-muted-foreground">
           <div className="w-full">
             <div className="rounded-md border bg-card px-4 py-3 text-sm shadow-sm">
               <BrokerBalance
@@ -201,8 +203,8 @@ export function BrokerSummaryContent({
               />
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="rounded-md border bg-card px-4 py-3 text-sm shadow-sm">
         <p className="mb-1 text-sm font-semibold text-card-foreground">

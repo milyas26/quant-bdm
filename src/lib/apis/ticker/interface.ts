@@ -6,6 +6,12 @@ export interface Ticker {
   sector: string | null
   subSector: string | null
   isOnWatchlist: boolean
+  latestHistoricalData: {
+    close: string;
+    change: string;
+    change_percentage: string;
+    date: string;
+  } | null
 }
 export interface Meta {
   total: number

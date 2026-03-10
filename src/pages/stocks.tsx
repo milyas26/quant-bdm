@@ -373,6 +373,7 @@ export default function StocksPage() {
               />
             </TableHead>
             <TableHead>Ticker</TableHead>
+            <TableHead>Price</TableHead>
             <TableHead>Sector</TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
@@ -450,6 +451,43 @@ export default function StocksPage() {
                       </div>
                     </div>
                   </div>
+                </TableCell>
+                <TableCell>
+                  {ticker.latestHistoricalData ? (
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold">
+                        {parseInt(
+                          ticker.latestHistoricalData.close
+                        ).toLocaleString()}
+                      </span>
+                      <span
+                        className={cn(
+                          "text-xs font-medium",
+                          parseFloat(
+                            ticker.latestHistoricalData.change_percentage
+                          ) > 0
+                            ? "text-green-600"
+                            : parseFloat(
+                                  ticker.latestHistoricalData.change_percentage
+                                ) < 0
+                              ? "text-red-600"
+                              : "text-gray-600"
+                        )}
+                      >
+                        {parseFloat(
+                          ticker.latestHistoricalData.change_percentage
+                        ) > 0
+                          ? "+"
+                          : ""}
+                        {parseFloat(
+                          ticker.latestHistoricalData.change_percentage
+                        ).toFixed(2)}
+                        %
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">-</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   {ticker.sector ? (

@@ -3,6 +3,7 @@ import {
   fetchAndSaveBrokerSummary,
   fetchAndSaveTickerInfo,
   getTickerDetail,
+  fetchAndSaveHistoricalData,
 } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
@@ -71,6 +72,16 @@ export default function StockDetail() {
     },
   })
 
+  const fetchHistoricalDataMutation = useMutation({
+    mutationFn: () =>
+      fetchAndSaveHistoricalData({
+        symbol: selectedTicker!,
+      }),
+    onSuccess: () => {
+      // You might want to invalidate queries here if you display historical data
+    },
+  })
+
   return (
     <div className="space-y-4">
       <div className="flex items-baseline justify-between">
@@ -114,10 +125,14 @@ export default function StockDetail() {
                 variant="default"
                 size="sm"
                 disabled={
-                  fetchMutation.isPending || fetchTickerInfoMutation.isPending
+                  fetchMutation.isPending ||
+                  fetchTickerInfoMutation.isPending ||
+                  fetchHistoricalDataMutation.isPending
                 }
               >
-                {fetchMutation.isPending || fetchTickerInfoMutation.isPending
+                {fetchMutation.isPending ||
+                fetchTickerInfoMutation.isPending ||
+                fetchHistoricalDataMutation.isPending
                   ? "Fetching..."
                   : "Fetch Data"}
                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -135,6 +150,11 @@ export default function StockDetail() {
               >
                 Ticker Info
               </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => fetchHistoricalDataMutation.mutate()}
+              >
+                Historical Data
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           {fetchMutation.isError && (
@@ -147,6 +167,12 @@ export default function StockDetail() {
             <div className="text-right text-xs text-red-500">
               {(fetchTickerInfoMutation.error as any)?.response?.data?.error ||
                 (fetchTickerInfoMutation.error as Error).message}
+            </div>
+          )}
+          {fetchHistoricalDataMutation.isError && (
+            <div className="text-right text-xs text-red-500">
+              {(fetchHistoricalDataMutation.error as any)?.response?.data
+                ?.error || (fetchHistoricalDataMutation.error as Error).message}
             </div>
           )}
         </div>

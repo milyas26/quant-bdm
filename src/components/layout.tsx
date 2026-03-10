@@ -57,7 +57,7 @@ export default function Layout() {
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <Link to="/" className="flex items-center space-x-2">
             <span className="font-mono text-2xl font-bold italic sm:inline-block">
-              Sisipasi
+              carisahamyangmauterbang
             </span>
           </Link>
           <div className="flex items-center gap-4">
