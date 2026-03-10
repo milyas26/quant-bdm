@@ -8,6 +8,8 @@ const navItems = [
   { title: "Extra Info", url: "/extra-info" },
 ]
 
+import { AddTickerDialog } from "@/components/add-ticker-dialog"
+
 export default function Layout() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -32,7 +34,10 @@ export default function Layout() {
                 </Link>
               ))}
             </nav>
-            <ModeToggle />
+            <div className="flex items-center gap-2">
+              <AddTickerDialog />
+              <ModeToggle />
+            </div>
           </div>
         </div>
       </header>

@@ -127,7 +127,7 @@ export default function StockDetail() {
             </div>
           </div>
           <div className="flex w-full items-center gap-4">
-            <div className="relative w-[300px] border-b bg-background py-1">
+            <div className="relative w-[300px] border-b border-input bg-background py-1 transition-colors focus-within:border-primary">
               <Input
                 ref={inputRef}
                 value={inputValue}

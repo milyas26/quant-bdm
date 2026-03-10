@@ -7,19 +7,10 @@ import {
   toggleTickerInWatchlist,
   fetchAllTickerInfo,
   fetchAllBrokerSummary,
-  addTicker,
 } from "@/lib/api"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import {
   Table,
   TableBody,
@@ -38,7 +29,6 @@ import {
   MoreHorizontal,
   Star,
   RefreshCw,
-  Plus,
 } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
 import {
@@ -73,8 +63,6 @@ export default function StocksPage() {
   const debouncedSearch = useDebounce(searchTerm, 500)
   const navigate = useNavigate()
 
-  const [isAddTickerDialogOpen, setIsAddTickerDialogOpen] = useState(false)
-  const [newTickerSymbol, setNewTickerSymbol] = useState("")
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -86,12 +74,6 @@ export default function StocksPage() {
         target.isContentEditable
 
       if (isInput) return
-
-      // Hotkey "n" to open add ticker dialog
-      if (e.key === "n") {
-        e.preventDefault()
-        setIsAddTickerDialogOpen(true)
-      }
 
       // Hotkey "/" to focus search input
       if (e.key === "/") {
@@ -106,19 +88,6 @@ export default function StocksPage() {
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
-
-  const { mutate: handleAddTicker, isPending: isAddingTicker } = useMutation({
-    mutationFn: addTicker,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tickers"] })
-      toast.success("Ticker added successfully")
-      setIsAddTickerDialogOpen(false)
-      setNewTickerSymbol("")
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Failed to add ticker")
-    },
-  })
 
   const { mutate: handleToggleWatchlist, isPending: isTogglingWatchlist } =
     useMutation({
@@ -350,69 +319,6 @@ export default function StocksPage() {
                 />
               </div>
             </div>
-            {/* Add Ticker Button */}
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setIsAddTickerDialogOpen(true)}
-              className="shrink-0"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-
-            <Dialog
-              open={isAddTickerDialogOpen}
-              onOpenChange={setIsAddTickerDialogOpen}
-            >
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Add Ticker</DialogTitle>
-                  <DialogDescription>
-                    Enter the ticker symbol to add to your watchlist. Max 4
-                    characters.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="ticker" className="text-right">
-                      Ticker
-                    </Label>
-                    <Input
-                      id="ticker"
-                      value={newTickerSymbol}
-                      onChange={(e) =>
-                        setNewTickerSymbol(e.target.value.toUpperCase())
-                      }
-                      maxLength={4}
-                      className="col-span-3"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (
-                          e.key === "Enter" &&
-                          newTickerSymbol.length > 0 &&
-                          !isAddingTicker
-                        ) {
-                          handleAddTicker(newTickerSymbol)
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    type="submit"
-                    onClick={() => handleAddTicker(newTickerSymbol)}
-                    disabled={
-                      !newTickerSymbol ||
-                      newTickerSymbol.length === 0 ||
-                      isAddingTicker
-                    }
-                  >
-                    {isAddingTicker ? "Adding..." : "Add Ticker"}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
 
             <div className="w-full space-y-2 md:w-32">
               <Label htmlFor="minPrice">Min Price</Label>
