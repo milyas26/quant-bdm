@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import {
@@ -6,10 +6,20 @@ import {
   deleteTicker,
   toggleTickerInWatchlist,
   fetchAllTickerInfo,
+  fetchAllBrokerSummary,
+  addTicker,
 } from "@/lib/api"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   Table,
   TableBody,
@@ -28,6 +38,7 @@ import {
   MoreHorizontal,
   Star,
   RefreshCw,
+  Plus,
 } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
 import {
@@ -61,6 +72,53 @@ export default function StocksPage() {
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
   const debouncedSearch = useDebounce(searchTerm, 500)
   const navigate = useNavigate()
+
+  const [isAddTickerDialogOpen, setIsAddTickerDialogOpen] = useState(false)
+  const [newTickerSymbol, setNewTickerSymbol] = useState("")
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      const isInput =
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+
+      if (isInput) return
+
+      // Hotkey "n" to open add ticker dialog
+      if (e.key === "n") {
+        e.preventDefault()
+        setIsAddTickerDialogOpen(true)
+      }
+
+      // Hotkey "/" to focus search input
+      if (e.key === "/") {
+        e.preventDefault()
+        if (searchInputRef.current) {
+          searchInputRef.current.focus()
+          searchInputRef.current.select()
+        }
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [])
+
+  const { mutate: handleAddTicker, isPending: isAddingTicker } = useMutation({
+    mutationFn: addTicker,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tickers"] })
+      toast.success("Ticker added successfully")
+      setIsAddTickerDialogOpen(false)
+      setNewTickerSymbol("")
+    },
+    onError: (error) => {
+      toast.error(`Failed to add ticker: ${(error as Error).message}`)
+    },
+  })
 
   const { mutate: handleToggleWatchlist, isPending: isTogglingWatchlist } =
     useMutation({
@@ -207,6 +265,21 @@ export default function StocksPage() {
     },
   })
 
+  const {
+    mutate: handleFetchAllBrokerSummary,
+    isPending: isFetchingAllBrokerSummary,
+  } = useMutation({
+    mutationFn: fetchAllBrokerSummary,
+    onSuccess: () => {
+      toast.success("Fetching all broker summary in background started.")
+    },
+    onError: (error) => {
+      toast.error(
+        `Failed to start fetching broker summary: ${(error as Error).message}`
+      )
+    },
+  })
+
   return (
     <div className="space-y-4">
       <AlertDialog
@@ -268,6 +341,7 @@ export default function StocksPage() {
               <div className="relative">
                 <Search className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                 <Input
+                  ref={searchInputRef}
                   id="search"
                   placeholder="Search symbol or name..."
                   className="pl-8"
@@ -276,6 +350,69 @@ export default function StocksPage() {
                 />
               </div>
             </div>
+            {/* Add Ticker Button */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setIsAddTickerDialogOpen(true)}
+              className="shrink-0"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+
+            <Dialog
+              open={isAddTickerDialogOpen}
+              onOpenChange={setIsAddTickerDialogOpen}
+            >
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Add Ticker</DialogTitle>
+                  <DialogDescription>
+                    Enter the ticker symbol to add to your watchlist. Max 4
+                    characters.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="ticker" className="text-right">
+                      Ticker
+                    </Label>
+                    <Input
+                      id="ticker"
+                      value={newTickerSymbol}
+                      onChange={(e) =>
+                        setNewTickerSymbol(e.target.value.toUpperCase())
+                      }
+                      maxLength={4}
+                      className="col-span-3"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (
+                          e.key === "Enter" &&
+                          newTickerSymbol.length > 0 &&
+                          !isAddingTicker
+                        ) {
+                          handleAddTicker(newTickerSymbol)
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="submit"
+                    onClick={() => handleAddTicker(newTickerSymbol)}
+                    disabled={
+                      !newTickerSymbol ||
+                      newTickerSymbol.length === 0 ||
+                      isAddingTicker
+                    }
+                  >
+                    {isAddingTicker ? "Adding..." : "Add Ticker"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
             <div className="w-full space-y-2 md:w-32">
               <Label htmlFor="minPrice">Min Price</Label>
@@ -312,16 +449,43 @@ export default function StocksPage() {
               </Button>
             )}
 
-            <Button
-              variant="outline"
-              onClick={() => handleFetchAllInfo()}
-              disabled={isFetchingAll}
-            >
-              <RefreshCw
-                className={cn("mr-2 h-4 w-4", isFetchingAll && "animate-spin")}
-              />
-              {isFetchingAll ? "Fetching..." : "Fetch All Info"}
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <MoreHorizontal className="mr-2 h-4 w-4" />
+                  Fetch
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Data Operations</DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => handleFetchAllInfo()}
+                  disabled={isFetchingAll}
+                >
+                  <RefreshCw
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      isFetchingAll && "animate-spin"
+                    )}
+                  />
+                  {isFetchingAll ? "Fetching Info..." : "Stock Info"}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleFetchAllBrokerSummary()}
+                  disabled={isFetchingAllBrokerSummary}
+                >
+                  <RefreshCw
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      isFetchingAllBrokerSummary && "animate-spin"
+                    )}
+                  />
+                  {isFetchingAllBrokerSummary
+                    ? "Fetching Brokers..."
+                    : "Broker Summary"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardContent>
       </Card>

@@ -85,3 +85,12 @@ export const getBrokerBalance = async (
     throw error
   }
 }
+
+export const fetchAllBrokerSummary = async () => {
+  const { data } = await api.get<{
+    message: string
+    processed: number
+    details: any[]
+  }>("/fetch-all-broker-summary")
+  return data
+}

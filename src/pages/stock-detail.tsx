@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect, useRef } from "react"
-import { format, subDays } from "date-fns"
+import { format, startOfMonth, subMonths } from "date-fns"
 import { BigCalendar } from "@/components/big-calendar"
 import { DatePickerWithRange } from "@/components/date-range-picker"
 import type { DateRange } from "react-day-picker"
@@ -68,7 +68,7 @@ export default function StockDetail() {
   }, [])
 
   const [date, setDate] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 120),
+    from: startOfMonth(subMonths(new Date(), 1)),
     to: new Date(),
   })
   const [valueType, setValueType] = useState<"Net" | "Gross">("Net")
@@ -209,34 +209,56 @@ export default function StockDetail() {
 
       <Tabs defaultValue="broker-summary" className="w-full">
         <TabsList>
-          <TabsTrigger value="chart">Chart</TabsTrigger>
-          <TabsTrigger value="broker-summary">Broker Summary</TabsTrigger>
-          <TabsTrigger value="broker-balance">
-            Broker Balance{" "}
-            <span className="text-sm font-bold text-green-600">
-              {brokerCode}
-            </span>
+          <TabsTrigger
+            className="relative rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+            value="chart"
+          >
+            Chart
           </TabsTrigger>
-          <TabsTrigger value="inventory">Inventory</TabsTrigger>
+          <TabsTrigger
+            className="relative rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+            value="broker-summary"
+          >
+            Broker Summary
+          </TabsTrigger>
+          <TabsTrigger
+            className="relative rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+            value="inventory"
+          >
+            Inventory
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="chart" className="mt-2">
           <TradingViewWidget symbol={selectedTicker} />
         </TabsContent>
         <TabsContent value="broker-summary" className="mt-2">
-          <BigCalendar
-            selectedTicker={selectedTicker}
-            date={date}
-            valueType={valueType}
-            onBrokerClick={handleBrokerClick}
-            highlightedBroker={brokerCode}
-          />
-        </TabsContent>
-        <TabsContent value="broker-balance" className="mt-2">
-          <BrokerBalance
-            selectedTicker={selectedTicker}
-            date={date}
-            brokerCode={brokerCode}
-          />
+          <Tabs defaultValue="calendar" className="w-full">
+            <TabsList className="h-auto w-full justify-start rounded-none border-b bg-transparent p-0 pb-2">
+              <TabsTrigger value="calendar">Calendar</TabsTrigger>
+              <TabsTrigger value="broker-balance">
+                Broker Balance{" "}
+                <span className="ml-1 text-sm font-bold text-green-600">
+                  {brokerCode}
+                </span>
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="calendar">
+              <BigCalendar
+                selectedTicker={selectedTicker}
+                date={date}
+                valueType={valueType}
+                onBrokerClick={handleBrokerClick}
+                highlightedBroker={brokerCode}
+              />
+            </TabsContent>
+            <TabsContent value="broker-balance">
+              <BrokerBalance
+                selectedTicker={selectedTicker}
+                date={date}
+                brokerCode={brokerCode}
+              />
+            </TabsContent>
+          </Tabs>
         </TabsContent>
         <TabsContent value="inventory" className="mt-2">
           {/*  */}

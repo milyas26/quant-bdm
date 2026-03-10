@@ -129,6 +129,24 @@ export function BigCalendar({
       if (dayOfWeek === 0 || dayOfWeek === 6) continue
 
       const dateStr = format(currentDate, "yyyy-MM-dd")
+
+      // Check if date is today and time is before 18:00 WIB
+      const now = new Date()
+      const wibDateStr = now.toLocaleDateString("en-CA", {
+        timeZone: "Asia/Jakarta",
+      })
+      const wibHour = parseInt(
+        now.toLocaleTimeString("en-GB", {
+          timeZone: "Asia/Jakarta",
+          hour: "2-digit",
+          hour12: false,
+        })
+      )
+
+      if (dateStr === wibDateStr && wibHour < 18) {
+        continue
+      }
+
       const dayData = dailyData[dateStr]
 
       // Calculate top buyers and sellers

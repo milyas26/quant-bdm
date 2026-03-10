@@ -26,3 +26,8 @@ export const getTickerDetail = async (symbol: string) => {
   const { data } = await api.get(`/tickers/${symbol}`)
   return data
 }
+
+export const addTicker = async (symbol: string) => {
+  const { data } = await api.post("/add-ticker", { symbol })
+  return data
+}
