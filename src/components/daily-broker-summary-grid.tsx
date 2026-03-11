@@ -45,29 +45,38 @@ export function DailyBrokerSummaryGrid({
   const emptyEndCells = lastDay ? (lastDay.date.getDay() === 0 ? 6 : lastDay.date.getDay() - 1) : 0 // Adjust for Monday start
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-0">
       <div className="grid grid-cols-5 border-b border-border">
         {weekDays.map((day) => (
-          <div key={day} className="py-2 text-center text-sm font-medium text-muted-foreground border-r border-border last:border-r-0">
+          <div
+            key={day}
+            className="border-r border-border py-2 text-center text-sm font-medium text-muted-foreground last:border-r-0"
+          >
             {day}
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-5 border-l border-t border-border" style={{ direction: "rtl" }}>
+      <div
+        className="grid grid-cols-5 border-t border-l border-border"
+        style={{ direction: "rtl" }}
+      >
         {Array.from({ length: emptyStartCells }).map((_, i) => (
-          <div key={`empty-start-${i}`} className="h-32 min-h-32 border-b border-l border-border bg-muted/20" />
+          <div
+            key={`empty-start-${i}`}
+            className="h-32 min-h-32 border-b border-l border-border bg-muted/20"
+          />
         ))}
         {sortedDays.map((day, index) => {
           return (
             <div
               key={index}
               className={cn(
-                "relative h-32 min-h-32 cursor-pointer py-2 px-4 transition-all duration-200 border-b border-l border-border text-left",
+                "relative h-32 min-h-32 cursor-pointer border-b border-l border-border px-4 py-2 text-left transition-all duration-200",
                 "bg-card hover:bg-accent/50",
                 day.isToday && "bg-accent/20",
                 selectedDateData &&
                   selectedDateData === day.data &&
-                  "ring-2 ring-inset ring-slate-500 dark:ring-slate-400 z-10"
+                  "z-10 ring-2 ring-slate-500 ring-inset dark:ring-slate-400"
               )}
               style={{ direction: "ltr" }}
               onClick={() => {
@@ -77,7 +86,7 @@ export function DailyBrokerSummaryGrid({
               {/* Bandar Status Indicator */}
               <div
                 className={cn(
-                  "absolute right-0 bottom-0 left-0 h-1.5 rounded-b-md",
+                  "absolute right-0.5 bottom-0.5 left-0.5 h-1.5",
                   getBandarBgColor(day.bandarStatus)
                 )}
               />
@@ -173,7 +182,10 @@ export function DailyBrokerSummaryGrid({
           )
         })}
         {Array.from({ length: emptyEndCells }).map((_, i) => (
-          <div key={`empty-end-${i}`} className="h-32 min-h-32 border-b border-l border-border bg-muted/20" />
+          <div
+            key={`empty-end-${i}`}
+            className="h-32 min-h-32 border-b border-l border-border bg-muted/20"
+          />
         ))}
       </div>
     </div>

@@ -38,3 +38,8 @@ export const addTicker = async (symbol: string) => {
     throw error
   }
 }
+
+export const refreshAllTickers = async () => {
+  const { data } = await api.post("/refresh-tickers")
+  return data
+}

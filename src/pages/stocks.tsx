@@ -5,8 +5,7 @@ import {
   getTickers,
   deleteTicker,
   toggleTickerInWatchlist,
-  fetchAllTickerInfo,
-  fetchAllBrokerSummary,
+  refreshAllTickers,
 } from "@/lib/api"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -195,30 +194,16 @@ export default function StocksPage() {
     },
   })
 
-  const { mutate: handleFetchAllInfo, isPending: isFetchingAll } = useMutation({
-    mutationFn: fetchAllTickerInfo,
-    onSuccess: () => {
-      toast.success("Fetching all tickers info in background started.")
-    },
-    onError: (error) => {
-      toast.error(`Failed to start fetching: ${(error as Error).message}`)
-    },
-  })
-
-  const {
-    mutate: handleFetchAllBrokerSummary,
-    isPending: isFetchingAllBrokerSummary,
-  } = useMutation({
-    mutationFn: fetchAllBrokerSummary,
-    onSuccess: () => {
-      toast.success("Fetching all broker summary in background started.")
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to start fetching broker summary: ${(error as Error).message}`
-      )
-    },
-  })
+  const { mutate: handleRefreshAllTickers, isPending: isRefreshing } =
+    useMutation({
+      mutationFn: refreshAllTickers,
+      onSuccess: () => {
+        toast.success("Refreshing all tickers data in background started.")
+      },
+      onError: (error) => {
+        toast.error(`Failed to start refreshing: ${(error as Error).message}`)
+      },
+    })
 
   return (
     <div className="space-y-4">
@@ -275,7 +260,7 @@ export default function StocksPage() {
 
       <Card className="bg-card/20">
         <CardContent className="space-y-4">
-          <div className="flex flex-col flex-wrap gap-4 md:flex-row md:items-end">
+          <div className="flex flex-col flex-wrap gap-2 md:flex-row md:items-end">
             <div className="w-full min-w-[200px] space-y-2 md:w-auto md:flex-1">
               <Label htmlFor="search">Search</Label>
               <div className="relative">
@@ -326,43 +311,16 @@ export default function StocksPage() {
               </Button>
             )}
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <MoreHorizontal className="mr-2 h-4 w-4" />
-                  Fetch
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Data Operations</DropdownMenuLabel>
-                <DropdownMenuItem
-                  onClick={() => handleFetchAllInfo()}
-                  disabled={isFetchingAll}
-                >
-                  <RefreshCw
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      isFetchingAll && "animate-spin"
-                    )}
-                  />
-                  {isFetchingAll ? "Fetching Info..." : "Stock Info"}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleFetchAllBrokerSummary()}
-                  disabled={isFetchingAllBrokerSummary}
-                >
-                  <RefreshCw
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      isFetchingAllBrokerSummary && "animate-spin"
-                    )}
-                  />
-                  {isFetchingAllBrokerSummary
-                    ? "Fetching Brokers..."
-                    : "Broker Summary"}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button
+              variant="outline"
+              onClick={() => handleRefreshAllTickers()}
+              disabled={isRefreshing}
+            >
+              <RefreshCw
+                className={cn("mr-2 h-4 w-4", isRefreshing && "animate-spin")}
+              />
+              {isRefreshing ? "Refreshing..." : "Refresh Data"}
+            </Button>
           </div>
         </CardContent>
       </Card>
