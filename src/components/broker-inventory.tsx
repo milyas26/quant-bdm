@@ -85,10 +85,10 @@ const TYPE_MAP = {
 
 const TYPE_ORDER: (keyof typeof TYPE_MAP)[] = [
   "SMART_MONEY",
-  "DUMB_MONEY",
   "ASING",
-  "RITEL",
   "PEMERINTAH",
+  "DUMB_MONEY",
+  "RITEL",
   "LOKAL",
 ]
 

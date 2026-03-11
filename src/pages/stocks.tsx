@@ -24,6 +24,8 @@ import { Label } from "@/components/ui/label"
 import {
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Search,
   Trash2,
   MoreHorizontal,
@@ -105,6 +107,12 @@ export default function StocksPage() {
   const [maxPriceInput, setMaxPriceInput] = useState(
     searchParams.get("maxPrice") || ""
   )
+
+  const [pageInput, setPageInput] = useState(searchParams.get("page") || "1")
+
+  useEffect(() => {
+    setPageInput(page.toString())
+  }, [page])
 
   const updateParams = (updates: Partial<GetTickersParams>) => {
     const newParams = new URLSearchParams(searchParams)
@@ -265,7 +273,7 @@ export default function StocksPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <Card>
+      <Card className="bg-card/20">
         <CardContent className="space-y-4">
           <div className="flex flex-col flex-wrap gap-4 md:flex-row md:items-end">
             <div className="w-full min-w-[200px] space-y-2 md:w-auto md:flex-1">
@@ -534,6 +542,15 @@ export default function StocksPage() {
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
+            size="icon"
+            onClick={() => updateParams({ page: 1 })}
+            disabled={page <= 1 || isLoading}
+            title="First Page"
+          >
+            <ChevronsLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
             size="sm"
             onClick={() => updateParams({ page: Math.max(1, page - 1) })}
             disabled={page <= 1 || isLoading}
@@ -541,9 +558,31 @@ export default function StocksPage() {
             <ChevronLeft className="h-4 w-4" />
             Previous
           </Button>
-          <div className="text-sm font-medium">
-            Page {page} of {data?.meta.totalPages || 1}
+
+          <div className="mx-2 flex items-center gap-2">
+            <span className="text-sm font-medium">Page</span>
+            <Input
+              className="h-8 w-16 px-1 text-center"
+              value={pageInput}
+              type="number"
+              onChange={(e) => setPageInput(e.target.value)}
+              onBlur={() => {
+                const p = parseInt(pageInput)
+                if (!isNaN(p) && p > 0) updateParams({ page: p })
+                else setPageInput(page.toString())
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const p = parseInt(pageInput)
+                  if (!isNaN(p) && p > 0) updateParams({ page: p })
+                }
+              }}
+            />
+            <span className="text-sm font-medium">
+              of {data?.meta.totalPages || 1}
+            </span>
           </div>
+
           <Button
             variant="outline"
             size="sm"
@@ -552,6 +591,15 @@ export default function StocksPage() {
           >
             Next
             <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => updateParams({ page: data?.meta.totalPages || 1 })}
+            disabled={!data || page >= data.meta.totalPages || isLoading}
+            title="Last Page"
+          >
+            <ChevronsRight className="h-4 w-4" />
           </Button>
         </div>
       </div>

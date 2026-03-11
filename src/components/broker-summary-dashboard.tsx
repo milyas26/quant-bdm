@@ -1,22 +1,19 @@
 import { useMemo, useState, useEffect } from "react"
 import { format, subDays, getDay, differenceInDays } from "date-fns"
 import { id } from "date-fns/locale"
-import {
-  calculateBandarStatus,
-  cn,
-  formatNumber,
-  getBandarBgColor,
-  getBrokerColor,
-} from "@/lib/utils"
-import { Card } from "@/components/ui/card"
+import { calculateBandarStatus, cn } from "@/lib/utils"
 import { useQuery } from "@tanstack/react-query"
 import { getBrokerSummaryByDateRange } from "@/lib/api"
 import type { BrokerSummary, BrokerBuy, BrokerSell } from "@/lib/api"
 import type { DateRange } from "react-day-picker"
 import { BrokerSummaryContent } from "@/components/broker-summary-content"
 import TradingviewWidget from "./tradingview-widget"
+import {
+  DailyBrokerSummaryGrid,
+  type DayData,
+} from "./daily-broker-summary-grid"
 
-interface BigCalendarProps {
+interface BrokerSummaryDashboardProps {
   className?: string
   selectedTicker: string
   date: DateRange | undefined
@@ -27,14 +24,14 @@ interface BigCalendarProps {
 
 const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"]
 
-export function BigCalendar({
+export function BrokerSummaryDashboard({
   className,
   selectedTicker,
   date,
   valueType,
   onBrokerClick,
   highlightedBroker: externalHighlightedBroker,
-}: BigCalendarProps) {
+}: BrokerSummaryDashboardProps) {
   const [internalHighlightedBroker, setInternalHighlightedBroker] = useState<
     string | null
   >(null)
@@ -116,7 +113,7 @@ export function BigCalendar({
 
     const endDate = date.to
     const startDate = date.from
-    const result = []
+    const result: DayData[] = []
 
     // Calculate total days in range
     const totalDays = differenceInDays(endDate, startDate) + 1
@@ -242,134 +239,15 @@ export function BigCalendar({
       )}
 
       <div className="grid grid-cols-12 gap-2">
-        <div className="col-span-9 space-y-2 overflow-auto">
+        <div className="col-span-9 space-y-4 overflow-auto">
           <TradingviewWidget symbol={selectedTicker} />
-          <div className="grid grid-cols-3 gap-2 p-1 sm:grid-cols-4 md:grid-cols-6">
-            {days.map((day, index) => (
-              <Card
-                key={index}
-                className={cn(
-                  "relative h-32 min-h-32 cursor-pointer rounded-md p-2 transition-all duration-200 hover:shadow-md",
-                  "border-border bg-card",
-                  day.isToday
-                    ? "shadow-lg ring-2 ring-blue-500 dark:ring-blue-400"
-                    : "hover:bg-muted/50",
-                  selectedDateData &&
-                    selectedDateData === day.data &&
-                    "ring-2 ring-slate-500 dark:ring-slate-400"
-                )}
-                onClick={() => {
-                  if (day.data) handleDateClick(day.data)
-                }}
-              >
-                {/* Bandar Status Indicator */}
-                <div
-                  className={cn(
-                    "absolute right-0 bottom-0 left-0 h-1.5 rounded-b-md",
-                    getBandarBgColor(day.bandarStatus)
-                  )}
-                />
-                <div className="relative flex h-full flex-col">
-                  {/* Date positioned in top right corner */}
-                  <div className="absolute top-0 right-0 flex items-baseline gap-1 text-right">
-                    <div
-                      className={cn(
-                        "text-[10px]",
-                        day.isToday
-                          ? "text-blue-600 dark:text-blue-400"
-                          : "text-muted-foreground"
-                      )}
-                    >
-                      {day.dayName},
-                    </div>
-                    <div
-                      className={cn(
-                        "text-xs leading-none font-medium",
-                        day.isToday
-                          ? "text-blue-600 dark:text-blue-400"
-                          : "text-foreground"
-                      )}
-                    >
-                      {day.dayNumber}
-                    </div>
-                    <div className="text-[10px] leading-none text-muted-foreground">
-                      {day.month}
-                    </div>
-                  </div>
-
-                  {/* Main content area */}
-                  <div className="mt-6 flex-1 space-y-1 text-xs">
-                    <div className="grid grid-cols-2 gap-4">
-                      {/* Buy Side */}
-                      <div className="space-y-0.5">
-                        {day.topBuyers.length > 0 ? (
-                          day.topBuyers.map((buy, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-center justify-between"
-                            >
-                              <span
-                                className={cn(
-                                  "cursor-pointer text-[10px] font-bold",
-                                  getBrokerColor(buy.type),
-                                  highlightedBroker === buy.netbsBrokerCode &&
-                                    "rounded bg-yellow-200 p-1 dark:bg-yellow-900"
-                                )}
-                                onClick={(e) =>
-                                  handleBrokerClick(e, buy.netbsBrokerCode)
-                                }
-                              >
-                                {buy.netbsBrokerCode}
-                              </span>
-                              <span className="text-[9px] text-muted-foreground">
-                                {formatNumber(parseFloat(buy.bval))}
-                              </span>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-[9px] text-muted-foreground/50">
-                            -
-                          </div>
-                        )}
-                      </div>
-                      {/* Sell Side */}
-                      <div className="space-y-0.5">
-                        {day.topSellers.length > 0 ? (
-                          day.topSellers.map((sell, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-center justify-between"
-                            >
-                              <span
-                                className={cn(
-                                  "cursor-pointer text-[10px] font-bold",
-                                  getBrokerColor(sell.type),
-                                  highlightedBroker === sell.netbsBrokerCode &&
-                                    "rounded bg-yellow-200 p-1 dark:bg-yellow-900"
-                                )}
-                                onClick={(e) =>
-                                  handleBrokerClick(e, sell.netbsBrokerCode)
-                                }
-                              >
-                                {sell.netbsBrokerCode}
-                              </span>
-                              <span className="text-[9px] text-muted-foreground">
-                                {formatNumber(parseFloat(sell.sval))}
-                              </span>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-[9px] text-muted-foreground/50">
-                            -
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+          <DailyBrokerSummaryGrid
+            days={days}
+            selectedDateData={selectedDateData}
+            highlightedBroker={highlightedBroker}
+            onDateClick={handleDateClick}
+            onBrokerClick={handleBrokerClick}
+          />
         </div>
         <div className="col-span-3 rounded-lg">
           <BrokerSummaryContent

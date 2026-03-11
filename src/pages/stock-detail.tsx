@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { format, startOfMonth, subMonths } from "date-fns"
-import { BigCalendar } from "@/components/big-calendar"
+import { BrokerSummaryDashboard } from "@/components/broker-summary-dashboard"
 import { DatePickerWithRange } from "@/components/date-range-picker"
 import type { DateRange } from "react-day-picker"
 import {
@@ -247,7 +247,7 @@ export default function StockDetail() {
               </SelectContent>
             </Select>
           </div>
-          <BigCalendar
+          <BrokerSummaryDashboard
             selectedTicker={selectedTicker}
             date={date}
             valueType={valueType}
