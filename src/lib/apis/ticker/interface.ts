@@ -51,4 +51,6 @@ export interface GetTickersParams {
   search?: string
   minPrice?: number
   maxPrice?: number
+  sortBy?: string
+  sortOrder?: "asc" | "desc"
 }

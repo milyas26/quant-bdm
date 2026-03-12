@@ -30,6 +30,9 @@ import {
   MoreHorizontal,
   Star,
   RefreshCw,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
 } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
 import {
@@ -112,6 +115,9 @@ export default function StocksPage() {
     ? parseInt(searchParams.get("maxPrice")!)
     : undefined
 
+  const sortBy = searchParams.get("sortBy")
+  const sortOrder = searchParams.get("sortOrder") as "asc" | "desc" | undefined
+
   // Price inputs state
   const [minPriceInput, setMinPriceInput] = useState(
     searchParams.get("minPrice") || ""
@@ -140,6 +146,20 @@ export default function StocksPage() {
     setSearchParams(newParams)
   }
 
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      updateParams({
+        sortBy: column,
+        sortOrder: sortOrder === "asc" ? "desc" : "asc",
+      })
+    } else {
+      updateParams({
+        sortBy: column,
+        sortOrder: "desc",
+      })
+    }
+  }
+
   // Update URL when debounced search changes
   useEffect(() => {
     if (debouncedSearch !== (searchParams.get("search") || "")) {
@@ -156,7 +176,16 @@ export default function StocksPage() {
   }
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["tickers", page, limit, debouncedSearch, minPrice, maxPrice],
+    queryKey: [
+      "tickers",
+      page,
+      limit,
+      debouncedSearch,
+      minPrice,
+      maxPrice,
+      sortBy,
+      sortOrder,
+    ],
     queryFn: () =>
       getScreener({
         page,
@@ -164,6 +193,8 @@ export default function StocksPage() {
         search: debouncedSearch,
         minPrice,
         maxPrice,
+        sortBy: sortBy || undefined,
+        sortOrder: sortOrder || undefined,
       }),
   })
 
@@ -351,15 +382,159 @@ export default function StocksPage() {
                 onCheckedChange={(checked) => handleSelectAll(!!checked)}
               />
             </TableHead>
-            <TableHead>Ticker</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Volume</TableHead>
-            <TableHead>Broker Net</TableHead>
-            <TableHead>Acc/Dist (%)</TableHead>
-            <TableHead>Bandar Status</TableHead>
-            <TableHead>Score</TableHead>
-            <TableHead>Momentum</TableHead>
-            <TableHead>Sector</TableHead>
+            <TableHead
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleSort("symbol")}
+            >
+              <div className="flex items-center gap-1">
+                Ticker
+                {sortBy === "symbol" ? (
+                  sortOrder === "asc" ? (
+                    <ArrowUp className="h-3 w-3" />
+                  ) : (
+                    <ArrowDown className="h-3 w-3" />
+                  )
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-30" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleSort("price")}
+            >
+              <div className="flex items-center gap-1">
+                Price
+                {sortBy === "price" ? (
+                  sortOrder === "asc" ? (
+                    <ArrowUp className="h-3 w-3" />
+                  ) : (
+                    <ArrowDown className="h-3 w-3" />
+                  )
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-30" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleSort("volume")}
+            >
+              <div className="flex items-center gap-1">
+                Volume
+                {sortBy === "volume" ? (
+                  sortOrder === "asc" ? (
+                    <ArrowUp className="h-3 w-3" />
+                  ) : (
+                    <ArrowDown className="h-3 w-3" />
+                  )
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-30" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleSort("netBrokerFlow")}
+            >
+              <div className="flex items-center gap-1">
+                Broker Net
+                {sortBy === "netBrokerFlow" ? (
+                  sortOrder === "asc" ? (
+                    <ArrowUp className="h-3 w-3" />
+                  ) : (
+                    <ArrowDown className="h-3 w-3" />
+                  )
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-30" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleSort("accumulationDistributionD1")}
+            >
+              <div className="flex items-center gap-1">
+                Acc/Dist (%)
+                {sortBy === "accumulationDistributionD1" ? (
+                  sortOrder === "asc" ? (
+                    <ArrowUp className="h-3 w-3" />
+                  ) : (
+                    <ArrowDown className="h-3 w-3" />
+                  )
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-30" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleSort("bandarStatus")}
+            >
+              <div className="flex items-center gap-1">
+                Bandar Status
+                {sortBy === "bandarStatus" ? (
+                  sortOrder === "asc" ? (
+                    <ArrowUp className="h-3 w-3" />
+                  ) : (
+                    <ArrowDown className="h-3 w-3" />
+                  )
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-30" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleSort("smartMoneyScore")}
+            >
+              <div className="flex items-center gap-1">
+                Score
+                {sortBy === "smartMoneyScore" ? (
+                  sortOrder === "asc" ? (
+                    <ArrowUp className="h-3 w-3" />
+                  ) : (
+                    <ArrowDown className="h-3 w-3" />
+                  )
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-30" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleSort("momentum")}
+            >
+              <div className="flex items-center gap-1">
+                Momentum
+                {sortBy === "momentum" ? (
+                  sortOrder === "asc" ? (
+                    <ArrowUp className="h-3 w-3" />
+                  ) : (
+                    <ArrowDown className="h-3 w-3" />
+                  )
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-30" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleSort("sector")}
+            >
+              <div className="flex items-center gap-1">
+                Sector
+                {sortBy === "sector" ? (
+                  sortOrder === "asc" ? (
+                    <ArrowUp className="h-3 w-3" />
+                  ) : (
+                    <ArrowDown className="h-3 w-3" />
+                  )
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-30" />
+                )}
+              </div>
+            </TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
