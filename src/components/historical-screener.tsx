@@ -496,7 +496,7 @@ export function HistoricalScreener({
                 type="monotone"
                 dataKey="smartMoneyScore"
                 stroke="#16a34a"
-                strokeWidth={2}
+                strokeWidth={1.5}
                 dot={false}
               />
               {hoveredData && (

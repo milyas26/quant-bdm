@@ -145,7 +145,7 @@ export function HistoricalPriceChart({
           backgroundColor: dataset.color
             .replace("rgb", "rgba")
             .replace(")", ", 0.5)"),
-          borderWidth: 2,
+          borderWidth: 1,
           pointRadius: 0,
           yAxisID: "y1",
           order: 2 + index,
