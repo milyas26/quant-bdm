@@ -52,3 +52,10 @@ export const refreshAllTickers = async () => {
   const { data } = await api.post("/refresh-tickers")
   return data
 }
+
+export const getHistoricalScreenerData = async (symbol: string, page: number = 1, limit: number = 20) => {
+  const { data } = await api.get(`/tickers/${symbol}/screener-history`, {
+    params: { page, limit },
+  })
+  return data
+}

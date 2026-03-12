@@ -1,12 +1,13 @@
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query"
+import { useMutation, useQueryClient, useQuery, useInfiniteQuery } from "@tanstack/react-query"
 import {
   fetchAndSaveBrokerSummary,
   fetchAndSaveTickerInfo,
   getTickerDetail,
   fetchAndSaveHistoricalData,
+  getHistoricalScreenerData,
 } from "@/lib/api"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { format, startOfMonth, subMonths } from "date-fns"
 import { BrokerSummaryDashboard } from "@/components/broker-summary-dashboard"
 import { DatePickerWithRange } from "@/components/date-range-picker"
@@ -29,6 +30,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { ArrowLeftIcon, ChevronDown } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { BrokerInventory } from "@/components/broker-inventory"
+import { HistoricalScreener } from "@/components/historical-screener"
 
 import { cn } from "@/lib/utils"
 
@@ -44,6 +46,25 @@ export default function StockDetail() {
     queryFn: () => getTickerDetail(selectedTicker),
     enabled: !!selectedTicker,
   })
+
+  const {
+    data: historicalScreenerData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["historical-screener", selectedTicker],
+    queryFn: ({ pageParam = 1 }) =>
+      getHistoricalScreenerData(selectedTicker, pageParam, 20),
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
+    initialPageParam: 1,
+    enabled: !!selectedTicker,
+  })
+
+  const flattenedHistoricalData = useMemo(() => {
+    return historicalScreenerData?.pages.flatMap((page) => page.data) || []
+  }, [historicalScreenerData])
 
   const handleBrokerClick = (code: string) => {
     setBrokerCode(code)
@@ -230,6 +251,12 @@ export default function StockDetail() {
           >
             Inventory
           </TabsTrigger>
+          <TabsTrigger
+            className="relative rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+            value="historical-screener"
+          >
+            Historical Screener
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="broker-summary" className="mt-2">
           <div className="mb-4 flex items-center gap-2">
@@ -257,6 +284,14 @@ export default function StockDetail() {
         </TabsContent>
         <TabsContent value="inventory" className="mt-2">
           <BrokerInventory selectedTicker={selectedTicker} />
+        </TabsContent>
+        <TabsContent value="historical-screener" className="mt-2">
+          <HistoricalScreener
+            data={flattenedHistoricalData}
+            fetchNextPage={fetchNextPage}
+            hasNextPage={!!hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+          />
         </TabsContent>
       </Tabs>
     </div>
