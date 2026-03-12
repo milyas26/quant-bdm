@@ -8,12 +8,20 @@ import {
   Title,
   Tooltip,
   Legend,
+  TimeScale,
+  TimeSeriesScale,
 } from "chart.js"
 import { Chart } from "react-chartjs-2"
-import { format } from "date-fns"
 import { useMemo } from "react"
 import { formatNumber } from "@/lib/utils"
 import type { HistoricalData } from "@/lib/apis/historical-data/interface"
+import {
+  CandlestickController,
+  CandlestickElement,
+  OhlcController,
+  OhlcElement,
+} from "chartjs-chart-financial"
+import "chartjs-adapter-date-fns"
 
 ChartJS.register(
   CategoryScale,
@@ -23,7 +31,13 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  TimeScale,
+  TimeSeriesScale,
+  CandlestickController,
+  CandlestickElement,
+  OhlcController,
+  OhlcElement
 )
 
 interface HistoricalPriceChartProps {
@@ -51,22 +65,25 @@ export function HistoricalPriceChart({
   }, [data])
 
   const chartData = useMemo(() => {
-    const labels = sortedData.map((item) => format(new Date(item.date), "dd MMM"))
-    
     const datasets: any[] = [
       {
         type: "bar" as const,
         label: "Volume",
-        data: sortedData.map((item) => item.volume),
-        backgroundColor: sortedData.map((item) =>
-          item.change_percentage >= 0
-            ? "rgba(34, 197, 94, 0.3)" // green-500
-            : "rgba(239, 68, 68, 0.3)" // red-500
+        data: sortedData.map((item) => ({
+          x: new Date(item.date).getTime(),
+          y: item.volume,
+        })),
+        backgroundColor: sortedData.map(
+          (item) =>
+            item.change_percentage >= 0
+              ? "rgba(38, 166, 154, 0.5)" // teal-400 equivalent
+              : "rgba(239, 83, 80, 0.5)" // red-400 equivalent
         ),
-        borderColor: sortedData.map((item) =>
-          item.change_percentage >= 0
-            ? "rgb(22, 163, 74)" // green-600
-            : "rgb(220, 38, 38)" // red-600
+        borderColor: sortedData.map(
+          (item) =>
+            item.change_percentage >= 0
+              ? "#26a69a" // teal-400
+              : "#ef5350" // red-400
         ),
         borderWidth: 1,
         yAxisID: "y2",
@@ -75,15 +92,28 @@ export function HistoricalPriceChart({
         hidden: false,
       },
       {
-        type: "line" as const,
-        label: "Close Price",
-        data: sortedData.map((item) => item.close),
-        borderColor: "rgb(251, 191, 36)", // amber-400
-        backgroundColor: "rgba(251, 191, 36, 0.5)",
-        borderWidth: 3,
-        pointRadius: 0, 
-        pointHoverRadius: 4,
-        tension: 0.1,
+        type: "candlestick" as const,
+        label: "Price",
+        data: sortedData.map((item) => ({
+          x: new Date(item.date).getTime(),
+          o: Number(item.open),
+          h: Number(item.high),
+          l: Number(item.low),
+          c: Number(item.close),
+        })),
+        backgroundColors: {
+          up: "#26a69a", // teal-400
+          down: "#ef5350", // red-400
+          unchanged: "#787b86", // gray-500
+        },
+        borderColors: {
+          up: "#26a69a",
+          down: "#ef5350",
+          unchanged: "#787b86",
+        },
+        backgroundColor: "rgba(0, 0, 0, 1)", // Fallback
+        barPercentage: 0.9,
+        categoryPercentage: 0.8,
         yAxisID: "y",
         order: 1,
         hidden: false,
@@ -91,35 +121,40 @@ export function HistoricalPriceChart({
     ]
 
     if (inventoryDatasets && inventoryDatasets.length > 0) {
-        inventoryDatasets.forEach((dataset, index) => {
-            // Create map for this dataset
-            const inventoryMap = new Map(
-                dataset.data.map(item => [
-                    new Date(item.date).toISOString().split("T")[0],
-                    item.value
-                ])
-            )
+      inventoryDatasets.forEach((dataset, index) => {
+        // Create map for this dataset
+        const inventoryMap = new Map(
+          dataset.data.map((item) => [
+            new Date(item.date).toISOString().split("T")[0],
+            item.value,
+          ])
+        )
 
-            datasets.push({
-                type: "line" as const,
-                label: dataset.label,
-                data: sortedData.map(item => {
-                    const dateStr = new Date(item.date).toISOString().split("T")[0]
-                    return inventoryMap.get(dateStr) || null
-                }),
-                borderColor: dataset.color,
-                backgroundColor: dataset.color.replace("rgb", "rgba").replace(")", ", 0.5)"),
-                borderWidth: 2,
-                pointRadius: 0,
-                yAxisID: "y1",
-                order: 2 + index,
-                hidden: !["Smart Money", "Dumb Money"].includes(dataset.label),
-            })
+        datasets.push({
+          type: "line" as const,
+          label: dataset.label,
+          data: sortedData.map((item) => {
+            const dateStr = new Date(item.date).toISOString().split("T")[0]
+            const val = inventoryMap.get(dateStr)
+            return {
+              x: new Date(item.date).getTime(),
+              y: val !== undefined ? val : null,
+            }
+          }),
+          borderColor: dataset.color,
+          backgroundColor: dataset.color
+            .replace("rgb", "rgba")
+            .replace(")", ", 0.5)"),
+          borderWidth: 2,
+          pointRadius: 0,
+          yAxisID: "y1",
+          order: 2 + index,
+          hidden: !["Smart Money", "Dumb Money"].includes(dataset.label),
         })
+      })
     }
 
     return {
-      labels,
       datasets,
     }
   }, [sortedData, inventoryDatasets])
@@ -133,16 +168,16 @@ export function HistoricalPriceChart({
         position: "top" as const,
         align: "end" as const,
         labels: {
-            usePointStyle: true,
-            boxWidth: 8,
-            font: {
-                size: 10
-            },
-            filter: function(item: any) {
-                // Hide Volume and Close Price from legend
-                return !["Volume", "Close Price"].includes(item.text);
-            }
-        }
+          usePointStyle: true,
+          boxWidth: 8,
+          font: {
+            size: 10,
+          },
+          filter: function (item: any) {
+            // Hide Volume and Price from legend
+            return !["Volume", "Price"].includes(item.text)
+          },
+        },
       },
       title: {
         display: false,
@@ -157,6 +192,10 @@ export function HistoricalPriceChart({
             if (label) {
               label += ": "
             }
+            if (context.dataset.type === "candlestick") {
+              const raw = context.raw as any
+              return `${label} O:${formatNumber(raw.o)} H:${formatNumber(raw.h)} L:${formatNumber(raw.l)} C:${formatNumber(raw.c)}`
+            }
             if (context.parsed.y !== null) {
               label += formatNumber(context.parsed.y)
             }
@@ -170,6 +209,7 @@ export function HistoricalPriceChart({
         type: "linear" as const,
         display: true,
         position: "left" as const,
+        grace: "10%",
         grid: {
           color: "rgba(100, 100, 100, 0.1)",
         },
@@ -190,13 +230,13 @@ export function HistoricalPriceChart({
           drawOnChartArea: false,
         },
         ticks: {
-            callback: function (value: any) {
-              return formatNumber(value)
-            },
-            font: {
-                size: 10
-            }
-        }
+          callback: function (value: any) {
+            return formatNumber(value)
+          },
+          font: {
+            size: 10,
+          },
+        },
       },
       y2: {
         type: "linear" as const,
@@ -209,10 +249,19 @@ export function HistoricalPriceChart({
         max: Math.max(...sortedData.map((d) => d.volume)) * 4, // Make volume bars take up lower 25%
       },
       x: {
+        type: "timeseries" as const,
+        time: {
+          unit: "day" as const,
+          displayFormats: {
+            day: "dd MMM",
+          },
+          tooltipFormat: "dd MMM yyyy",
+        },
         grid: {
           display: false,
         },
         ticks: {
+          source: "data" as const,
           maxTicksLimit: 10,
           maxRotation: 0,
           font: {
@@ -228,9 +277,9 @@ export function HistoricalPriceChart({
   }
 
   return (
-    <div className="relative w-full border p-2 rounded-sm text-card-foreground">
+    <div className="relative w-full rounded-sm border p-2 text-card-foreground">
       <div className="h-[300px] w-full">
-        <Chart type="line" options={options} data={chartData} />
+        <Chart type="candlestick" options={options as any} data={chartData} />
       </div>
     </div>
   )
