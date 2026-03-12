@@ -5,32 +5,6 @@ export interface Ticker {
   logo: string | null
   sector: string | null
   subSector: string | null
-  isOnWatchlist: boolean
-  latestHistoricalData: {
-    close: string;
-    change: string;
-    change_percentage: string;
-    date: string;
-  } | null
-}
-export interface Meta {
-  total: number
-  page: number
-  limit: number
-  totalPages: number
-}
-
-export interface GetTickersResponse {
-  data: Ticker[]
-  meta: Meta
-}
-
-export interface ScreenerTicker {
-  symbol: string
-  name: string | null
-  logo: string | null
-  sector: string | null
-  subSector: string | null
   price: number
   change: number
   changePercentage: number
@@ -48,6 +22,22 @@ export interface ScreenerTicker {
     d3: number
     d6: number
   }
+}
+
+export interface Meta {
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface GetTickersResponse {
+  data: Ticker[]
+  meta: Meta
+}
+
+export interface ScreenerTicker extends Ticker {
+  date: string
 }
 
 export interface GetScreenerResponse {

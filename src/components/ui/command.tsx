@@ -43,21 +43,33 @@ function CommandDialog({
   description?: string
   className?: string
   showCloseButton?: boolean
+  shouldFilter?: boolean
+  commandProps?: React.ComponentProps<typeof CommandPrimitive>
 }) {
+  const { shouldFilter, commandProps, ...dialogProps } = props
+
   return (
-    <Dialog {...props}>
+    <Dialog {...dialogProps}>
       <DialogHeader className="sr-only">
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
+        <DialogTitle>{title || "Command Palette"}</DialogTitle>
+        <DialogDescription>
+          {description || "Search for a command to run..."}
+        </DialogDescription>
       </DialogHeader>
       <DialogContent
         className={cn(
-          "top-1/3 translate-y-0 overflow-hidden rounded-xl! p-0",
+          "top-1/3 translate-y-0 overflow-hidden rounded-xl! p-0 sm:max-w-2xl",
           className
         )}
         showCloseButton={showCloseButton}
       >
-        {children}
+        <Command
+          shouldFilter={shouldFilter}
+          {...commandProps}
+          className="[&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground **:[[cmdk-group]]:px-2"
+        >
+          {children}
+        </Command>
       </DialogContent>
     </Dialog>
   )

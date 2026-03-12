@@ -1,9 +1,10 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
+import { Link, Outlet, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Input } from "@/components/ui/input"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
+import { CommandMenu } from "@/components/command-menu"
 
 const navItems = [
   { title: "Stocks", url: "/stock" },
@@ -14,9 +15,8 @@ const navItems = [
 import { AddTickerDialog } from "@/components/add-ticker-dialog"
 
 export default function Layout() {
-  const navigate = useNavigate()
   const location = useLocation()
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [open, setOpen] = useState(false)
   const [inputValue, setInputValue] = useState(() => {
     if (location.pathname.startsWith("/stock/")) {
       const ticker = location.pathname.split("/")[2]
@@ -29,19 +29,18 @@ export default function Layout() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
         e.key === "/" &&
-        document.activeElement !== inputRef.current &&
+        !open &&
         !(e.target instanceof HTMLInputElement) &&
         !(e.target instanceof HTMLTextAreaElement)
       ) {
         e.preventDefault()
-        inputRef.current?.focus()
-        inputRef.current?.select()
+        setOpen(true)
       }
     }
 
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [])
+  }, [open])
 
   useEffect(() => {
     const currentTicker = location.pathname.startsWith("/stock/")
@@ -53,6 +52,7 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      <CommandMenu open={open} onOpenChange={setOpen} />
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <Link to="/" className="flex items-center space-x-2">
@@ -78,16 +78,11 @@ export default function Layout() {
               <div className="relative w-[150px]">
                 <Input
                   key={location.pathname}
-                  ref={inputRef}
+                  readOnly
                   value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value.toUpperCase())}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && inputValue) {
-                      navigate(`/stock/${inputValue}`)
-                    }
-                  }}
-                  className="h-8 w-full"
-                  placeholder="press / to focus here"
+                  onClick={() => setOpen(true)}
+                  className="h-8 w-full cursor-pointer text-center font-bold"
+                  placeholder="Search... (/)"
                 />
               </div>
               <AddTickerDialog />
