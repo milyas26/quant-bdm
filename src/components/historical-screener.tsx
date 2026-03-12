@@ -30,166 +30,163 @@ interface HistoricalScreenerProps {
   onMonthsChange: (months: number) => void
 }
 
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length > 0) {
-      const item = payload[0].payload
-      return (
-        <div className="flex w-[280px] flex-col gap-1 rounded-md border bg-background p-2 shadow-md">
-          <div className="flex items-center justify-between border-b pb-1">
-            <span className="text-xs font-semibold">
-              {format(new Date(item.date), "dd MMM yyyy")}
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length > 0) {
+    const item = payload[0].payload
+    return (
+      <div className="flex w-[280px] flex-col gap-1 rounded-md border bg-background p-2 shadow-md">
+        <div className="flex items-center justify-between border-b pb-1">
+          <span className="text-xs font-semibold">
+            {format(new Date(item.date), "dd MMM yyyy")}
+          </span>
+          <div className="flex items-center gap-1.5">
+            <Badge
+              variant="outline"
+              className={cn(
+                "h-4 px-1 text-[9px] font-normal",
+                item.momentum === "Uptrend" &&
+                  "border-green-200 bg-green-50 text-green-700",
+                item.momentum === "Downtrend" &&
+                  "border-red-200 bg-red-50 text-red-700"
+              )}
+            >
+              {item.momentum}
+            </Badge>
+            <span
+              className={cn(
+                "text-[10px] font-bold",
+                item.smartMoneyScore >= 70
+                  ? "text-green-600"
+                  : item.smartMoneyScore <= 30
+                    ? "text-red-600"
+                    : "text-yellow-600"
+              )}
+            >
+              Score: {item.smartMoneyScore.toFixed(0)}
             </span>
-            <div className="flex items-center gap-1.5">
-              <Badge
-                variant="outline"
-                className={cn(
-                  "h-4 px-1 text-[9px] font-normal",
-                  item.momentum === "Uptrend" &&
-                    "border-green-200 bg-green-50 text-green-700",
-                  item.momentum === "Downtrend" &&
-                    "border-red-200 bg-red-50 text-red-700"
-                )}
-              >
-                {item.momentum}
-              </Badge>
-              <span
-                className={cn(
-                  "text-[10px] font-bold",
-                  item.smartMoneyScore >= 70
-                    ? "text-green-600"
-                    : item.smartMoneyScore <= 30
-                      ? "text-red-600"
-                      : "text-yellow-600"
-                )}
-              >
-                Score: {item.smartMoneyScore.toFixed(0)}
-              </span>
-            </div>
           </div>
+        </div>
 
-          <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px]">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Price</span>
-              <div className="flex items-center gap-1">
-                <span className="font-medium">
-                  {item.price.toLocaleString()}
-                </span>
-                <span
-                  className={cn(
-                    item.changePercentage > 0
-                      ? "text-green-600"
-                      : item.changePercentage < 0
-                        ? "text-red-600"
-                        : "text-gray-600"
-                  )}
-                >
-                  ({item.changePercentage > 0 ? "+" : ""}
-                  {item.changePercentage.toFixed(2)}%)
-                </span>
-              </div>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Vol</span>
-              <div className="flex items-center gap-1">
-                <span>
-                  {new Intl.NumberFormat("en-US", {
-                    notation: "compact",
-                    maximumFractionDigits: 1,
-                  }).format(item.volume)}
-                </span>
-                {item.isVolumeSpike && (
-                  <span className="font-bold text-orange-500">🔥</span>
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Net</span>
+        <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px]">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Price</span>
+            <div className="flex items-center gap-1">
+              <span className="font-medium">{item.price.toLocaleString()}</span>
               <span
                 className={cn(
-                  "font-medium",
-                  item.netBrokerFlow > 0
+                  item.changePercentage > 0
                     ? "text-green-600"
-                    : item.netBrokerFlow < 0
+                    : item.changePercentage < 0
                       ? "text-red-600"
                       : "text-gray-600"
                 )}
               >
-                {item.netBrokerFlow > 0 ? "+" : ""}
+                ({item.changePercentage > 0 ? "+" : ""}
+                {item.changePercentage.toFixed(2)}%)
+              </span>
+            </div>
+          </div>
+
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Vol</span>
+            <div className="flex items-center gap-1">
+              <span>
                 {new Intl.NumberFormat("en-US", {
                   notation: "compact",
                   maximumFractionDigits: 1,
-                }).format(item.netBrokerFlow)}
+                }).format(item.volume)}
               </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Status</span>
-              <Badge
-                className={cn(
-                  "h-3.5 px-1 text-[9px] font-normal",
-                  item.bandarStatus === "Accumulation" &&
-                    "bg-green-100 text-green-800 hover:bg-green-100",
-                  item.bandarStatus === "Distribution" &&
-                    "bg-red-100 text-red-800 hover:bg-red-100",
-                  item.bandarStatus === "Neutral" &&
-                    "bg-gray-100 text-gray-800 hover:bg-gray-100"
-                )}
-              >
-                {item.bandarStatus === "Accumulation"
-                  ? "Acc"
-                  : item.bandarStatus === "Distribution"
-                    ? "Dist"
-                    : item.bandarStatus}
-              </Badge>
+              {item.isVolumeSpike && (
+                <span className="font-bold text-orange-500">🔥</span>
+              )}
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t pt-1 text-[9px]">
-            <span className="text-muted-foreground">Acc/Dist:</span>
-            <div className="flex gap-1.5">
-              <span
-                className={cn(
-                  item.accumulationDistribution.d1 > 0
-                    ? "text-green-600"
-                    : item.accumulationDistribution.d1 < 0
-                      ? "text-red-600"
-                      : "text-gray-600"
-                )}
-              >
-                D1: {item.accumulationDistribution.d1.toFixed(1)}%
-              </span>
-              <span
-                className={cn(
-                  item.accumulationDistribution.w1 > 0
-                    ? "text-green-600"
-                    : item.accumulationDistribution.w1 < 0
-                      ? "text-red-600"
-                      : "text-gray-600"
-                )}
-              >
-                W1: {item.accumulationDistribution.w1.toFixed(1)}%
-              </span>
-              <span
-                className={cn(
-                  item.accumulationDistribution.m1 > 0
-                    ? "text-green-600"
-                    : item.accumulationDistribution.m1 < 0
-                      ? "text-red-600"
-                      : "text-gray-600"
-                )}
-              >
-                M1: {item.accumulationDistribution.m1.toFixed(1)}%
-              </span>
-            </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Net</span>
+            <span
+              className={cn(
+                "font-medium",
+                item.netBrokerFlow > 0
+                  ? "text-green-600"
+                  : item.netBrokerFlow < 0
+                    ? "text-red-600"
+                    : "text-gray-600"
+              )}
+            >
+              {item.netBrokerFlow > 0 ? "+" : ""}
+              {new Intl.NumberFormat("en-US", {
+                notation: "compact",
+                maximumFractionDigits: 1,
+              }).format(item.netBrokerFlow)}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Status</span>
+            <Badge
+              className={cn(
+                "h-3.5 px-1 text-[9px] font-normal",
+                item.bandarStatus === "Accumulation" &&
+                  "bg-green-100 text-green-800 hover:bg-green-100",
+                item.bandarStatus === "Distribution" &&
+                  "bg-red-100 text-red-800 hover:bg-red-100",
+                item.bandarStatus === "Neutral" &&
+                  "bg-gray-100 text-gray-800 hover:bg-gray-100"
+              )}
+            >
+              {item.bandarStatus === "Accumulation"
+                ? "Acc"
+                : item.bandarStatus === "Distribution"
+                  ? "Dist"
+                  : item.bandarStatus}
+            </Badge>
           </div>
         </div>
-      )
-    }
-    return null
+
+        <div className="flex items-center justify-between border-t pt-1 text-[9px]">
+          <span className="text-muted-foreground">Acc/Dist:</span>
+          <div className="flex gap-1.5">
+            <span
+              className={cn(
+                item.accumulationDistribution.d1 > 0
+                  ? "text-green-600"
+                  : item.accumulationDistribution.d1 < 0
+                    ? "text-red-600"
+                    : "text-gray-600"
+              )}
+            >
+              D1: {item.accumulationDistribution.d1.toFixed(1)}%
+            </span>
+            <span
+              className={cn(
+                item.accumulationDistribution.w1 > 0
+                  ? "text-green-600"
+                  : item.accumulationDistribution.w1 < 0
+                    ? "text-red-600"
+                    : "text-gray-600"
+              )}
+            >
+              W1: {item.accumulationDistribution.w1.toFixed(1)}%
+            </span>
+            <span
+              className={cn(
+                item.accumulationDistribution.m1 > 0
+                  ? "text-green-600"
+                  : item.accumulationDistribution.m1 < 0
+                    ? "text-red-600"
+                    : "text-gray-600"
+              )}
+            >
+              M1: {item.accumulationDistribution.m1.toFixed(1)}%
+            </span>
+          </div>
+        </div>
+      </div>
+    )
   }
+  return null
+}
 
 export function HistoricalScreener({
   data,
@@ -233,6 +230,105 @@ export function HistoricalScreener({
 
   return (
     <div className="grid grid-cols-12 gap-4">
+      <div
+        className={`col-span-9 h-[calc(100vh-280px)] ${showCandlestick ? "" : "rounded-md border p-4"}`}
+      >
+        <div className="mb-4 flex items-center justify-end space-x-2">
+          <Label htmlFor="chart-type" className="text-xs">
+            Line
+          </Label>
+          <Switch
+            id="chart-type"
+            checked={showCandlestick}
+            onCheckedChange={setShowCandlestick}
+          />
+          <Label htmlFor="chart-type" className="text-xs">
+            Candle
+          </Label>
+        </div>
+
+        {showCandlestick ? (
+          <HistoricalPriceChart
+            data={candlestickData}
+            inventoryDatasets={[
+              {
+                label: "Smart Money Score",
+                data: chartData.map((d) => ({
+                  date: d.date,
+                  value: d.smartMoneyScore,
+                })),
+                color: "rgb(22, 163, 74)",
+              },
+            ]}
+            height={700}
+          />
+        ) : (
+          <ResponsiveContainer width="100%" height="100%" className="pb-4">
+            <ComposedChart
+              data={chartData}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis
+                dataKey="date"
+                tickFormatter={(date) => format(new Date(date), "dd MMM")}
+                minTickGap={30}
+                tick={{ fontSize: 10 }}
+              />
+              <YAxis
+                yAxisId="left"
+                domain={["auto", "auto"]}
+                tick={{ fontSize: 10 }}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                domain={[0, 100]}
+                tick={{ fontSize: 10 }}
+              />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{
+                  stroke: "#666",
+                  strokeWidth: 1,
+                  strokeDasharray: "3 3",
+                }}
+              />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="price"
+                stroke="#2563eb"
+                fill="#3b82f6"
+                fillOpacity={0.1}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 6 }}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="smartMoneyScore"
+                stroke="#16a34a"
+                strokeWidth={1.5}
+                dot={false}
+              />
+              {hoveredData && (
+                <ReferenceLine
+                  x={hoveredData.date}
+                  stroke="#666"
+                  strokeDasharray="3 3"
+                />
+              )}
+            </ComposedChart>
+          </ResponsiveContainer>
+        )}
+      </div>
       <div className="col-span-3 flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold">History</span>
@@ -413,102 +509,6 @@ export function HistoricalScreener({
             </div>
           ))}
         </div>
-      </div>
-      <div className="col-span-9 h-[calc(100vh-200px)] rounded-md border p-4">
-        <div className="mb-4 flex items-center justify-end space-x-2">
-          <Label htmlFor="chart-type" className="text-xs">
-            Line
-          </Label>
-          <Switch
-            id="chart-type"
-            checked={showCandlestick}
-            onCheckedChange={setShowCandlestick}
-          />
-          <Label htmlFor="chart-type" className="text-xs">
-            Candle
-          </Label>
-        </div>
-
-        {showCandlestick ? (
-          <HistoricalPriceChart
-            data={candlestickData}
-            inventoryDatasets={[
-              {
-                label: "Smart Money Score",
-                data: chartData.map((d) => ({
-                  date: d.date,
-                  value: d.smartMoneyScore,
-                })),
-                color: "rgb(22, 163, 74)",
-              },
-            ]}
-          />
-        ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart
-              data={chartData}
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-              <XAxis
-                dataKey="date"
-                tickFormatter={(date) => format(new Date(date), "dd MMM")}
-                minTickGap={30}
-                tick={{ fontSize: 10 }}
-              />
-              <YAxis
-                yAxisId="left"
-                domain={["auto", "auto"]}
-                tick={{ fontSize: 10 }}
-              />
-              <YAxis
-                yAxisId="right"
-                orientation="right"
-                domain={[0, 100]}
-                tick={{ fontSize: 10 }}
-              />
-              <Tooltip
-                content={<CustomTooltip />}
-                cursor={{
-                  stroke: "#666",
-                  strokeWidth: 1,
-                  strokeDasharray: "3 3",
-                }}
-              />
-              <Area
-                yAxisId="left"
-                type="monotone"
-                dataKey="price"
-                stroke="#2563eb"
-                fill="#3b82f6"
-                fillOpacity={0.1}
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 6 }}
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="smartMoneyScore"
-                stroke="#16a34a"
-                strokeWidth={1.5}
-                dot={false}
-              />
-              {hoveredData && (
-                <ReferenceLine
-                  x={hoveredData.date}
-                  stroke="#666"
-                  strokeDasharray="3 3"
-                />
-              )}
-            </ComposedChart>
-          </ResponsiveContainer>
-        )}
       </div>
     </div>
   )

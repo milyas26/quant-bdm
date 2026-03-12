@@ -115,8 +115,9 @@ export default function StocksPage() {
     ? parseInt(searchParams.get("maxPrice")!)
     : undefined
 
-  const sortBy = searchParams.get("sortBy")
-  const sortOrder = searchParams.get("sortOrder") as "asc" | "desc" | undefined
+  const sortBy = searchParams.get("sortBy") || "smartMoneyScore"
+  const sortOrder =
+    (searchParams.get("sortOrder") as "asc" | "desc" | undefined) || "desc"
 
   // Price inputs state
   const [minPriceInput, setMinPriceInput] = useState(

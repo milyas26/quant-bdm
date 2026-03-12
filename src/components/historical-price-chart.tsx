@@ -51,12 +51,14 @@ interface HistoricalPriceChartProps {
     color: string
   }[]
   title?: string
+  height?: number
 }
 
 export function HistoricalPriceChart({
   data,
   inventoryDatasets,
   title = "Historical Price",
+  height = 400,
 }: HistoricalPriceChartProps) {
   const sortedData = useMemo(() => {
     return [...data].sort(
@@ -145,7 +147,7 @@ export function HistoricalPriceChart({
           backgroundColor: dataset.color
             .replace("rgb", "rgba")
             .replace(")", ", 0.5)"),
-          borderWidth: 1,
+          borderWidth: 1.5,
           pointRadius: 0,
           yAxisID: "y1",
           order: 2 + index,
@@ -283,7 +285,7 @@ export function HistoricalPriceChart({
 
   return (
     <div className="relative w-full rounded-sm border p-2 text-card-foreground">
-      <div className="h-[700px] w-full">
+      <div style={{ height: `${height}px` }} className="w-full">
         <Chart type="candlestick" options={options as any} data={chartData} />
       </div>
     </div>
