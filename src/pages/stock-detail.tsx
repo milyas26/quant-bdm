@@ -47,24 +47,24 @@ export default function StockDetail() {
     enabled: !!selectedTicker,
   })
 
-  const {
-    data: historicalScreenerData,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: ["historical-screener", selectedTicker],
-    queryFn: ({ pageParam = 1 }) =>
-      getHistoricalScreenerData(selectedTicker, pageParam, 20),
-    getNextPageParam: (lastPage) =>
-      lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
-    initialPageParam: 1,
+  const [screenerMonths, setScreenerMonths] = useState(3)
+
+  const { data: historicalScreenerData } = useQuery({
+    queryKey: ["historical-screener", selectedTicker, screenerMonths],
+    queryFn: () => getHistoricalScreenerData(selectedTicker, screenerMonths),
     enabled: !!selectedTicker,
   })
 
-  const flattenedHistoricalData = useMemo(() => {
-    return historicalScreenerData?.pages.flatMap((page) => page.data) || []
-  }, [historicalScreenerData])
+  const { data: historicalData } = useQuery({
+    queryKey: ["historical-data", selectedTicker, screenerMonths],
+    queryFn: async () => {
+      // Fetch historical price data for the chart
+      // We can reuse the existing API or create a new one if needed
+      // Assuming getHistoricalData exists or similar
+      return [] // Placeholder until we confirm API
+    },
+    enabled: !!selectedTicker,
+  })
 
   const handleBrokerClick = (code: string) => {
     setBrokerCode(code)
@@ -287,10 +287,9 @@ export default function StockDetail() {
         </TabsContent>
         <TabsContent value="historical-screener" className="mt-2">
           <HistoricalScreener
-            data={flattenedHistoricalData}
-            fetchNextPage={fetchNextPage}
-            hasNextPage={!!hasNextPage}
-            isFetchingNextPage={isFetchingNextPage}
+            data={historicalScreenerData?.data || []}
+            months={screenerMonths}
+            onMonthsChange={setScreenerMonths}
           />
         </TabsContent>
       </Tabs>

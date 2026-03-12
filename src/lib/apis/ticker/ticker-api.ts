@@ -53,9 +53,13 @@ export const refreshAllTickers = async () => {
   return data
 }
 
-export const getHistoricalScreenerData = async (symbol: string, page: number = 1, limit: number = 20) => {
+export const getHistoricalScreenerData = async (
+  symbol: string,
+  months: number = 3
+) => {
+  const limit = months * 22 // Approx trading days per month
   const { data } = await api.get(`/tickers/${symbol}/screener-history`, {
-    params: { page, limit },
+    params: { limit },
   })
   return data
 }
