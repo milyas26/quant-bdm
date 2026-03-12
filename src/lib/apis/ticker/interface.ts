@@ -19,8 +19,8 @@ export interface Ticker {
   isOnWatchlist: boolean
   accumulationDistribution: {
     d1: number
-    d3: number
-    d6: number
+    w1: number
+    m1: number
   }
 }
 

@@ -452,11 +452,11 @@ export default function StocksPage() {
             </TableHead>
             <TableHead
               className="cursor-pointer hover:bg-muted/50"
-              onClick={() => handleSort("accumulationDistributionD1")}
+              onClick={() => handleSort("accumulationDistribution1D")}
             >
               <div className="flex items-center gap-1">
                 Acc/Dist (%)
-                {sortBy === "accumulationDistributionD1" ? (
+                {sortBy === "accumulationDistribution1D" ? (
                   sortOrder === "asc" ? (
                     <ArrowUp className="h-3 w-3" />
                   ) : (
@@ -681,35 +681,35 @@ export default function StocksPage() {
                       </span>
                     </div>
                     <div className="flex gap-1">
-                      <span className="w-5 text-muted-foreground">3D:</span>
+                      <span className="w-5 text-muted-foreground">1W:</span>
                       <span
                         className={cn(
                           "font-medium",
-                          ticker.accumulationDistribution.d3 > 0
+                          ticker.accumulationDistribution.w1 > 0
                             ? "text-green-600"
-                            : ticker.accumulationDistribution.d3 < 0
+                            : ticker.accumulationDistribution.w1 < 0
                               ? "text-red-600"
                               : "text-gray-600"
                         )}
                       >
-                        {ticker.accumulationDistribution.d3 > 0 ? "+" : ""}
-                        {ticker.accumulationDistribution.d3.toFixed(1)}%
+                        {ticker.accumulationDistribution.w1 > 0 ? "+" : ""}
+                        {ticker.accumulationDistribution.w1.toFixed(1)}%
                       </span>
                     </div>
                     <div className="flex gap-1">
-                      <span className="w-5 text-muted-foreground">6D:</span>
+                      <span className="w-5 text-muted-foreground">1M:</span>
                       <span
                         className={cn(
                           "font-medium",
-                          ticker.accumulationDistribution.d6 > 0
+                          ticker.accumulationDistribution.m1 > 0
                             ? "text-green-600"
-                            : ticker.accumulationDistribution.d6 < 0
+                            : ticker.accumulationDistribution.m1 < 0
                               ? "text-red-600"
                               : "text-gray-600"
                         )}
                       >
-                        {ticker.accumulationDistribution.d6 > 0 ? "+" : ""}
-                        {ticker.accumulationDistribution.d6.toFixed(1)}%
+                        {ticker.accumulationDistribution.m1 > 0 ? "+" : ""}
+                        {ticker.accumulationDistribution.m1.toFixed(1)}%
                       </span>
                     </div>
                   </div>
