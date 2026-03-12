@@ -67,7 +67,7 @@ export default function Layout() {
                   key={item.url}
                   to={item.url}
                   className={cn(
-                    "cursor-pointer border-l bg-muted px-6 py-4 text-sm font-medium transition-colors hover:bg-muted/80"
+                    "cursor-pointer border-l px-4 py-4 text-sm font-medium transition-colors hover:bg-muted/80"
                   )}
                 >
                   {item.title}

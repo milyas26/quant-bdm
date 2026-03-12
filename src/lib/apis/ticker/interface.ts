@@ -25,6 +25,36 @@ export interface GetTickersResponse {
   meta: Meta
 }
 
+export interface ScreenerTicker {
+  symbol: string
+  name: string | null
+  logo: string | null
+  sector: string | null
+  subSector: string | null
+  price: number
+  change: number
+  changePercentage: number
+  volume: number
+  isVolumeSpike: boolean
+  netBrokerFlow: number
+  bandarStatus: string
+  smartMoneyScore: number
+  liquidityScore: string
+  momentum: string
+  isBreakout: boolean
+  isOnWatchlist: boolean
+  accumulationDistribution: {
+    d1: number
+    d3: number
+    d6: number
+  }
+}
+
+export interface GetScreenerResponse {
+  data: ScreenerTicker[]
+  meta: Meta
+}
+
 export interface GetTickersParams {
   page?: number
   limit?: number

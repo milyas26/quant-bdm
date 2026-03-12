@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import {
-  getTickers,
+  getScreener,
   deleteTicker,
   toggleTickerInWatchlist,
   refreshAllTickers,
@@ -53,6 +53,19 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import type { GetTickersParams } from "@/lib/apis/ticker/interface"
 import { toast } from "sonner"
+
+const formatNumber = (num: number) => {
+  if (Math.abs(num) >= 1_000_000_000) {
+    return (num / 1_000_000_000).toFixed(1) + "B"
+  }
+  if (Math.abs(num) >= 1_000_000) {
+    return (num / 1_000_000).toFixed(1) + "M"
+  }
+  if (Math.abs(num) >= 1_000) {
+    return (num / 1_000).toFixed(1) + "K"
+  }
+  return num.toString()
+}
 
 export default function StocksPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -145,7 +158,7 @@ export default function StocksPage() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["tickers", page, limit, debouncedSearch, minPrice, maxPrice],
     queryFn: () =>
-      getTickers({
+      getScreener({
         page,
         limit,
         search: debouncedSearch,
@@ -340,6 +353,12 @@ export default function StocksPage() {
             </TableHead>
             <TableHead>Ticker</TableHead>
             <TableHead>Price</TableHead>
+            <TableHead>Volume</TableHead>
+            <TableHead>Broker Net</TableHead>
+            <TableHead>Acc/Dist (%)</TableHead>
+            <TableHead>Bandar Status</TableHead>
+            <TableHead>Score</TableHead>
+            <TableHead>Momentum</TableHead>
             <TableHead>Sector</TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
@@ -347,19 +366,19 @@ export default function StocksPage() {
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-cen∏ter h-24">
+              <TableCell colSpan={13} className="h-24 text-center">
                 Loading...
               </TableCell>
             </TableRow>
           ) : isError ? (
             <TableRow>
-              <TableCell colSpan={6} className="h-24 text-center text-red-500">
+              <TableCell colSpan={13} className="h-24 text-center text-red-500">
                 Error: {(error as Error).message}
               </TableCell>
             </TableRow>
           ) : data?.data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="h-24 text-center">
+              <TableCell colSpan={13} className="h-24 text-center">
                 No results found.
               </TableCell>
             </TableRow>
@@ -408,8 +427,11 @@ export default function StocksPage() {
                         />
                       )}
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold">
+                        <span className="flex items-center gap-1 text-sm font-bold">
                           {ticker.symbol}
+                          {ticker.isBreakout && (
+                            <span title="Breakout">⚡</span>
+                          )}
                         </span>
                         <span className="text-xs text-muted-foreground">
                           {ticker.name || "-"}
@@ -419,50 +441,146 @@ export default function StocksPage() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  {ticker.latestHistoricalData ? (
-                    <div className="flex flex-col">
-                      <span className="text-sm font-bold">
-                        {parseInt(
-                          ticker.latestHistoricalData.close
-                        ).toLocaleString()}
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold">
+                      {ticker.price.toLocaleString()}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-xs font-medium",
+                        ticker.changePercentage > 0
+                          ? "text-green-600"
+                          : ticker.changePercentage < 0
+                            ? "text-red-600"
+                            : "text-gray-600"
+                      )}
+                    >
+                      {ticker.changePercentage > 0 ? "+" : ""}
+                      {ticker.changePercentage.toFixed(2)}%
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">
+                      {formatNumber(ticker.volume)}
+                    </span>
+                    {ticker.isVolumeSpike && (
+                      <span className="text-xs font-bold text-orange-500">
+                        🔥 Spike
                       </span>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <span
+                    className={cn(
+                      "font-medium",
+                      ticker.netBrokerFlow > 0
+                        ? "text-green-600"
+                        : ticker.netBrokerFlow < 0
+                          ? "text-red-600"
+                          : "text-gray-600"
+                    )}
+                  >
+                    {ticker.netBrokerFlow > 0 ? "+" : ""}
+                    {formatNumber(ticker.netBrokerFlow)}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col gap-0.5 text-xs">
+                    <div className="flex gap-1">
+                      <span className="w-5 text-muted-foreground">1D:</span>
                       <span
                         className={cn(
-                          "text-xs font-medium",
-                          parseFloat(
-                            ticker.latestHistoricalData.change_percentage
-                          ) > 0
+                          "font-medium",
+                          ticker.accumulationDistribution.d1 > 0
                             ? "text-green-600"
-                            : parseFloat(
-                                  ticker.latestHistoricalData.change_percentage
-                                ) < 0
+                            : ticker.accumulationDistribution.d1 < 0
                               ? "text-red-600"
                               : "text-gray-600"
                         )}
                       >
-                        {parseFloat(
-                          ticker.latestHistoricalData.change_percentage
-                        ) > 0
-                          ? "+"
-                          : ""}
-                        {parseFloat(
-                          ticker.latestHistoricalData.change_percentage
-                        ).toFixed(2)}
-                        %
+                        {ticker.accumulationDistribution.d1 > 0 ? "+" : ""}
+                        {ticker.accumulationDistribution.d1.toFixed(1)}%
                       </span>
                     </div>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">-</span>
-                  )}
+                    <div className="flex gap-1">
+                      <span className="w-5 text-muted-foreground">3D:</span>
+                      <span
+                        className={cn(
+                          "font-medium",
+                          ticker.accumulationDistribution.d3 > 0
+                            ? "text-green-600"
+                            : ticker.accumulationDistribution.d3 < 0
+                              ? "text-red-600"
+                              : "text-gray-600"
+                        )}
+                      >
+                        {ticker.accumulationDistribution.d3 > 0 ? "+" : ""}
+                        {ticker.accumulationDistribution.d3.toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="flex gap-1">
+                      <span className="w-5 text-muted-foreground">6D:</span>
+                      <span
+                        className={cn(
+                          "font-medium",
+                          ticker.accumulationDistribution.d6 > 0
+                            ? "text-green-600"
+                            : ticker.accumulationDistribution.d6 < 0
+                              ? "text-red-600"
+                              : "text-gray-600"
+                        )}
+                      >
+                        {ticker.accumulationDistribution.d6 > 0 ? "+" : ""}
+                        {ticker.accumulationDistribution.d6.toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    className={cn(
+                      ticker.bandarStatus === "Accumulation" &&
+                        "bg-green-100 text-green-800 hover:bg-green-100",
+                      ticker.bandarStatus === "Distribution" &&
+                        "bg-red-100 text-red-800 hover:bg-red-100",
+                      ticker.bandarStatus === "Neutral" &&
+                        "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                    )}
+                  >
+                    {ticker.bandarStatus}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <span
+                    className={cn(
+                      "font-bold",
+                      ticker.smartMoneyScore >= 70
+                        ? "text-green-600"
+                        : ticker.smartMoneyScore <= 30
+                          ? "text-red-600"
+                          : "text-yellow-600"
+                    )}
+                  >
+                    {ticker.smartMoneyScore}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant="secondary"
+                    className={cn(
+                      ticker.momentum === "Uptrend" && "text-green-600",
+                      ticker.momentum === "Downtrend" && "text-red-600"
+                    )}
+                  >
+                    {ticker.momentum}
+                  </Badge>
                 </TableCell>
                 <TableCell>
                   {ticker.sector ? (
                     <Badge variant="default">{ticker.sector}</Badge>
-                  ) : (
-                    "-"
-                  )}
-                  {ticker.subSector ? (
-                    <Badge variant="secondary">{ticker.subSector}</Badge>
                   ) : (
                     "-"
                   )}

@@ -1,10 +1,19 @@
 import api from "@/lib/interceptor"
-import type { GetTickersParams, GetTickersResponse } from "./interface"
+import type {
+  GetTickersParams,
+  GetTickersResponse,
+  GetScreenerResponse,
+} from "./interface"
 
 export * from "./interface"
 
 export const getTickers = async (params: GetTickersParams) => {
   const { data } = await api.get<GetTickersResponse>("/tickers", { params })
+  return data
+}
+
+export const getScreener = async (params: GetTickersParams) => {
+  const { data } = await api.get<GetScreenerResponse>("/screener", { params })
   return data
 }
 
