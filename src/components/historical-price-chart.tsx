@@ -85,7 +85,7 @@ export function HistoricalPriceChart({
               ? "#26a69a" // teal-400
               : "#ef5350" // red-400
         ),
-        borderWidth: 1,
+        borderWidth: 0,
         yAxisID: "y2",
         order: 3,
         barPercentage: 0.5,
@@ -149,7 +149,9 @@ export function HistoricalPriceChart({
           pointRadius: 0,
           yAxisID: "y1",
           order: 2 + index,
-          hidden: !["Smart Money", "Dumb Money"].includes(dataset.label),
+          hidden: !["Smart Money", "Dumb Money", "Smart Money Score"].includes(
+            dataset.label
+          ),
         })
       })
     }
@@ -186,6 +188,9 @@ export function HistoricalPriceChart({
       tooltip: {
         mode: "index" as const,
         intersect: false,
+        itemSort: function (a: any, b: any) {
+          return a.dataset.order - b.dataset.order
+        },
         callbacks: {
           label: function (context: any) {
             let label = context.dataset.label || ""
@@ -194,7 +199,7 @@ export function HistoricalPriceChart({
             }
             if (context.dataset.type === "candlestick") {
               const raw = context.raw as any
-              return `${label} O:${formatNumber(raw.o)} H:${formatNumber(raw.h)} L:${formatNumber(raw.l)} C:${formatNumber(raw.c)}`
+              return `${label} O: ${formatNumber(raw.o)} H: ${formatNumber(raw.h)} L: ${formatNumber(raw.l)} C: ${formatNumber(raw.c)}`
             }
             if (context.parsed.y !== null) {
               label += formatNumber(context.parsed.y)
@@ -278,7 +283,7 @@ export function HistoricalPriceChart({
 
   return (
     <div className="relative w-full rounded-sm border p-2 text-card-foreground">
-      <div className="h-[300px] w-full">
+      <div className="h-[700px] w-full">
         <Chart type="candlestick" options={options as any} data={chartData} />
       </div>
     </div>

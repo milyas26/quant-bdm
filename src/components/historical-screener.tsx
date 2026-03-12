@@ -20,12 +20,16 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useState } from "react"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { HistoricalPriceChart } from "./historical-price-chart"
 
 interface HistoricalScreenerProps {
   data: any[]
   months: number
   onMonthsChange: (months: number) => void
 }
+
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length > 0) {
@@ -193,6 +197,7 @@ export function HistoricalScreener({
   onMonthsChange,
 }: HistoricalScreenerProps) {
   const [hoveredData, setHoveredData] = useState<any | null>(null)
+  const [showCandlestick, setShowCandlestick] = useState(false)
 
   // Reverse data for chart (oldest to newest)
   const chartData = [...data].reverse()
@@ -204,6 +209,27 @@ export function HistoricalScreener({
       </div>
     )
   }
+
+  const candlestickData = chartData.map((item) => ({
+    id: 0, // dummy
+    symbol: "SCREENER",
+    date: item.date,
+    open: item.ohlc?.open ?? item.price,
+    high: item.ohlc?.high ?? item.price,
+    low: item.ohlc?.low ?? item.price,
+    close: item.ohlc?.close ?? item.price,
+    volume: item.volume,
+    change: 0,
+    change_percentage: item.changePercentage,
+    value: 0,
+    frequency: 0,
+    foreign_buy: 0,
+    foreign_sell: 0,
+    net_foreign: 0,
+    average: 0,
+    created_at: "",
+    updated_at: "",
+  }))
 
   return (
     <div className="grid grid-cols-12 gap-4">
@@ -389,70 +415,100 @@ export function HistoricalScreener({
         </div>
       </div>
       <div className="col-span-9 h-[calc(100vh-200px)] rounded-md border p-4">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart
-            data={chartData}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-            <XAxis
-              dataKey="date"
-              tickFormatter={(date) => format(new Date(date), "dd MMM")}
-              minTickGap={30}
-              tick={{ fontSize: 10 }}
-            />
-            <YAxis
-              yAxisId="left"
-              domain={["auto", "auto"]}
-              tick={{ fontSize: 10 }}
-            />
-            <YAxis
-              yAxisId="right"
-              orientation="right"
-              domain={[0, 100]}
-              tick={{ fontSize: 10 }}
-            />
-            <Tooltip
-              content={<CustomTooltip />}
-              cursor={{
-                stroke: "#666",
-                strokeWidth: 1,
-                strokeDasharray: "3 3",
+        <div className="mb-4 flex items-center justify-end space-x-2">
+          <Label htmlFor="chart-type" className="text-xs">
+            Line
+          </Label>
+          <Switch
+            id="chart-type"
+            checked={showCandlestick}
+            onCheckedChange={setShowCandlestick}
+          />
+          <Label htmlFor="chart-type" className="text-xs">
+            Candle
+          </Label>
+        </div>
+
+        {showCandlestick ? (
+          <HistoricalPriceChart
+            data={candlestickData}
+            inventoryDatasets={[
+              {
+                label: "Smart Money Score",
+                data: chartData.map((d) => ({
+                  date: d.date,
+                  value: d.smartMoneyScore,
+                })),
+                color: "rgb(22, 163, 74)",
+              },
+            ]}
+          />
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart
+              data={chartData}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
               }}
-            />
-            <Area
-              yAxisId="left"
-              type="monotone"
-              dataKey="price"
-              stroke="#2563eb"
-              fill="#3b82f6"
-              fillOpacity={0.1}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="smartMoneyScore"
-              stroke="#16a34a"
-              strokeWidth={2}
-              dot={false}
-            />
-            {hoveredData && (
-              <ReferenceLine
-                x={hoveredData.date}
-                stroke="#666"
-                strokeDasharray="3 3"
+            >
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis
+                dataKey="date"
+                tickFormatter={(date) => format(new Date(date), "dd MMM")}
+                minTickGap={30}
+                tick={{ fontSize: 10 }}
               />
-            )}
-          </ComposedChart>
-        </ResponsiveContainer>
+              <YAxis
+                yAxisId="left"
+                domain={["auto", "auto"]}
+                tick={{ fontSize: 10 }}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                domain={[0, 100]}
+                tick={{ fontSize: 10 }}
+              />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{
+                  stroke: "#666",
+                  strokeWidth: 1,
+                  strokeDasharray: "3 3",
+                }}
+              />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="price"
+                stroke="#2563eb"
+                fill="#3b82f6"
+                fillOpacity={0.1}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 6 }}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="smartMoneyScore"
+                stroke="#16a34a"
+                strokeWidth={2}
+                dot={false}
+              />
+              {hoveredData && (
+                <ReferenceLine
+                  x={hoveredData.date}
+                  stroke="#666"
+                  strokeDasharray="3 3"
+                />
+              )}
+            </ComposedChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   )
