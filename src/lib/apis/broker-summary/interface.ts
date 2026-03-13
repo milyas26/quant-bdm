@@ -82,7 +82,7 @@ export interface BrokerSummaryListResponse {
   data: BrokerSummary[]
 }
 
-export interface BrokerInventoryData {
+export interface BrokerAccumulationChartData {
   date: string
   netALot: number
   netRLot: number
@@ -104,7 +104,7 @@ export interface BrokerInventoryData {
   avgNetDMPrice: number;
 }
 
-export interface BrokerInventoryResume {
+export interface BrokerAccumulationChartResume {
   netALot: number;
   netRLot: number;
   netLLot: number;
@@ -125,8 +125,8 @@ export interface BrokerInventoryResume {
   avgNetDMPrice: number;
 }
 
-export interface BrokerInventoryResponse {
+export interface BrokerAccumulationChartResponse {
   message: string
-  data: BrokerInventoryData[]
-  resume: BrokerInventoryResume
+  data: BrokerAccumulationChartData[]
+  resume: BrokerAccumulationChartResume
 }

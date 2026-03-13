@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { getBrokerInventory } from "@/lib/api"
+import { getBrokerAccumulationChart } from "@/lib/api"
 import { getHistoricalData } from "@/lib/apis/historical-data/historical-data-api"
 import { cn, formatNumber, formatNumberWithDecimal } from "@/lib/utils"
 import { BrokerInventoryChart } from "./broker-inventory-chart"
@@ -101,8 +101,8 @@ export function BrokerInventory({ selectedTicker }: BrokerInventoryProps) {
     isError,
     error,
   } = useQuery({
-    queryKey: ["broker-inventory", selectedTicker, period],
-    queryFn: () => getBrokerInventory(selectedTicker, period),
+    queryKey: ["broker-accumulation-chart", selectedTicker, period],
+    queryFn: () => getBrokerAccumulationChart(selectedTicker, period),
     enabled: !!selectedTicker,
     staleTime: 1000 * 60 * 5, // 5 minutes
     refetchOnWindowFocus: false,

@@ -5,17 +5,17 @@ import type {
   BrokerSummaryListResponse,
   BrokerSummaryParams,
   BrokerSummaryResponse,
-  BrokerInventoryResponse,
+  BrokerAccumulationChartResponse,
 } from "./interface"
 
 export * from "./interface"
 
-export const getBrokerInventory = async (
+export const getBrokerAccumulationChart = async (
   symbol: string,
   period: "1 month" | "3 month" | "6 month"
 ) => {
   try {
-    const { data } = await api.get<BrokerInventoryResponse>("/broker-inventory", {
+    const { data } = await api.get<BrokerAccumulationChartResponse>("/broker-accumulation-chart", {
       params: {
         symbol,
         period,
