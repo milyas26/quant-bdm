@@ -6,9 +6,34 @@ import type {
   BrokerSummaryParams,
   BrokerSummaryResponse,
   BrokerAccumulationChartResponse,
+  BrokerPositionChartResponse,
 } from "./interface"
 
 export * from "./interface"
+
+export const getBrokerPositionChart = async (
+  symbol: string,
+  from?: string,
+  to?: string,
+  topN?: number
+) => {
+  try {
+    const { data } = await api.get<BrokerPositionChartResponse>("/broker-position-chart", {
+      params: {
+        symbol,
+        from,
+        to,
+        top_n: topN
+      },
+    })
+    return data
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.error || "Failed to fetch data")
+    }
+    throw error
+  }
+}
 
 export const getBrokerAccumulationChart = async (
   symbol: string,

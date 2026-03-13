@@ -130,3 +130,28 @@ export interface BrokerAccumulationChartResponse {
   data: BrokerAccumulationChartData[]
   resume: BrokerAccumulationChartResume
 }
+
+export interface BrokerPositionChartData {
+  date: string
+  open: number
+  high: number
+  low: number
+  close: number
+  volume: number
+  change_percentage?: number
+  [key: string]: number | string | undefined // Dynamic keys for broker codes
+}
+
+export interface BrokerPositionChartResponse {
+  message: string
+  data: BrokerPositionChartData[]
+  topAccumulators: string[]
+  topDistributors: string[]
+}
+
+export interface BrokerPositionChartQuery {
+  symbol: string
+  from?: string
+  to?: string
+  top_n?: string
+}

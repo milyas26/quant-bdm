@@ -12,7 +12,7 @@ import {
   TimeSeriesScale,
 } from "chart.js"
 import { Chart } from "react-chartjs-2"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { formatNumber } from "@/lib/utils"
 import type { HistoricalData } from "@/lib/apis/historical-data/interface"
 import {
@@ -49,6 +49,7 @@ interface HistoricalPriceChartProps {
       value: number
     }[]
     color: string
+    group?: "Accumulation" | "Distribution" | string
   }[]
   title?: string
   height?: number
@@ -60,6 +61,8 @@ export function HistoricalPriceChart({
   title = "Historical Price",
   height = 400,
 }: HistoricalPriceChartProps) {
+  const [hiddenDatasets, setHiddenDatasets] = useState<Record<string, boolean>>({})
+
   const sortedData = useMemo(() => {
     return [...data].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -151,9 +154,7 @@ export function HistoricalPriceChart({
           pointRadius: 0,
           yAxisID: "y1",
           order: 2 + index,
-          hidden: !["Smart Money", "Dumb Money", "Smart Money Score"].includes(
-            dataset.label
-          ),
+          hidden: !!hiddenDatasets[dataset.label],
         })
       })
     }
@@ -161,27 +162,14 @@ export function HistoricalPriceChart({
     return {
       datasets,
     }
-  }, [sortedData, inventoryDatasets])
+  }, [sortedData, inventoryDatasets, hiddenDatasets])
 
   const options = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: true, // Show legend since we have 2 datasets
-        position: "top" as const,
-        align: "end" as const,
-        labels: {
-          usePointStyle: true,
-          boxWidth: 8,
-          font: {
-            size: 10,
-          },
-          filter: function (item: any) {
-            // Hide Volume and Price from legend
-            return !["Volume", "Price"].includes(item.text)
-          },
-        },
+        display: false, // Hide default legend to implement custom one
       },
       title: {
         display: false,
@@ -231,7 +219,7 @@ export function HistoricalPriceChart({
       },
       y1: {
         type: "linear" as const,
-        display: !!(inventoryDatasets && inventoryDatasets.length > 0),
+        display: true, // Always show right axis if we have inventory data
         position: "right" as const,
         grid: {
           drawOnChartArea: false,
@@ -283,11 +271,62 @@ export function HistoricalPriceChart({
     },
   }
 
+  // Group datasets for legend
+  const legendGroups = useMemo(() => {
+    if (!inventoryDatasets) return {}
+    
+    const groups: Record<string, typeof inventoryDatasets> = {}
+    inventoryDatasets.forEach(ds => {
+      const group = ds.group || "Other"
+      if (!groups[group]) groups[group] = []
+      groups[group].push(ds)
+    })
+    return groups
+  }, [inventoryDatasets])
+
+  const toggleDataset = (label: string) => {
+    setHiddenDatasets((prev) => ({
+      ...prev,
+      [label]: !prev[label],
+    }))
+  }
+
   return (
-    <div className="relative w-full rounded-sm border p-2 text-card-foreground">
-      <div style={{ height: `${height}px` }} className="w-full">
+    <div className="relative flex w-full gap-4 rounded-sm border p-2 text-card-foreground">
+      <div style={{ height: `${height}px` }} className="flex-1">
         <Chart type="candlestick" options={options as any} data={chartData} />
       </div>
+      
+      {/* Custom Legend Side Panel */}
+      {Object.keys(legendGroups).length > 0 && (
+        <div className="flex w-32 flex-col gap-4 py-4 text-xs">
+          {Object.entries(legendGroups).map(([groupName, datasets]) => (
+            <div key={groupName} className="rounded border bg-muted/20 p-2">
+              <div className="mb-2 font-semibold text-muted-foreground">{groupName}</div>
+              <div className="space-y-1">
+                {datasets.map((ds) => {
+                  const isHidden = !!hiddenDatasets[ds.label]
+                  return (
+                    <div 
+                      key={ds.label} 
+                      className={`flex cursor-pointer items-center gap-2 hover:opacity-80 ${isHidden ? "opacity-50" : ""}`}
+                      onClick={() => toggleDataset(ds.label)}
+                    >
+                      <div 
+                        className="h-0.5 w-3" 
+                        style={{ backgroundColor: isHidden ? "#666" : ds.color }}
+                      />
+                      <span className={`font-mono ${isHidden ? "line-through text-muted-foreground" : ""}`}>
+                        {ds.label}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
