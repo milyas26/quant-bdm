@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { BrokerInventoryAnalysis } from "./broker-inventory-analysis"
 
 interface BrokerInventoryProps {
   selectedTicker: string
@@ -175,14 +177,31 @@ export function BrokerInventory({ selectedTicker }: BrokerInventoryProps) {
 
       <div className="grid grid-cols-12 gap-2">
         <div className="col-span-8">
-          {historicalData && (
-            <HistoricalPriceChart
-              data={historicalData}
-              inventoryDatasets={mainInventoryDatasets}
-              title={`Historical Price - ${selectedTicker}`}
-              height={700}
-            />
-          )}
+          <Tabs defaultValue="summary" className="w-full">
+            <div className="mb-4 flex items-center justify-between">
+              <TabsList>
+                <TabsTrigger value="summary">Summary</TabsTrigger>
+                <TabsTrigger value="analysis">Broker Analysis</TabsTrigger>
+              </TabsList>
+            </div>
+            <TabsContent value="summary">
+              {historicalData && (
+                <HistoricalPriceChart
+                  data={historicalData}
+                  inventoryDatasets={mainInventoryDatasets}
+                  title={`Historical Price - ${selectedTicker}`}
+                  height={640}
+                />
+              )}
+            </TabsContent>
+            <TabsContent value="analysis">
+              <BrokerInventoryAnalysis
+                symbol={selectedTicker}
+                height={640}
+                period={period}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
         <div className="col-span-4 space-y-2">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

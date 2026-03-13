@@ -50,6 +50,7 @@ interface HistoricalPriceChartProps {
     }[]
     color: string
     group?: "Accumulation" | "Distribution" | string
+    totalNet?: number
   }[]
   title?: string
   height?: number
@@ -296,29 +297,44 @@ export function HistoricalPriceChart({
       <div style={{ height: `${height}px` }} className="flex-1">
         <Chart type="candlestick" options={options as any} data={chartData} />
       </div>
-      
+
       {/* Custom Legend Side Panel */}
       {Object.keys(legendGroups).length > 0 && (
-        <div className="flex w-32 flex-col gap-4 py-4 text-xs">
+        <div className="flex w-28 flex-col gap-4 py-4 text-xs">
           {Object.entries(legendGroups).map(([groupName, datasets]) => (
             <div key={groupName} className="rounded border bg-muted/20 p-2">
-              <div className="mb-2 font-semibold text-muted-foreground">{groupName}</div>
+              <div className="mb-2 font-semibold text-muted-foreground">
+                {groupName}
+              </div>
               <div className="space-y-1">
                 {datasets.map((ds) => {
                   const isHidden = !!hiddenDatasets[ds.label]
                   return (
-                    <div 
-                      key={ds.label} 
-                      className={`flex cursor-pointer items-center gap-2 hover:opacity-80 ${isHidden ? "opacity-50" : ""}`}
+                    <div
+                      key={ds.label}
+                      className={`flex cursor-pointer items-center justify-between gap-2 hover:opacity-80 ${isHidden ? "opacity-50" : ""}`}
                       onClick={() => toggleDataset(ds.label)}
                     >
-                      <div 
-                        className="h-0.5 w-3" 
-                        style={{ backgroundColor: isHidden ? "#666" : ds.color }}
-                      />
-                      <span className={`font-mono ${isHidden ? "line-through text-muted-foreground" : ""}`}>
-                        {ds.label}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="h-0.5 w-3"
+                          style={{
+                            backgroundColor: isHidden ? "#666" : ds.color,
+                          }}
+                        />
+                        <span
+                          className={`font-mono ${isHidden ? "text-muted-foreground line-through" : ""}`}
+                        >
+                          {ds.label}
+                        </span>
+                      </div>
+                      {ds.totalNet !== undefined && (
+                        <span
+                          className={`text-[10px] ${ds.totalNet >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                        >
+                          {formatNumber(ds.totalNet)}
+                        </span>
+                      )}
                     </div>
                   )
                 })}

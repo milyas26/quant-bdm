@@ -5,6 +5,8 @@ import { Loader2 } from "lucide-react"
 
 interface BrokerInventoryAnalysisProps {
   symbol: string
+  height?: number
+  period?: "1 month" | "3 month" | "6 month"
 }
 
 const BROKER_COLORS = [
@@ -22,10 +24,26 @@ const BROKER_COLORS = [
 
 export function BrokerInventoryAnalysis({
   symbol,
+  height = 500,
+  period = "3 month",
 }: BrokerInventoryAnalysisProps) {
+  const startDate = new Date()
+  switch (period) {
+    case "1 month":
+      startDate.setMonth(startDate.getMonth() - 1)
+      break
+    case "3 month":
+      startDate.setMonth(startDate.getMonth() - 3)
+      break
+    case "6 month":
+      startDate.setMonth(startDate.getMonth() - 6)
+      break
+  }
+  const from = startDate.toISOString().split("T")[0]
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["broker-position-chart", symbol],
-    queryFn: () => getBrokerPositionChart(symbol),
+    queryKey: ["broker-position-chart", symbol, period],
+    queryFn: () => getBrokerPositionChart(symbol, from),
     enabled: !!symbol,
   })
 
@@ -67,39 +85,48 @@ export function BrokerInventoryAnalysis({
     updated_at: "",
   }))
 
-  const accumulators = (data.topAccumulators || []).map((broker, index) => ({
-    label: broker,
-    data: data.data.map((item) => ({
-      date: item.date,
-      value: Number(item[broker] || 0),
-    })),
-    color: BROKER_COLORS[index % BROKER_COLORS.length],
-    group: "Net Akum",
-  }))
+  const accumulators = (data.topAccumulators || []).map((broker, index) => {
+    // Calculate total net for this broker
+    const brokerData = data.data.map((item) => Number(item[broker] || 0))
+    const totalNet = brokerData[brokerData.length - 1] // The last value is the cumulative total
 
-  const distributors = (data.topDistributors || []).map((broker, index) => ({
-    label: broker,
-    data: data.data.map((item) => ({
-      date: item.date,
-      value: Number(item[broker] || 0),
-    })),
-    color: BROKER_COLORS[(index + 5) % BROKER_COLORS.length],
-    group: "Net Dist",
-  }))
+    return {
+      label: broker,
+      data: data.data.map((item) => ({
+        date: item.date,
+        value: Number(item[broker] || 0),
+      })),
+      color: BROKER_COLORS[index % BROKER_COLORS.length],
+      group: "Net Akum",
+      totalNet: totalNet,
+    }
+  })
+
+  const distributors = (data.topDistributors || []).map((broker, index) => {
+    // Calculate total net for this broker
+    const brokerData = data.data.map((item) => Number(item[broker] || 0))
+    const totalNet = brokerData[brokerData.length - 1] // The last value is the cumulative total
+
+    return {
+      label: broker,
+      data: data.data.map((item) => ({
+        date: item.date,
+        value: Number(item[broker] || 0),
+      })),
+      color: BROKER_COLORS[(index + 5) % BROKER_COLORS.length],
+      group: "Net Dist",
+      totalNet: totalNet,
+    }
+  })
 
   const inventoryDatasets = [...accumulators, ...distributors]
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Broker Inventory Analysis</h3>
-      </div>
-      <HistoricalPriceChart
-        data={historicalData}
-        inventoryDatasets={inventoryDatasets}
-        title={`Broker Inventory Analysis - ${symbol}`}
-        height={500}
-      />
-    </div>
+    <HistoricalPriceChart
+      data={historicalData}
+      inventoryDatasets={inventoryDatasets}
+      title={`Broker Inventory Analysis - ${symbol}`}
+      height={height}
+    />
   )
 }

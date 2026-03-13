@@ -31,7 +31,6 @@ import { ArrowLeftIcon, ChevronDown } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { BrokerInventory } from "@/components/broker-inventory"
 import { HistoricalScreener } from "@/components/historical-screener"
-import { BrokerInventoryAnalysis } from "@/components/broker-inventory-analysis"
 
 import { cn } from "@/lib/utils"
 
@@ -267,11 +266,7 @@ export default function StockDetail() {
           />
         </TabsContent>
         <TabsContent value="inventory" className="mt-2 space-y-6">
-          <BrokerInventoryAnalysis symbol={selectedTicker} />
-          <div>
-            <p className="font-medium">Broker Inventory</p>
-            <BrokerInventory selectedTicker={selectedTicker} />
-          </div>
+          <BrokerInventory selectedTicker={selectedTicker} />
           <div>
             <p className="font-medium">Historical Screener</p>
             <HistoricalScreener
