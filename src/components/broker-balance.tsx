@@ -148,6 +148,7 @@ export function BrokerBalance({
                     valueKey="runningBalanceVal"
                     label="Inventory"
                     title=""
+                    className="h-full"
                   />
                 </div>
               </div>
@@ -160,6 +161,7 @@ export function BrokerBalance({
                     valueKey="netVal"
                     label="Net Lot"
                     title=""
+                    className="h-full"
                   />
                 </div>
               </div>

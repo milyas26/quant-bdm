@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient, useQuery, useInfiniteQuery } from "@tanstack/react-query"
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query"
 import {
   fetchAndSaveBrokerSummary,
   fetchAndSaveTickerInfo,
@@ -7,7 +7,7 @@ import {
   getHistoricalScreenerData,
 } from "@/lib/api"
 import { Button } from "@/components/ui/button"
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import { format, startOfMonth, subMonths } from "date-fns"
 import { BrokerSummaryDashboard } from "@/components/broker-summary-dashboard"
 import { DatePickerWithRange } from "@/components/date-range-picker"
@@ -52,17 +52,6 @@ export default function StockDetail() {
   const { data: historicalScreenerData } = useQuery({
     queryKey: ["historical-screener", selectedTicker, screenerMonths],
     queryFn: () => getHistoricalScreenerData(selectedTicker, screenerMonths),
-    enabled: !!selectedTicker,
-  })
-
-  const { data: historicalData } = useQuery({
-    queryKey: ["historical-data", selectedTicker, screenerMonths],
-    queryFn: async () => {
-      // Fetch historical price data for the chart
-      // We can reuse the existing API or create a new one if needed
-      // Assuming getHistoricalData exists or similar
-      return [] // Placeholder until we confirm API
-    },
     enabled: !!selectedTicker,
   })
 
@@ -251,12 +240,6 @@ export default function StockDetail() {
           >
             Inventory
           </TabsTrigger>
-          <TabsTrigger
-            className="relative rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
-            value="historical-screener"
-          >
-            Historical Screener
-          </TabsTrigger>
         </TabsList>
         <TabsContent value="broker-summary" className="mt-2">
           <div className="mb-4 flex items-center gap-2">
@@ -282,15 +265,19 @@ export default function StockDetail() {
             highlightedBroker={brokerCode}
           />
         </TabsContent>
-        <TabsContent value="inventory" className="mt-2">
-          <BrokerInventory selectedTicker={selectedTicker} />
-        </TabsContent>
-        <TabsContent value="historical-screener" className="mt-2">
-          <HistoricalScreener
-            data={historicalScreenerData?.data || []}
-            months={screenerMonths}
-            onMonthsChange={setScreenerMonths}
-          />
+        <TabsContent value="inventory" className="mt-2 space-y-6">
+          <div>
+            <p className="font-medium">Broker Inventory</p>
+            <BrokerInventory selectedTicker={selectedTicker} />
+          </div>
+          <div>
+            <p className="font-medium">Historical Screener</p>
+            <HistoricalScreener
+              data={historicalScreenerData?.data || []}
+              months={screenerMonths}
+              onMonthsChange={setScreenerMonths}
+            />
+          </div>
         </TabsContent>
       </Tabs>
     </div>

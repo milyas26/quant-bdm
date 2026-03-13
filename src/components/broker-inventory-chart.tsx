@@ -10,7 +10,7 @@ import {
 import { Bar } from "react-chartjs-2"
 import { format } from "date-fns"
 import { useMemo } from "react"
-import { formatNumber } from "@/lib/utils"
+import { cn, formatNumber } from "@/lib/utils"
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
@@ -20,6 +20,7 @@ interface BrokerInventoryChartProps {
   valueKey?: string // Key for value (Rp)
   label?: string
   title?: string
+  className?: string
 }
 
 export function BrokerInventoryChart({
@@ -28,6 +29,7 @@ export function BrokerInventoryChart({
   valueKey,
   label = "Value",
   title = "Chart",
+  className,
 }: BrokerInventoryChartProps) {
   const sortedData = useMemo(() => {
     return [...data].sort(
@@ -143,7 +145,7 @@ export function BrokerInventoryChart({
   }
 
   return (
-    <div className="relative h-full w-full p-0">
+    <div className={cn("relative h-[72px] w-full p-0", className)}>
       <p className="absolute text-[10px] font-semibold text-muted-foreground">
         {title}
       </p>

@@ -180,6 +180,7 @@ export function BrokerInventory({ selectedTicker }: BrokerInventoryProps) {
               data={historicalData}
               inventoryDatasets={mainInventoryDatasets}
               title={`Historical Price - ${selectedTicker}`}
+              height={700}
             />
           )}
         </div>
