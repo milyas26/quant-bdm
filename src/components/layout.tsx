@@ -10,6 +10,7 @@ const navItems = [
   { title: "Stocks", url: "/stock" },
   { title: "Watchlist", url: "/watchlist" },
   { title: "Extra Info", url: "/extra-info" },
+  { title: "Screener Analysis", url: "/screener-analysis" },
 ]
 
 import { AddTickerDialog } from "@/components/add-ticker-dialog"
