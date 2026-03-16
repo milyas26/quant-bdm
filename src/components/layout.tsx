@@ -8,9 +8,8 @@ import { CommandMenu } from "@/components/command-menu"
 
 const navItems = [
   { title: "Stocks", url: "/stock" },
-  { title: "Watchlist", url: "/watchlist" },
-  { title: "Extra Info", url: "/extra-info" },
   { title: "Screener Analysis", url: "/screener-analysis" },
+  { title: "Extra Info", url: "/extra-info" },
 ]
 
 import { AddTickerDialog } from "@/components/add-ticker-dialog"

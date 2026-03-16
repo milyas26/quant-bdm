@@ -5,6 +5,13 @@ export interface GetScreenerAnalysisParams {
   limit?: number;
   page?: number;
   sortBy?: string;
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  signals?: string[];
+  bandarStatus?: string[];
+  momentum?: string[];
+  sortOrder?: string;
 }
 
 export interface ScreenerAnalysisResponse {
