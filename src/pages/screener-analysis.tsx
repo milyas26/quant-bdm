@@ -443,6 +443,44 @@ export default function ScreenerAnalysis() {
 
                 <Separator orientation="vertical" className="hidden lg:block" />
 
+                {/* Top Brokers */}
+                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-[120px] lg:flex-col lg:justify-center">
+                  <div className="flex w-full items-center justify-between gap-2 lg:justify-end">
+                    <span className="text-[10px] text-muted-foreground lg:hidden">
+                      Top Buy:
+                    </span>
+                    <span
+                      className="truncate text-[10px] font-medium text-green-600"
+                      title={row.brokerSummary?.brokersBuy
+                        ?.map((b: any) => b.netbsBrokerCode)
+                        .join(", ")}
+                    >
+                      {row.brokerSummary?.brokersBuy
+                        ?.slice(0, 5)
+                        .map((b: any) => b.netbsBrokerCode)
+                        .join(", ") || "-"}
+                    </span>
+                  </div>
+                  <div className="flex w-full items-center justify-between gap-2 lg:justify-end">
+                    <span className="text-[10px] text-muted-foreground lg:hidden">
+                      Top Sell:
+                    </span>
+                    <span
+                      className="truncate text-[10px] font-medium text-red-600"
+                      title={row.brokerSummary?.brokersSell
+                        ?.map((b: any) => b.netbsBrokerCode)
+                        .join(", ")}
+                    >
+                      {row.brokerSummary?.brokersSell
+                        ?.slice(0, 5)
+                        .map((b: any) => b.netbsBrokerCode)
+                        .join(", ") || "-"}
+                    </span>
+                  </div>
+                </div>
+
+                <Separator orientation="vertical" className="hidden lg:block" />
+
                 {/* 4. Status/Score/Momentum */}
                 <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-[140px] lg:flex-col lg:justify-center">
                   <div className="flex items-center justify-between gap-2 lg:justify-end">
