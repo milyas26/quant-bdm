@@ -53,4 +53,7 @@ export interface GetTickersParams {
   maxPrice?: number
   sortBy?: string
   sortOrder?: "asc" | "desc"
+  signals?: string[]
+  bandarStatus?: string[]
+  momentum?: string[]
 }

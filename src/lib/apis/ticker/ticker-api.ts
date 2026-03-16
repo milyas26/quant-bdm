@@ -13,7 +13,21 @@ export const getTickers = async (params: GetTickersParams) => {
 }
 
 export const getScreener = async (params: GetTickersParams) => {
-  const { data } = await api.get<GetScreenerResponse>("/screener", { params })
+  const { data } = await api.get<GetScreenerResponse>("/screener", {
+    params,
+    paramsSerializer: (params) => {
+      const searchParams = new URLSearchParams()
+      Object.entries(params).forEach(([key, value]) => {
+        if (value === undefined || value === null) return
+        if (Array.isArray(value)) {
+          value.forEach((v) => searchParams.append(key, v))
+        } else {
+          searchParams.append(key, String(value))
+        }
+      })
+      return searchParams.toString()
+    },
+  })
   return data
 }
 

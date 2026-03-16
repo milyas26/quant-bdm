@@ -19,7 +19,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Card, CardContent } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
 import {
   ChevronLeft,
   ChevronRight,
@@ -56,6 +55,8 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import type { GetTickersParams } from "@/lib/apis/ticker/interface"
 import { toast } from "sonner"
+import { FilterMultiSelect } from "@/components/filter-multi-select"
+import { Separator } from "@/components/ui/separator"
 
 const formatNumber = (num: number) => {
   if (Math.abs(num) >= 1_000_000_000) {
@@ -129,6 +130,31 @@ export default function StocksPage() {
 
   const [pageInput, setPageInput] = useState(searchParams.get("page") || "1")
 
+  const signals = searchParams.getAll("signals")
+  const bandarStatus = searchParams.getAll("bandarStatus")
+  const momentum = searchParams.getAll("momentum")
+
+  useEffect(() => {
+    const newParams = new URLSearchParams(searchParams)
+    let changed = false
+
+    if (!searchParams.has("bandarStatus")) {
+      newParams.append("bandarStatus", "Accumulation")
+      changed = true
+    }
+
+    if (!searchParams.has("momentum")) {
+      newParams.append("momentum", "Uptrend")
+      newParams.append("momentum", "Sideways")
+      newParams.append("momentum", "Downtrend")
+      changed = true
+    }
+
+    if (changed) {
+      setSearchParams(newParams, { replace: true })
+    }
+  }, [])
+
   useEffect(() => {
     setPageInput(page.toString())
   }, [page])
@@ -139,6 +165,9 @@ export default function StocksPage() {
     Object.entries(updates).forEach(([key, value]) => {
       if (value === undefined || value === "") {
         newParams.delete(key)
+      } else if (Array.isArray(value)) {
+        newParams.delete(key)
+        value.forEach((v) => newParams.append(key, v))
       } else {
         newParams.set(key, String(value))
       }
@@ -186,6 +215,9 @@ export default function StocksPage() {
       maxPrice,
       sortBy,
       sortOrder,
+      signals,
+      bandarStatus,
+      momentum,
     ],
     queryFn: () =>
       getScreener({
@@ -196,6 +228,9 @@ export default function StocksPage() {
         maxPrice,
         sortBy: sortBy || undefined,
         sortOrder: sortOrder || undefined,
+        signals,
+        bandarStatus,
+        momentum,
       }),
   })
 
@@ -306,44 +341,79 @@ export default function StocksPage() {
       <Card className="bg-card/20">
         <CardContent className="space-y-4">
           <div className="flex flex-col flex-wrap gap-2 md:flex-row md:items-end">
-            <div className="w-full min-w-[200px] space-y-2 md:w-auto md:flex-1">
-              <Label htmlFor="search">Search</Label>
+            <div className="w-full min-w-[200px] md:w-auto md:flex-1">
               <div className="relative">
-                <Search className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute top-3 left-2 h-4 w-4 text-muted-foreground" />
                 <Input
                   ref={searchInputRef}
                   id="search"
                   placeholder="Search symbol or name..."
-                  className="pl-8"
+                  className="h-10 py-4 pl-8"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
             </div>
 
-            <div className="w-full space-y-2 md:w-32">
-              <Label htmlFor="minPrice">Min Price</Label>
-              <Input
-                id="minPrice"
+            <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+              <span className="font-medium">Price</span>
+              <Separator orientation="vertical" className="mx-2 h-4" />
+              <input
+                className="w-16 bg-transparent outline-none placeholder:text-muted-foreground md:w-20"
+                placeholder="Min"
                 type="number"
-                placeholder="0"
                 value={minPriceInput}
                 onChange={(e) => setMinPriceInput(e.target.value)}
                 onBlur={handlePriceUpdate}
                 onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
               />
-            </div>
-
-            <div className="w-full space-y-2 md:w-32">
-              <Label htmlFor="maxPrice">Max Price</Label>
-              <Input
-                id="maxPrice"
-                type="number"
+              <span className="mx-1 text-muted-foreground">-</span>
+              <input
+                className="w-16 bg-transparent text-right outline-none placeholder:text-muted-foreground md:w-20"
                 placeholder="Max"
+                type="number"
                 value={maxPriceInput}
                 onChange={(e) => setMaxPriceInput(e.target.value)}
                 onBlur={handlePriceUpdate}
                 onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
+              />
+            </div>
+
+            <div className="w-full space-y-2 md:w-60">
+              <FilterMultiSelect
+                title="Signals"
+                options={[
+                  { label: "Breakout", value: "Breakout" },
+                  { label: "Spike", value: "Spike" },
+                ]}
+                selected={signals}
+                onChange={(val) => updateParams({ signals: val, page: 1 })}
+              />
+            </div>
+
+            <div className="w-full space-y-2 md:w-60">
+              <FilterMultiSelect
+                title="Status"
+                options={[
+                  { label: "Accumulation", value: "Accumulation" },
+                  { label: "Neutral", value: "Neutral" },
+                  { label: "Distribution", value: "Distribution" },
+                ]}
+                selected={bandarStatus}
+                onChange={(val) => updateParams({ bandarStatus: val, page: 1 })}
+              />
+            </div>
+
+            <div className="w-full space-y-2 md:w-60">
+              <FilterMultiSelect
+                title="Momentum"
+                options={[
+                  { label: "Uptrend", value: "Uptrend" },
+                  { label: "Sideways", value: "Sideways" },
+                  { label: "Downtrend", value: "Downtrend" },
+                ]}
+                selected={momentum}
+                onChange={(val) => updateParams({ momentum: val, page: 1 })}
               />
             </div>
 
@@ -360,11 +430,11 @@ export default function StocksPage() {
               variant="outline"
               onClick={() => handleRefreshAllTickers()}
               disabled={isRefreshing}
+              className="h-10 cursor-pointer"
             >
               <RefreshCw
-                className={cn("mr-2 h-4 w-4", isRefreshing && "animate-spin")}
+                className={cn("h-4 w-4", isRefreshing && "animate-spin")}
               />
-              {isRefreshing ? "Refreshing..." : "Refresh Data"}
             </Button>
           </div>
         </CardContent>
@@ -606,7 +676,12 @@ export default function StocksPage() {
                         <span className="flex items-center gap-1 text-sm font-bold">
                           {ticker.symbol}
                           {ticker.isBreakout && (
-                            <span title="Breakout">⚡</span>
+                            <span
+                              title="Breakout"
+                              className="text-[11px] text-orange-500"
+                            >
+                              ⚡Breakout
+                            </span>
                           )}
                         </span>
                         <span className="text-xs text-muted-foreground">
