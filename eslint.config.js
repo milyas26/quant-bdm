@@ -21,6 +21,13 @@ export default defineConfig([
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
+      'react-refresh/only-export-components': [
+        'error',
+        {
+          allowConstantExport: true,
+          allowExportNames: ['buttonVariants', 'badgeVariants', 'useSidebar'],
+        },
+      ],
     },
   },
 ])

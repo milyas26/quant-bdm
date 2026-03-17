@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { useSearchParams } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { format } from "date-fns"
 import {
   getScreenerAnalysis,
@@ -36,6 +36,7 @@ import { Separator } from "@/components/ui/separator"
 export default function ScreenerAnalysis() {
   const [searchParams, setSearchParams] = useSearchParams()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const page = parseInt(searchParams.get("page") || "1")
   const limit = parseInt(searchParams.get("limit") || "50")
@@ -463,7 +464,12 @@ export default function ScreenerAnalysis() {
             >
               <div className="flex flex-col items-center justify-between gap-4 text-sm lg:flex-row">
                 {/* 1. Ticker & Date */}
-                <div className="flex w-full shrink-0 items-center gap-3 lg:w-[250px]">
+                <div
+                  className="flex w-full shrink-0 cursor-pointer items-center gap-3 lg:w-[250px]"
+                  onClick={() => {
+                    navigate(`/stock/${row.symbol}`)
+                  }}
+                >
                   {row.ticker?.logo ? (
                     <img
                       src={row.ticker.logo}

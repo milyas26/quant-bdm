@@ -9,6 +9,7 @@ import { CommandMenu } from "@/components/command-menu"
 const navItems = [
   { title: "Stocks", url: "/stock" },
   { title: "Screener Analysis", url: "/screener-analysis" },
+  { title: "Rules", url: "/rules" },
   { title: "Extra Info", url: "/extra-info" },
 ]
 
