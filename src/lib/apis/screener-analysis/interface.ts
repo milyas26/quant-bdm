@@ -12,6 +12,14 @@ export interface GetScreenerAnalysisParams {
   bandarStatus?: string[];
   momentum?: string[];
   sortOrder?: string;
+  minScore?: number;
+  maxScore?: number;
+  accDist1D?: number;
+  accDist1W?: number;
+  accDist1M?: number;
+  accDistOperator?: "gt" | "lt";
+  accBrokerCodes?: string[];
+  distBrokerCodes?: string[];
 }
 
 export interface ScreenerAnalysisResponse {

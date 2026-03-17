@@ -23,6 +23,13 @@ import {
   Download,
 } from "lucide-react"
 import { toast } from "sonner"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { FilterMultiSelect } from "@/components/filter-multi-select"
 import { Separator } from "@/components/ui/separator"
 
@@ -64,6 +71,25 @@ export default function ScreenerAnalysis() {
   // Legacy signalType (keep it but hidden or merged?)
   // We'll prioritize the new filters.
 
+  const minScore = searchParams.get("minScore")
+    ? parseInt(searchParams.get("minScore")!)
+    : undefined
+  const maxScore = searchParams.get("maxScore")
+    ? parseInt(searchParams.get("maxScore")!)
+    : undefined
+
+  const [minScoreInput, setMinScoreInput] = useState(
+    searchParams.get("minScore") || ""
+  )
+  const [maxScoreInput, setMaxScoreInput] = useState(
+    searchParams.get("maxScore") || ""
+  )
+
+  const accDist1D = searchParams.get("accDist1D") || ""
+  const accDist1W = searchParams.get("accDist1W") || ""
+  const accDist1M = searchParams.get("accDist1M") || ""
+  const accDistOperator = searchParams.get("accDistOperator") || "gt"
+
   const [pageInput, setPageInput] = useState(page.toString())
 
   const updateParams = (
@@ -103,6 +129,14 @@ export default function ScreenerAnalysis() {
     })
   }
 
+  const handleScoreUpdate = () => {
+    updateParams({
+      minScore: minScoreInput ? parseInt(minScoreInput) : undefined,
+      maxScore: maxScoreInput ? parseInt(maxScoreInput) : undefined,
+      page: 1,
+    })
+  }
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [
       "screenerAnalysis",
@@ -116,6 +150,12 @@ export default function ScreenerAnalysis() {
       signals,
       bandarStatus,
       momentum,
+      minScore,
+      maxScore,
+      accDist1D,
+      accDist1W,
+      accDist1M,
+      accDistOperator,
     ],
     queryFn: () =>
       getScreenerAnalysis({
@@ -129,6 +169,12 @@ export default function ScreenerAnalysis() {
         signals,
         bandarStatus,
         momentum,
+        minScore,
+        maxScore,
+        accDist1D: accDist1D ? parseInt(accDist1D) : undefined,
+        accDist1W: accDist1W ? parseInt(accDist1W) : undefined,
+        accDist1M: accDist1M ? parseInt(accDist1M) : undefined,
+        accDistOperator: accDistOperator as "gt" | "lt",
       }),
   })
 
@@ -154,6 +200,12 @@ export default function ScreenerAnalysis() {
         signals,
         bandarStatus,
         momentum,
+        minScore,
+        maxScore,
+        accDist1D: accDist1D ? parseInt(accDist1D) : undefined,
+        accDist1W: accDist1W ? parseInt(accDist1W) : undefined,
+        accDist1M: accDist1M ? parseInt(accDist1M) : undefined,
+        accDistOperator: accDistOperator as "gt" | "lt",
       })
 
       const url = window.URL.createObjectURL(new Blob([blob]))
@@ -238,6 +290,84 @@ export default function ScreenerAnalysis() {
                 onBlur={handlePriceUpdate}
                 onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
               />
+            </div>
+
+            <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+              <span className="font-medium">Score</span>
+              <Separator orientation="vertical" className="mx-2 h-4" />
+              <input
+                className="w-16 bg-transparent outline-none placeholder:text-muted-foreground md:w-20"
+                placeholder="Min"
+                type="number"
+                step="10"
+                min="0"
+                max="100"
+                value={minScoreInput}
+                onChange={(e) => setMinScoreInput(e.target.value)}
+                onBlur={handleScoreUpdate}
+                onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
+              />
+              <span className="mx-1 text-muted-foreground">-</span>
+              <input
+                className="w-16 bg-transparent text-right outline-none placeholder:text-muted-foreground md:w-20"
+                placeholder="Max"
+                type="number"
+                step="10"
+                min="0"
+                max="100"
+                value={maxScoreInput}
+                onChange={(e) => setMaxScoreInput(e.target.value)}
+                onBlur={handleScoreUpdate}
+                onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
+              />
+            </div>
+
+            <div className="flex h-10 items-center gap-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+              <span className="mr-1 font-medium">Acc/Dist</span>
+              <Select
+                value={accDistOperator}
+                onValueChange={(val) =>
+                  updateParams({ accDistOperator: val, page: 1 })
+                }
+              >
+                <SelectTrigger className="h-6 w-[55px] border-none px-1 text-xs focus:ring-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gt">&gt;</SelectItem>
+                  <SelectItem value="lt">&lt;</SelectItem>
+                </SelectContent>
+              </Select>
+              <Separator orientation="vertical" className="mx-1 h-4" />
+              <div className="flex gap-2">
+                <input
+                  className="w-8 bg-transparent text-center outline-none placeholder:text-muted-foreground"
+                  placeholder="1D"
+                  type="number"
+                  value={accDist1D}
+                  onChange={(e) =>
+                    updateParams({ accDist1D: e.target.value, page: 1 })
+                  }
+                />
+                <input
+                  className="w-8 bg-transparent text-center outline-none placeholder:text-muted-foreground"
+                  placeholder="1W"
+                  type="number"
+                  value={accDist1W}
+                  onChange={(e) =>
+                    updateParams({ accDist1W: e.target.value, page: 1 })
+                  }
+                />
+                <input
+                  className="w-8 bg-transparent text-center outline-none placeholder:text-muted-foreground"
+                  placeholder="1M"
+                  type="number"
+                  value={accDist1M}
+                  onChange={(e) =>
+                    updateParams({ accDist1M: e.target.value, page: 1 })
+                  }
+                />
+              </div>
             </div>
 
             <div className="w-full space-y-2 md:w-52">
