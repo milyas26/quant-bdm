@@ -2,7 +2,11 @@ import { useState, useEffect, useRef } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useSearchParams } from "react-router-dom"
 import { format } from "date-fns"
-import { getScreenerAnalysis, generateScreenerAnalysis } from "@/lib/api"
+import {
+  getScreenerAnalysis,
+  generateScreenerAnalysis,
+  exportScreenerAnalysis,
+} from "@/lib/api"
 import { useDebounce } from "@/hooks/use-debounce"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -16,6 +20,7 @@ import {
   ChevronsRight,
   Play,
   Search,
+  Download,
 } from "lucide-react"
 import { toast } from "sonner"
 import { FilterMultiSelect } from "@/components/filter-multi-select"
@@ -138,6 +143,40 @@ export default function ScreenerAnalysis() {
     },
   })
 
+  const exportMutation = useMutation({
+    mutationFn: async () => {
+      const blob = await exportScreenerAnalysis({
+        search: debouncedSearch,
+        minPrice,
+        maxPrice,
+        sortBy,
+        sortOrder,
+        signals,
+        bandarStatus,
+        momentum,
+      })
+
+      const url = window.URL.createObjectURL(new Blob([blob]))
+      const link = document.createElement("a")
+      link.href = url
+      link.setAttribute(
+        "download",
+        `screener-analysis-export-${new Date().toISOString().split("T")[0]}.csv`
+      )
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+
+      return blob
+    },
+    onSuccess: () => {
+      toast.success("Export downloaded successfully")
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to export: ${error.message}`)
+    },
+  })
+
   const formatNumber = (num: number) => {
     if (Math.abs(num) >= 1_000_000_000) {
       return (num / 1_000_000_000).toFixed(1) + "B"
@@ -253,6 +292,22 @@ export default function ScreenerAnalysis() {
                 </>
               )}
             </Button>
+            <Button
+              onClick={() => exportMutation.mutate()}
+              disabled={exportMutation.isPending}
+              className="h-10 cursor-pointer"
+              variant="outline"
+              title="Export CSV"
+            >
+              {exportMutation.isPending ? (
+                "Exporting..."
+              ) : (
+                <>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export
+                </>
+              )}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -354,7 +409,7 @@ export default function ScreenerAnalysis() {
                           className="text-[10px] font-bold text-orange-600"
                           title="Volume Spike"
                         >
-                          🔥
+                          🔥Spike
                         </span>
                       )}
                     </div>
