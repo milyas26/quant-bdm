@@ -26,6 +26,7 @@ const data = {
         { title: "Stocks", url: "/stocks" },
         { title: "Market Scanner", url: "/market-scanner" },
         { title: "Screener Analysis", url: "/screener-analysis" },
+        { title: "Demo Trading", url: "/demo-trading" },
       ],
     },
   ],

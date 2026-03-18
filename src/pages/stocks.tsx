@@ -65,6 +65,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { SimulateBuyButton } from "@/components/simulate-buy-button"
 
 const formatNumber = (num: number) => {
   if (Math.abs(num) >= 1_000_000_000) {
@@ -828,6 +829,11 @@ export default function StocksPage() {
                   ) : (
                     "-"
                   )}
+                </TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  <SimulateBuyButton
+                    ticker={ticker}
+                  />
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>

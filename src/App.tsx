@@ -7,6 +7,7 @@ import ExtraInfo from "./pages/extra-info"
 import ScreenerAnalysis from "./pages/screener-analysis"
 import Guides from "./pages/guides"
 import Brokers from "./pages/brokers"
+import DemoTradingPage from "./pages/demo-trading"
 
 export function App() {
   return (
@@ -19,6 +20,7 @@ export function App() {
         <Route path="history" element={<ScreenerAnalysis />} />
         <Route path="guide" element={<Guides />} />
         <Route path="brokers" element={<Brokers />} />
+        <Route path="portfolio" element={<DemoTradingPage />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
