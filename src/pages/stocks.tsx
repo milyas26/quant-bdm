@@ -58,6 +58,13 @@ import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { FilterMultiSelect } from "@/components/filter-multi-select"
 import { Separator } from "@/components/ui/separator"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const formatNumber = (num: number) => {
   if (Math.abs(num) >= 1_000_000_000) {
@@ -89,6 +96,7 @@ export default function StocksPage() {
     bandarStatus,
     momentum,
     setPage,
+    setLimit,
     setSearch,
     setMinPrice,
     setMaxPrice,
@@ -848,8 +856,21 @@ export default function StocksPage() {
       </Table>
 
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          Showing {data?.data.length || 0} of {data?.meta.total || 0} results
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>Showing {data?.data.length || 0} of {data?.meta.total || 0} results</span>
+          <Select
+            value={String(limit)}
+            onValueChange={(val) => { setLimit(Number(val)); setPage(1) }}
+          >
+            <SelectTrigger className="h-8 w-16">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[10, 25, 50, 100].map((n) => (
+                <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="flex items-center gap-2">
           <Button

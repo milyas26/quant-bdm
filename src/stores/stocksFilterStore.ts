@@ -30,7 +30,7 @@ export interface StocksFilterState {
 
 const DEFAULT_STATE = {
   page: 1,
-  limit: 15,
+  limit: 10,
   search: "",
   minPrice: "",
   maxPrice: "",

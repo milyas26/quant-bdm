@@ -60,6 +60,7 @@ export default function ScreenerAnalysis() {
     peakReturn: peakReturnStr,
     peakReturnOperator,
     setPage,
+    setLimit,
     setSearch,
     setMinPrice,
     setMaxPrice,
@@ -813,8 +814,21 @@ export default function ScreenerAnalysis() {
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          Showing {data?.data.length || 0} of {data?.meta.total || 0} results
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>Showing {data?.data.length || 0} of {data?.meta.total || 0} results</span>
+          <Select
+            value={String(limit)}
+            onValueChange={(val) => { setLimit(Number(val)); setPage(1) }}
+          >
+            <SelectTrigger className="h-8 w-16">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[10, 25, 50, 100].map((n) => (
+                <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="flex items-center gap-2">
           <Button
