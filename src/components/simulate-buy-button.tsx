@@ -67,7 +67,7 @@ export function SimulateBuyButton({
       <Button
         size="sm"
         variant="outline"
-        className="h-7 px-2 text-xs text-green-500 border-green-500/40 hover:bg-green-500/10 hover:text-green-400 rounded-xs"
+        className="h-7 px-2 cursor-pointer text-xs text-green-500 border-green-500/40 hover:bg-green-500/10 hover:text-green-400 rounded-xs"
         onClick={(e) => {
           e.stopPropagation()
           setOpen(true)

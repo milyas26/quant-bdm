@@ -20,7 +20,7 @@ export const StatCard = ({
   loading,
 }: StatCardProps) => (
   <Card className="relative overflow-hidden">
-    <CardHeader className="flex-row items-center justify-between space-y-0 px-4 pt-4 pb-0">
+    <CardHeader className="flex-row items-center justify-between space-y-0 px-4 pb-0">
       <CardTitle className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
         {label}
       </CardTitle>
@@ -28,7 +28,7 @@ export const StatCard = ({
         <Icon className="h-3.5 w-3.5 text-muted-foreground" />
       </div>
     </CardHeader>
-    <CardContent className="px-4 pt-2 pb-4">
+    <CardContent className="px-4">
       {loading ? (
         <Skeleton className="mt-1 h-7 w-20" />
       ) : (
