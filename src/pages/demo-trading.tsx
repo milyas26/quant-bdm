@@ -1,11 +1,12 @@
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { format } from "date-fns"
+import { format, formatDistanceToNow } from "date-fns"
 import { getActiveTrades, getTradeHistory, closeTrade, captureSnapshots } from "@/lib/api"
 import type { DemoTrade } from "@/lib/api"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -15,9 +16,22 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
-import { TrendingUp, TrendingDown, RefreshCw, Camera } from "lucide-react"
+import {
+  TrendingUp,
+  TrendingDown,
+  RefreshCw,
+  Camera,
+  Activity,
+  Trophy,
+  Percent,
+  Wallet,
+  History,
+  BarChart2,
+  X,
+} from "lucide-react"
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -29,21 +43,23 @@ const fmtPrice = (n: number) =>
 
 const fmtCurrency = (n: number) => {
   const abs = Math.abs(n)
-  if (abs >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
-  if (abs >= 1_000) return `${(n / 1_000).toFixed(1)}K`
-  return n.toFixed(0)
+  const sign = n >= 0 ? "+" : "-"
+  if (abs >= 1_000_000) return `${sign}${(abs / 1_000_000).toFixed(2)}M`
+  if (abs >= 1_000) return `${sign}${(abs / 1_000).toFixed(1)}K`
+  return `${n >= 0 ? "+" : ""}${n.toFixed(0)}`
 }
+
+// ─── PnL Cell ────────────────────────────────────────────────────────────────
 
 const PnlCell = ({ pnl, pnlPercent }: { pnl: number; pnlPercent: number }) => {
   const positive = pnl >= 0
   return (
-    <div className={cn("flex flex-col", positive ? "text-green-500" : "text-red-500")}>
-      <span className="flex items-center gap-1 font-semibold">
+    <div className={cn("flex flex-col items-end tabular-nums", positive ? "text-green-500" : "text-red-500")}>
+      <span className="flex items-center gap-1 font-semibold text-sm">
         {positive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-        {positive ? "+" : ""}
         {fmtCurrency(pnl)}
       </span>
-      <span className="text-xs opacity-80">
+      <span className="text-xs opacity-70">
         {positive ? "+" : ""}
         {pnlPercent.toFixed(2)}%
       </span>
@@ -51,16 +67,60 @@ const PnlCell = ({ pnl, pnlPercent }: { pnl: number; pnlPercent: number }) => {
   )
 }
 
+// ─── Status Badge ─────────────────────────────────────────────────────────────
+
 const StatusBadge = ({ status }: { status: string }) =>
   status === "OPEN" ? (
-    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">OPEN</Badge>
+    <Badge className="bg-emerald-500/15 text-emerald-500 border-emerald-500/25 font-medium">
+      <span className="mr-1 h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+      OPEN
+    </Badge>
   ) : (
-    <Badge variant="secondary">CLOSED</Badge>
+    <Badge variant="secondary" className="text-muted-foreground">CLOSED</Badge>
   )
 
-// ─── Summary cards ────────────────────────────────────────────────────────────
+// ─── Stat Card ────────────────────────────────────────────────────────────────
 
-const SummaryCards = ({ trades }: { trades: DemoTrade[] }) => {
+const StatCard = ({
+  label,
+  value,
+  sub,
+  icon: Icon,
+  valueClass,
+  loading,
+}: {
+  label: string
+  value: React.ReactNode
+  sub?: React.ReactNode
+  icon: React.ElementType
+  valueClass?: string
+  loading?: boolean
+}) => (
+  <Card className="relative overflow-hidden">
+    <CardHeader className="pb-0 pt-4 px-4 flex-row items-center justify-between space-y-0">
+      <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        {label}
+      </CardTitle>
+      <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center">
+        <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+      </div>
+    </CardHeader>
+    <CardContent className="px-4 pb-4 pt-2">
+      {loading ? (
+        <Skeleton className="h-7 w-20 mt-1" />
+      ) : (
+        <>
+          <p className={cn("text-2xl font-bold tracking-tight", valueClass)}>{value}</p>
+          {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
+        </>
+      )}
+    </CardContent>
+  </Card>
+)
+
+// ─── Summary Cards ────────────────────────────────────────────────────────────
+
+const SummaryCards = ({ trades, loading }: { trades: DemoTrade[]; loading?: boolean }) => {
   const totalPnl = trades.reduce((s, t) => s + t.pnl, 0)
   const winners = trades.filter((t) => t.pnl > 0).length
   const winRate = trades.length > 0 ? (winners / trades.length) * 100 : 0
@@ -71,171 +131,264 @@ const SummaryCards = ({ trades }: { trades: DemoTrade[] }) => {
 
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-      <Card>
-        <CardHeader className="pb-1 pt-3 px-4">
-          <CardTitle className="text-xs text-muted-foreground uppercase tracking-wide">
-            Open Positions
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="px-4 pb-3">
-          <p className="text-2xl font-bold">{trades.length}</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="pb-1 pt-3 px-4">
-          <CardTitle className="text-xs text-muted-foreground uppercase tracking-wide">
-            Total Unrealised PnL
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="px-4 pb-3">
-          <p
-            className={cn(
-              "text-2xl font-bold",
-              totalPnl >= 0 ? "text-green-500" : "text-red-500"
-            )}
-          >
-            {totalPnl >= 0 ? "+" : ""}
-            {fmtCurrency(totalPnl)}
-          </p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="pb-1 pt-3 px-4">
-          <CardTitle className="text-xs text-muted-foreground uppercase tracking-wide">
-            Win Rate
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="px-4 pb-3">
-          <p className="text-2xl font-bold">{winRate.toFixed(0)}%</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="pb-1 pt-3 px-4">
-          <CardTitle className="text-xs text-muted-foreground uppercase tracking-wide">
-            Best Performer
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="px-4 pb-3">
-          {bestTrade ? (
-            <div>
-              <p className="text-2xl font-bold">{bestTrade.symbol}</p>
-              <p className="text-xs text-green-500">
-                +{bestTrade.pnlPercent.toFixed(2)}%
-              </p>
-            </div>
-          ) : (
-            <p className="text-2xl font-bold">—</p>
-          )}
-        </CardContent>
-      </Card>
+      <StatCard
+        label="Open Positions"
+        value={trades.length}
+        icon={Activity}
+        loading={loading}
+        sub={trades.length === 1 ? "1 active trade" : `${trades.length} active trades`}
+      />
+      <StatCard
+        label="Unrealised PnL"
+        value={loading ? "—" : fmtCurrency(totalPnl)}
+        icon={Wallet}
+        loading={loading}
+        valueClass={totalPnl >= 0 ? "text-green-500" : "text-red-500"}
+        sub={totalPnl >= 0 ? "in profit" : "in loss"}
+      />
+      <StatCard
+        label="Win Rate"
+        value={`${winRate.toFixed(0)}%`}
+        icon={Percent}
+        loading={loading}
+        sub={`${winners} of ${trades.length} profitable`}
+        valueClass={winRate >= 50 ? "text-green-500" : winRate > 0 ? "text-yellow-500" : undefined}
+      />
+      <StatCard
+        label="Best Performer"
+        value={bestTrade?.symbol ?? "—"}
+        icon={Trophy}
+        loading={loading}
+        sub={bestTrade ? `+${bestTrade.pnlPercent.toFixed(2)}% return` : "no trades yet"}
+        valueClass={bestTrade ? "text-green-500" : undefined}
+      />
     </div>
   )
 }
 
-// ─── Trades table ─────────────────────────────────────────────────────────────
+// ─── Signal Badges ────────────────────────────────────────────────────────────
+
+const SignalBadges = ({ trade }: { trade: DemoTrade }) => (
+  <div className="flex flex-wrap gap-1">
+    {trade.isBreakout && (
+      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 text-yellow-500 border-yellow-500/30 bg-yellow-500/5">
+        Breakout
+      </Badge>
+    )}
+    {trade.isVolumeSpike && (
+      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 text-blue-400 border-blue-500/30 bg-blue-500/5">
+        Vol Spike
+      </Badge>
+    )}
+    {trade.bandarStatus && (
+      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">
+        {trade.bandarStatus}
+      </Badge>
+    )}
+    {trade.smartMoneyScore != null && (
+      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">
+        SMS {Number(trade.smartMoneyScore).toFixed(1)}
+      </Badge>
+    )}
+  </div>
+)
+
+// ─── Loading Skeleton Rows ───────────────────────────────────────────────────
+
+const TableSkeletonRows = ({ cols }: { cols: number }) => (
+  <>
+    {Array.from({ length: 5 }).map((_, i) => (
+      <TableRow key={i}>
+        {Array.from({ length: cols }).map((_, j) => (
+          <TableCell key={j}>
+            <Skeleton className="h-4 w-full" />
+          </TableCell>
+        ))}
+      </TableRow>
+    ))}
+  </>
+)
+
+// ─── Trades Table ─────────────────────────────────────────────────────────────
 
 const TradesTable = ({
   trades,
   showCloseButton,
   onClose,
   isClosing,
+  closingId,
+  loading,
 }: {
   trades: DemoTrade[]
   showCloseButton: boolean
   onClose?: (id: number) => void
   isClosing?: boolean
+  closingId?: number | null
+  loading?: boolean
 }) => {
-  if (trades.length === 0) {
+  const colCount = showCloseButton ? 9 : 8
+
+  if (!loading && trades.length === 0) {
     return (
-      <div className="py-16 text-center text-muted-foreground text-sm">
-        No trades found.
+      <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
+        <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+          <BarChart2 className="h-5 w-5 text-muted-foreground" />
+        </div>
+        <div>
+          <p className="text-sm font-medium">No trades found</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {showCloseButton ? "Simulate a trade from the Screener page." : "Closed trades will appear here."}
+          </p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="overflow-x-auto rounded-md border">
+    <div className="rounded-lg border overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Symbol</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Entry</TableHead>
-            <TableHead className="text-right">Current</TableHead>
-            <TableHead className="text-right">Qty</TableHead>
-            <TableHead className="text-right">PnL</TableHead>
-            <TableHead>Signals</TableHead>
-            <TableHead>Entry Time</TableHead>
+          <TableRow className="bg-muted/30 hover:bg-muted/30">
+            <TableHead className="pl-4 font-semibold">Symbol</TableHead>
+            <TableHead className="font-semibold">Status</TableHead>
+            <TableHead className="text-right font-semibold">Entry Price</TableHead>
+            <TableHead className="text-right font-semibold">Current</TableHead>
+            <TableHead className="text-right font-semibold">Qty</TableHead>
+            <TableHead className="text-right font-semibold">PnL</TableHead>
+            <TableHead className="font-semibold">Signals</TableHead>
+            <TableHead className="font-semibold">Entry Time</TableHead>
             {showCloseButton && <TableHead />}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {trades.map((trade) => (
-            <TableRow key={trade.id}>
-              <TableCell>
-                <div className="font-semibold">{trade.symbol}</div>
-                {trade.ticker.name && (
-                  <div className="text-xs text-muted-foreground truncate max-w-30">
-                    {trade.ticker.name}
-                  </div>
-                )}
-              </TableCell>
-              <TableCell>
-                <StatusBadge status={trade.status} />
-              </TableCell>
-              <TableCell className="text-right font-mono">
-                {fmtPrice(trade.entryPrice)}
-              </TableCell>
-              <TableCell className="text-right font-mono">
-                {fmtPrice(trade.currentPrice)}
-              </TableCell>
-              <TableCell className="text-right">{trade.quantity}</TableCell>
-              <TableCell className="text-right">
-                <PnlCell pnl={trade.pnl} pnlPercent={trade.pnlPercent} />
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-wrap gap-1">
-                  {trade.isBreakout && (
-                    <Badge variant="outline" className="text-xs text-yellow-400 border-yellow-500/30">
-                      Breakout
-                    </Badge>
+          {loading ? (
+            <TableSkeletonRows cols={colCount} />
+          ) : (
+            trades.map((trade) => {
+              const isPnlPositive = trade.pnl >= 0
+              return (
+                <TableRow
+                  key={trade.id}
+                  className={cn(
+                    "transition-colors",
+                    isPnlPositive ? "hover:bg-green-500/3" : "hover:bg-red-500/3"
                   )}
-                  {trade.isVolumeSpike && (
-                    <Badge variant="outline" className="text-xs text-blue-400 border-blue-500/30">
-                      Vol Spike
-                    </Badge>
+                >
+                  <TableCell className="pl-4">
+                    <div className="flex items-center gap-2.5">
+                      <div className={cn(
+                        "h-8 w-1 rounded-full shrink-0",
+                        isPnlPositive ? "bg-green-500" : "bg-red-500"
+                      )} />
+                      <div>
+                        <div className="font-semibold text-sm">{trade.symbol}</div>
+                        {trade.ticker.name && (
+                          <div className="text-xs text-muted-foreground truncate max-w-30">
+                            {trade.ticker.name}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <StatusBadge status={trade.status} />
+                  </TableCell>
+                  <TableCell className="text-right font-mono text-sm tabular-nums">
+                    {fmtPrice(trade.entryPrice)}
+                  </TableCell>
+                  <TableCell className={cn(
+                    "text-right font-mono text-sm tabular-nums font-medium",
+                    isPnlPositive ? "text-green-500" : "text-red-500"
+                  )}>
+                    {fmtPrice(trade.currentPrice)}
+                  </TableCell>
+                  <TableCell className="text-right text-sm tabular-nums">
+                    {trade.quantity.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <PnlCell pnl={trade.pnl} pnlPercent={trade.pnlPercent} />
+                  </TableCell>
+                  <TableCell>
+                    <SignalBadges trade={trade} />
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-xs text-muted-foreground whitespace-nowrap">
+                      {format(new Date(trade.entryTime), "dd MMM yy")}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground/60">
+                      {formatDistanceToNow(new Date(trade.entryTime), { addSuffix: true })}
+                    </div>
+                  </TableCell>
+                  {showCloseButton && (
+                    <TableCell className="pr-4">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 px-2 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
+                        disabled={isClosing && closingId === trade.id}
+                        onClick={() => onClose?.(trade.id)}
+                      >
+                        {isClosing && closingId === trade.id ? (
+                          <RefreshCw className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <X className="h-3 w-3" />
+                        )}
+                        Close
+                      </Button>
+                    </TableCell>
                   )}
-                  {trade.bandarStatus && (
-                    <Badge variant="outline" className="text-xs">
-                      {trade.bandarStatus}
-                    </Badge>
-                  )}
-                  {trade.smartMoneyScore != null && (
-                    <Badge variant="secondary" className="text-xs">
-                      SMS {Number(trade.smartMoneyScore).toFixed(1)}
-                    </Badge>
-                  )}
-                </div>
-              </TableCell>
-              <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                {format(new Date(trade.entryTime), "dd MMM yy HH:mm")}
-              </TableCell>
-              {showCloseButton && (
-                <TableCell>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    disabled={isClosing}
-                    onClick={() => onClose?.(trade.id)}
-                  >
-                    Close
-                  </Button>
-                </TableCell>
-              )}
-            </TableRow>
-          ))}
+                </TableRow>
+              )
+            })
+          )}
         </TableBody>
       </Table>
+    </div>
+  )
+}
+
+// ─── History Summary Bar ──────────────────────────────────────────────────────
+
+const HistorySummary = ({ trades }: { trades: DemoTrade[] }) => {
+  const pnl = trades.reduce((s, t) => s + t.pnl, 0)
+  const wins = trades.filter((t) => t.pnl > 0).length
+  const losses = trades.filter((t) => t.pnl < 0).length
+  const winRate = trades.length > 0 ? (wins / trades.length) * 100 : 0
+  const avgPnl = trades.length > 0 ? pnl / trades.length : 0
+
+  return (
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 mb-5">
+      <StatCard
+        label="Closed Trades"
+        value={trades.length}
+        icon={History}
+        sub={`${wins}W / ${losses}L`}
+      />
+      <StatCard
+        label="Realised PnL"
+        value={fmtCurrency(pnl)}
+        icon={Wallet}
+        valueClass={pnl >= 0 ? "text-green-500" : "text-red-500"}
+        sub={`avg ${fmtCurrency(avgPnl)} / trade`}
+      />
+      <StatCard
+        label="Win Rate"
+        value={`${winRate.toFixed(0)}%`}
+        icon={Percent}
+        valueClass={winRate >= 50 ? "text-green-500" : winRate > 0 ? "text-yellow-500" : undefined}
+        sub={`${wins} winning trades`}
+      />
+      <StatCard
+        label="Best Trade"
+        value={trades.length > 0
+          ? trades.reduce((b, t) => t.pnlPercent > b.pnlPercent ? t : b).symbol
+          : "—"}
+        icon={Trophy}
+        valueClass="text-green-500"
+        sub={trades.length > 0
+          ? `+${trades.reduce((b, t) => t.pnlPercent > b.pnlPercent ? t : b).pnlPercent.toFixed(2)}%`
+          : undefined}
+      />
     </div>
   )
 }
@@ -276,31 +429,26 @@ export default function DemoTradingPage() {
     onError: () => toast.error("Failed to capture snapshots"),
   })
 
-  const historyPnl = historyTrades.reduce((s, t) => s + t.pnl, 0)
-  const historyWins = historyTrades.filter((t) => t.pnl > 0).length
-  const historyWinRate =
-    historyTrades.length > 0
-      ? (historyWins / historyTrades.length) * 100
-      : 0
-
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-5 p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Demo Trading</h1>
-          <p className="text-sm text-muted-foreground">
-            Simulate trades from screener signals. No real money involved.
+          <h1 className="text-xl font-bold tracking-tight">Demo Trading</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Simulate &amp; track trades from screener signals — no real money.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Button
             variant="outline"
             size="sm"
             disabled={isSnapshotting}
             onClick={() => handleSnapshot()}
           >
-            <Camera className="h-4 w-4 mr-1" />
+            {isSnapshotting
+              ? <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+              : <Camera className="h-3.5 w-3.5" />}
             Capture Snapshots
           </Button>
           <Button
@@ -308,106 +456,60 @@ export default function DemoTradingPage() {
             size="sm"
             onClick={() => queryClient.invalidateQueries({ queryKey: ["demo-trades"] })}
           >
-            <RefreshCw className="h-4 w-4 mr-1" />
+            <RefreshCw className="h-3.5 w-3.5" />
             Refresh
           </Button>
         </div>
       </div>
 
+      <Separator />
+
       {/* Summary */}
-      {!loadingActive && <SummaryCards trades={activeTrades} />}
+      <SummaryCards trades={activeTrades} loading={loadingActive} />
 
       {/* Tabs */}
-      <Tabs defaultValue="active">
-        <TabsList>
-          <TabsTrigger value="active">
-            Active Trades{" "}
-            {activeTrades.length > 0 && (
-              <Badge className="ml-1 bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+      <Tabs defaultValue="active" className="gap-4">
+        <TabsList className="h-9">
+          <TabsTrigger value="active" className="gap-1.5">
+            <Activity className="h-3.5 w-3.5" />
+            Active Trades
+            {!loadingActive && activeTrades.length > 0 && (
+              <Badge className="ml-0.5 h-4 min-w-4 px-1 bg-emerald-500/20 text-emerald-500 border-emerald-500/30 text-[10px]">
                 {activeTrades.length}
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="history">
-            History{" "}
-            {historyTrades.length > 0 && (
-              <Badge variant="secondary" className="ml-1 text-xs">
+          <TabsTrigger value="history" className="gap-1.5">
+            <History className="h-3.5 w-3.5" />
+            History
+            {!loadingHistory && historyTrades.length > 0 && (
+              <Badge variant="secondary" className="ml-0.5 h-4 min-w-4 px-1 text-[10px]">
                 {historyTrades.length}
               </Badge>
             )}
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="active" className="mt-4">
-          {loadingActive ? (
-            <div className="py-8 text-center text-muted-foreground text-sm">
-              Loading...
-            </div>
-          ) : (
-            <TradesTable
-              trades={activeTrades}
-              showCloseButton
-              onClose={(id) => handleClose(id)}
-              isClosing={isClosing && closingId !== null}
-            />
-          )}
+        <TabsContent value="active">
+          <TradesTable
+            trades={activeTrades}
+            showCloseButton
+            onClose={(id) => handleClose(id)}
+            isClosing={isClosing}
+            closingId={closingId}
+            loading={loadingActive}
+          />
         </TabsContent>
 
-        <TabsContent value="history" className="mt-4">
-          {/* Closed trades summary */}
-          {historyTrades.length > 0 && (
-            <div className="grid grid-cols-3 gap-3 mb-4">
-              <Card>
-                <CardHeader className="pb-1 pt-3 px-4">
-                  <CardTitle className="text-xs text-muted-foreground uppercase tracking-wide">
-                    Closed Trades
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="px-4 pb-3">
-                  <p className="text-2xl font-bold">{historyTrades.length}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-1 pt-3 px-4">
-                  <CardTitle className="text-xs text-muted-foreground uppercase tracking-wide">
-                    Realised PnL
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="px-4 pb-3">
-                  <p
-                    className={cn(
-                      "text-2xl font-bold",
-                      historyPnl >= 0 ? "text-green-500" : "text-red-500"
-                    )}
-                  >
-                    {historyPnl >= 0 ? "+" : ""}
-                    {fmtCurrency(historyPnl)}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-1 pt-3 px-4">
-                  <CardTitle className="text-xs text-muted-foreground uppercase tracking-wide">
-                    Win Rate
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="px-4 pb-3">
-                  <p className="text-2xl font-bold">{historyWinRate.toFixed(0)}%</p>
-                </CardContent>
-              </Card>
-            </div>
+        <TabsContent value="history">
+          {!loadingHistory && historyTrades.length > 0 && (
+            <HistorySummary trades={historyTrades} />
           )}
-
-          {loadingHistory ? (
-            <div className="py-8 text-center text-muted-foreground text-sm">
-              Loading...
-            </div>
-          ) : (
-            <TradesTable
-              trades={historyTrades}
-              showCloseButton={false}
-            />
-          )}
+          <TradesTable
+            trades={historyTrades}
+            showCloseButton={false}
+            loading={loadingHistory}
+          />
         </TabsContent>
       </Tabs>
     </div>
