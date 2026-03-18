@@ -7,6 +7,7 @@ import StockDetail from "./pages/stock-detail"
 import ExtraInfo from "./pages/extra-info"
 import ScreenerAnalysis from "./pages/screener-analysis"
 import Rules from "./pages/rules"
+import Brokers from "./pages/brokers"
 
 export function App() {
   return (
@@ -18,8 +19,9 @@ export function App() {
         <Route path="stock" element={<StocksPage />} />
         <Route path="stock/:ticker" element={<StockDetail />} />
         <Route path="extra-info" element={<ExtraInfo />} />
-        <Route path="screener-analysis" element={<ScreenerAnalysis />} />
+        <Route path="screener" element={<ScreenerAnalysis />} />
         <Route path="rules" element={<Rules />} />
+        <Route path="brokers" element={<Brokers />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

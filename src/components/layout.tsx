@@ -8,12 +8,14 @@ import { CommandMenu } from "@/components/command-menu"
 
 const navItems = [
   { title: "Stocks", url: "/stock" },
-  { title: "Screener Analysis", url: "/screener-analysis" },
+  { title: "Screener", url: "/screener" },
+  { title: "Brokers", url: "/brokers" },
   { title: "Rules", url: "/rules" },
   { title: "Extra Info", url: "/extra-info" },
 ]
 
 import { AddTickerDialog } from "@/components/add-ticker-dialog"
+import { RunnerCalculator } from "@/components/runner-calculator"
 
 export default function Layout() {
   const location = useLocation()
@@ -87,6 +89,7 @@ export default function Layout() {
                 />
               </div>
               <AddTickerDialog />
+              <RunnerCalculator />
               <ModeToggle />
             </div>
           </div>
