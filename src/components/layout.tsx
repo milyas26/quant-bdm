@@ -1,21 +1,75 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { Link, Outlet, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
-import { ModeToggle } from "@/components/mode-toggle"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
 import { CommandMenu } from "@/components/command-menu"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Settings, Info } from "lucide-react"
+import { useTheme } from "@/components/theme-provider"
 
 const navItems = [
-  { title: "Stocks", url: "/stock" },
+  { title: "Stocks", url: "/" },
   { title: "Screener", url: "/screener" },
   { title: "Brokers", url: "/brokers" },
   { title: "Rules", url: "/rules" },
-  { title: "Extra Info", url: "/extra-info" },
 ]
 
 import { AddTickerDialog } from "@/components/add-ticker-dialog"
 import { RunnerCalculator } from "@/components/runner-calculator"
+
+function SettingsMenu() {
+  const { theme, setTheme } = useTheme()
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Settings className="h-[1.2rem] w-[1.2rem]" />
+          <span className="sr-only">Settings</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-52">
+        <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+        <div className="px-2 pb-1">
+          <Select value={theme} onValueChange={(v) => setTheme(v as "light" | "dark" | "system")}>
+            <SelectTrigger className="h-8 w-full">
+              <SelectValue placeholder="Theme" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="light">Light</SelectItem>
+              <SelectItem value="dark">Dark</SelectItem>
+              <SelectItem value="system">System</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>Pages</DropdownMenuLabel>
+        <DropdownMenuItem asChild>
+          <Link to="/extra-info">
+            <Info className="mr-2 h-4 w-4" />
+            Extra Info
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
 
 export default function Layout() {
   const location = useLocation()
@@ -90,7 +144,7 @@ export default function Layout() {
               </div>
               <AddTickerDialog />
               <RunnerCalculator />
-              <ModeToggle />
+              <SettingsMenu />
             </div>
           </div>
         </div>

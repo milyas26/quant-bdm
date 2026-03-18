@@ -100,7 +100,7 @@ export default function StockDetail() {
         <div>
           <div className="mb-2 flex items-center gap-2">
             <Button
-              onClick={() => navigate("/stock")}
+              onClick={() => navigate("/")}
               variant="ghost"
               className="cursor-pointer"
             >
