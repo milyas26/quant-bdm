@@ -49,6 +49,14 @@ const fmtCurrency = (n: number) => {
   return `${n >= 0 ? "+" : ""}${n.toFixed(0)}`
 }
 
+const fmtIDR = (n: number) =>
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(n)
+
 // ─── PnL Cell ────────────────────────────────────────────────────────────────
 
 const PnlCell = ({ pnl, pnlPercent }: { pnl: number; pnlPercent: number }) => {
@@ -62,6 +70,9 @@ const PnlCell = ({ pnl, pnlPercent }: { pnl: number; pnlPercent: number }) => {
       <span className="text-xs opacity-70">
         {positive ? "+" : ""}
         {pnlPercent.toFixed(2)}%
+      </span>
+      <span className="text-[10px] opacity-50 font-normal">
+        {fmtIDR(pnl)}
       </span>
     </div>
   )
@@ -144,7 +155,7 @@ const SummaryCards = ({ trades, loading }: { trades: DemoTrade[]; loading?: bool
         icon={Wallet}
         loading={loading}
         valueClass={totalPnl >= 0 ? "text-green-500" : "text-red-500"}
-        sub={totalPnl >= 0 ? "in profit" : "in loss"}
+        sub={loading ? undefined : fmtIDR(totalPnl)}
       />
       <StatCard
         label="Win Rate"
@@ -226,7 +237,7 @@ const TradesTable = ({
   closingId?: number | null
   loading?: boolean
 }) => {
-  const colCount = showCloseButton ? 9 : 8
+  const colCount = showCloseButton ? 10 : 9
 
   if (!loading && trades.length === 0) {
     return (
@@ -254,6 +265,7 @@ const TradesTable = ({
             <TableHead className="text-right font-semibold">Entry Price</TableHead>
             <TableHead className="text-right font-semibold">Current</TableHead>
             <TableHead className="text-right font-semibold">Qty</TableHead>
+            <TableHead className="text-right font-semibold">Buy Value</TableHead>
             <TableHead className="text-right font-semibold">PnL</TableHead>
             <TableHead className="font-semibold">Signals</TableHead>
             <TableHead className="font-semibold">Entry Time</TableHead>
@@ -304,6 +316,11 @@ const TradesTable = ({
                   </TableCell>
                   <TableCell className="text-right text-sm tabular-nums">
                     {trade.quantity.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    <div className="text-sm font-medium">
+                      {fmtIDR(trade.entryPrice * trade.quantity * 100)}
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <PnlCell pnl={trade.pnl} pnlPercent={trade.pnlPercent} />
@@ -369,7 +386,7 @@ const HistorySummary = ({ trades }: { trades: DemoTrade[] }) => {
         value={fmtCurrency(pnl)}
         icon={Wallet}
         valueClass={pnl >= 0 ? "text-green-500" : "text-red-500"}
-        sub={`avg ${fmtCurrency(avgPnl)} / trade`}
+        sub={`${fmtIDR(pnl)} · avg ${fmtIDR(avgPnl)}`}
       />
       <StatCard
         label="Win Rate"
