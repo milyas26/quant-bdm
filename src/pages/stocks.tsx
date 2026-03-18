@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import {
   getScreener,
   deleteTicker,
   toggleTickerInWatchlist,
   refreshAllTickers,
 } from "@/lib/api"
+import { useStocksFilterStore } from "@/stores/stocksFilterStore"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -32,6 +33,7 @@ import {
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
+  X,
 } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
 import {
@@ -53,7 +55,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import type { GetTickersParams } from "@/lib/apis/ticker/interface"
 import { toast } from "sonner"
 import { FilterMultiSelect } from "@/components/filter-multi-select"
 import { Separator } from "@/components/ui/separator"
@@ -72,31 +73,78 @@ const formatNumber = (num: number) => {
 }
 
 export default function StocksPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  const {
+    page,
+    limit,
+    search,
+    minPrice: minPriceStr,
+    maxPrice: maxPriceStr,
+    sortBy,
+    sortOrder,
+    signals,
+    bandarStatus,
+    momentum,
+    setPage,
+    setSearch,
+    setMinPrice,
+    setMaxPrice,
+    setSort,
+    setSignals,
+    setBandarStatus,
+    setMomentum,
+    reset,
+  } = useStocksFilterStore()
+
   const [tickerToDelete, setTickerToDelete] = useState<string | null>(null)
   const [selectedTickers, setSelectedTickers] = useState<string[]>([])
   const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
-  const debouncedSearch = useDebounce(searchTerm, 500)
-  const navigate = useNavigate()
 
-  const searchInputRef = useRef<HTMLInputElement>(null)
+  // Local input states for controlled inputs
+  const [searchTerm, setSearchTerm] = useState(search)
+  const [minPriceInput, setMinPriceInput] = useState(minPriceStr)
+  const [maxPriceInput, setMaxPriceInput] = useState(maxPriceStr)
+  const [pageInput, setPageInput] = useState(page.toString())
+
+  const debouncedSearch = useDebounce(searchTerm, 500)
+
+  const minPrice = minPriceStr ? parseInt(minPriceStr) : undefined
+  const maxPrice = maxPriceStr ? parseInt(maxPriceStr) : undefined
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement
-      const isInput =
-        target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA" ||
-        target.isContentEditable
+    setPageInput(page.toString())
+  }, [page])
 
-      if (isInput) return
+  // Sync debounced search to store
+  useEffect(() => {
+    if (debouncedSearch !== search) {
+      setSearch(debouncedSearch)
     }
+  }, [debouncedSearch])
 
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [])
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      setSort(column, sortOrder === "asc" ? "desc" : "asc")
+    } else {
+      setSort(column, "desc")
+    }
+  }
+
+  const handlePriceUpdate = () => {
+    setMinPrice(minPriceInput)
+    setMaxPrice(maxPriceInput)
+    setPage(1)
+  }
+
+  const handleResetFilters = () => {
+    setSearchTerm("")
+    setMinPriceInput("")
+    setMaxPriceInput("")
+    reset()
+  }
 
   const { mutate: handleToggleWatchlist, isPending: isTogglingWatchlist } =
     useMutation({
@@ -105,105 +153,6 @@ export default function StocksPage() {
         queryClient.invalidateQueries({ queryKey: ["tickers"] })
       },
     })
-
-  const page = parseInt(searchParams.get("page") || "1")
-  const limit = parseInt(searchParams.get("limit") || "15")
-
-  const minPrice = searchParams.get("minPrice")
-    ? parseInt(searchParams.get("minPrice")!)
-    : undefined
-  const maxPrice = searchParams.get("maxPrice")
-    ? parseInt(searchParams.get("maxPrice")!)
-    : undefined
-
-  const sortBy = searchParams.get("sortBy") || "smartMoneyScore"
-  const sortOrder =
-    (searchParams.get("sortOrder") as "asc" | "desc" | undefined) || "desc"
-
-  // Price inputs state
-  const [minPriceInput, setMinPriceInput] = useState(
-    searchParams.get("minPrice") || ""
-  )
-  const [maxPriceInput, setMaxPriceInput] = useState(
-    searchParams.get("maxPrice") || ""
-  )
-
-  const [pageInput, setPageInput] = useState(searchParams.get("page") || "1")
-
-  const signals = searchParams.getAll("signals")
-  const bandarStatus = searchParams.getAll("bandarStatus")
-  const momentum = searchParams.getAll("momentum")
-
-  useEffect(() => {
-    const newParams = new URLSearchParams(searchParams)
-    let changed = false
-
-    if (!searchParams.has("bandarStatus")) {
-      newParams.append("bandarStatus", "Accumulation")
-      changed = true
-    }
-
-    if (!searchParams.has("momentum")) {
-      newParams.append("momentum", "Uptrend")
-      newParams.append("momentum", "Sideways")
-      newParams.append("momentum", "Downtrend")
-      changed = true
-    }
-
-    if (changed) {
-      setSearchParams(newParams, { replace: true })
-    }
-  }, [])
-
-  useEffect(() => {
-    setPageInput(page.toString())
-  }, [page])
-
-  const updateParams = (updates: Partial<GetTickersParams>) => {
-    const newParams = new URLSearchParams(searchParams)
-
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value === undefined || value === "") {
-        newParams.delete(key)
-      } else if (Array.isArray(value)) {
-        newParams.delete(key)
-        value.forEach((v) => newParams.append(key, v))
-      } else {
-        newParams.set(key, String(value))
-      }
-    })
-
-    setSearchParams(newParams)
-  }
-
-  const handleSort = (column: string) => {
-    if (sortBy === column) {
-      updateParams({
-        sortBy: column,
-        sortOrder: sortOrder === "asc" ? "desc" : "asc",
-      })
-    } else {
-      updateParams({
-        sortBy: column,
-        sortOrder: "desc",
-      })
-    }
-  }
-
-  // Update URL when debounced search changes
-  useEffect(() => {
-    if (debouncedSearch !== (searchParams.get("search") || "")) {
-      updateParams({ search: debouncedSearch, page: 1 })
-    }
-  }, [debouncedSearch])
-
-  const handlePriceUpdate = () => {
-    updateParams({
-      minPrice: minPriceInput ? parseInt(minPriceInput) : undefined,
-      maxPrice: maxPriceInput ? parseInt(maxPriceInput) : undefined,
-      page: 1,
-    })
-  }
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [
@@ -387,7 +336,7 @@ export default function StocksPage() {
                   { label: "Spike", value: "Spike" },
                 ]}
                 selected={signals}
-                onChange={(val) => updateParams({ signals: val, page: 1 })}
+                onChange={(val) => setSignals(val)}
               />
             </div>
 
@@ -400,7 +349,7 @@ export default function StocksPage() {
                   { label: "Distribution", value: "Distribution" },
                 ]}
                 selected={bandarStatus}
-                onChange={(val) => updateParams({ bandarStatus: val, page: 1 })}
+                onChange={(val) => setBandarStatus(val)}
               />
             </div>
 
@@ -413,7 +362,7 @@ export default function StocksPage() {
                   { label: "Downtrend", value: "Downtrend" },
                 ]}
                 selected={momentum}
-                onChange={(val) => updateParams({ momentum: val, page: 1 })}
+                onChange={(val) => setMomentum(val)}
               />
             </div>
 
@@ -425,6 +374,16 @@ export default function StocksPage() {
                 <Trash2 className="h-4 w-4" /> ({selectedTickers.length})
               </Button>
             )}
+
+            <Button
+              onClick={handleResetFilters}
+              className="h-10 cursor-pointer text-red-500 hover:bg-red-50 hover:text-red-500/80"
+              variant="ghost"
+              title="Reset all filters"
+            >
+              <X className="mr-2 h-4 w-4" />
+              Reset
+            </Button>
 
             <Button
               variant="outline"
@@ -870,7 +829,7 @@ export default function StocksPage() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => updateParams({ page: 1 })}
+            onClick={() => setPage(1)}
             disabled={page <= 1 || isLoading}
             title="First Page"
           >
@@ -879,7 +838,7 @@ export default function StocksPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => updateParams({ page: Math.max(1, page - 1) })}
+            onClick={() => setPage(Math.max(1, page - 1))}
             disabled={page <= 1 || isLoading}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -895,13 +854,13 @@ export default function StocksPage() {
               onChange={(e) => setPageInput(e.target.value)}
               onBlur={() => {
                 const p = parseInt(pageInput)
-                if (!isNaN(p) && p > 0) updateParams({ page: p })
+                if (!isNaN(p) && p > 0) setPage(p)
                 else setPageInput(page.toString())
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   const p = parseInt(pageInput)
-                  if (!isNaN(p) && p > 0) updateParams({ page: p })
+                  if (!isNaN(p) && p > 0) setPage(p)
                 }
               }}
             />
@@ -913,7 +872,7 @@ export default function StocksPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => updateParams({ page: page + 1 })}
+            onClick={() => setPage(page + 1)}
             disabled={!data || page >= data.meta.totalPages || isLoading}
           >
             Next
@@ -922,7 +881,7 @@ export default function StocksPage() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => updateParams({ page: data?.meta.totalPages || 1 })}
+            onClick={() => setPage(data?.meta.totalPages || 1)}
             disabled={!data || page >= data.meta.totalPages || isLoading}
             title="Last Page"
           >

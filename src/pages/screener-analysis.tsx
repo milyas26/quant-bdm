@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { format } from "date-fns"
 import {
   getScreenerAnalysis,
@@ -8,6 +8,7 @@ import {
   exportScreenerAnalysis,
 } from "@/lib/api"
 import { useDebounce } from "@/hooks/use-debounce"
+import { useScreenerAnalysisFilterStore } from "@/stores/screenerAnalysisFilterStore"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -35,111 +36,82 @@ import { FilterMultiSelect } from "@/components/filter-multi-select"
 import { Separator } from "@/components/ui/separator"
 
 export default function ScreenerAnalysis() {
-  const [searchParams, setSearchParams] = useSearchParams()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-
-  const page = parseInt(searchParams.get("page") || "1")
-  const limit = parseInt(searchParams.get("limit") || "50")
-
-  const sortBy = searchParams.get("sortBy") || "signalDate"
-  const sortOrder =
-    (searchParams.get("sortOrder") as "asc" | "desc" | undefined) || "desc"
-
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
-  const debouncedSearch = useDebounce(searchTerm, 500)
-
   const searchInputRef = useRef<HTMLInputElement>(null)
 
-  // Price inputs state
-  const minPrice = searchParams.get("minPrice")
-    ? parseInt(searchParams.get("minPrice")!)
-    : undefined
-  const maxPrice = searchParams.get("maxPrice")
-    ? parseInt(searchParams.get("maxPrice")!)
-    : undefined
+  const {
+    page,
+    limit,
+    search,
+    minPrice: minPriceStr,
+    maxPrice: maxPriceStr,
+    sortBy,
+    sortOrder,
+    signals,
+    bandarStatus,
+    momentum,
+    minScore: minScoreStr,
+    maxScore: maxScoreStr,
+    accDist1D,
+    accDist1W,
+    accDist1M,
+    accDistOperator,
+    peakReturn: peakReturnStr,
+    peakReturnOperator,
+    setPage,
+    setSearch,
+    setMinPrice,
+    setMaxPrice,
+    setSignals,
+    setBandarStatus,
+    setMomentum,
+    setMinScore,
+    setMaxScore,
+    setAccDist1D,
+    setAccDist1W,
+    setAccDist1M,
+    setAccDistOperator,
+    setPeakReturn,
+    setPeakReturnOperator,
+    reset,
+  } = useScreenerAnalysisFilterStore()
 
-  const [minPriceInput, setMinPriceInput] = useState(
-    searchParams.get("minPrice") || ""
-  )
-  const [maxPriceInput, setMaxPriceInput] = useState(
-    searchParams.get("maxPrice") || ""
-  )
-
-  const signals = searchParams.getAll("signals")
-  const bandarStatus = searchParams.getAll("bandarStatus")
-  const momentum = searchParams.getAll("momentum")
-
-  // Legacy signalType (keep it but hidden or merged?)
-  // We'll prioritize the new filters.
-
-  const minScore = searchParams.get("minScore")
-    ? parseInt(searchParams.get("minScore")!)
-    : undefined
-  const maxScore = searchParams.get("maxScore")
-    ? parseInt(searchParams.get("maxScore")!)
-    : undefined
-
-  const [minScoreInput, setMinScoreInput] = useState(
-    searchParams.get("minScore") || ""
-  )
-  const [maxScoreInput, setMaxScoreInput] = useState(
-    searchParams.get("maxScore") || ""
-  )
-
-  const accDist1D = searchParams.get("accDist1D") || ""
-  const accDist1W = searchParams.get("accDist1W") || ""
-  const accDist1M = searchParams.get("accDist1M") || ""
-  const accDistOperator = searchParams.get("accDistOperator") || "gt"
-
-  const peakReturnInput = searchParams.get("peakReturn") || ""
-  const peakReturnOperator = searchParams.get("peakReturnOperator") || "gt"
-
+  // Local input states (controlled)
+  const [searchTerm, setSearchTerm] = useState(search)
+  const [minPriceInput, setMinPriceInput] = useState(minPriceStr)
+  const [maxPriceInput, setMaxPriceInput] = useState(maxPriceStr)
+  const [minScoreInput, setMinScoreInput] = useState(minScoreStr)
+  const [maxScoreInput, setMaxScoreInput] = useState(maxScoreStr)
   const [pageInput, setPageInput] = useState(page.toString())
 
-  const updateParams = (
-    updates: Record<string, string | number | string[] | undefined>
-  ) => {
-    const newParams = new URLSearchParams(searchParams)
+  const debouncedSearch = useDebounce(searchTerm, 500)
 
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value === undefined || value === "") {
-        newParams.delete(key)
-      } else if (Array.isArray(value)) {
-        newParams.delete(key)
-        value.forEach((v) => newParams.append(key, v))
-      } else {
-        newParams.set(key, String(value))
-      }
-    })
-
-    setSearchParams(newParams)
-  }
+  const minPrice = minPriceStr ? parseInt(minPriceStr) : undefined
+  const maxPrice = maxPriceStr ? parseInt(maxPriceStr) : undefined
+  const minScore = minScoreStr ? parseInt(minScoreStr) : undefined
+  const maxScore = maxScoreStr ? parseInt(maxScoreStr) : undefined
 
   useEffect(() => {
     setPageInput(page.toString())
   }, [page])
 
+  // Sync debounced search to store
   useEffect(() => {
-    if (debouncedSearch !== (searchParams.get("search") || "")) {
-      updateParams({ search: debouncedSearch, page: 1 })
+    if (debouncedSearch !== search) {
+      setSearch(debouncedSearch)
     }
   }, [debouncedSearch])
 
   const handlePriceUpdate = () => {
-    updateParams({
-      minPrice: minPriceInput ? parseInt(minPriceInput) : undefined,
-      maxPrice: maxPriceInput ? parseInt(maxPriceInput) : undefined,
-      page: 1,
-    })
+    setMinPrice(minPriceInput)
+    setMaxPrice(maxPriceInput)
+    setPage(1)
   }
 
   const handleScoreUpdate = () => {
-    updateParams({
-      minScore: minScoreInput ? parseInt(minScoreInput) : undefined,
-      maxScore: maxScoreInput ? parseInt(maxScoreInput) : undefined,
-      page: 1,
-    })
+    setMinScore(minScoreInput)
+    setMaxScore(maxScoreInput)
   }
 
   const handleResetFilters = () => {
@@ -148,7 +120,7 @@ export default function ScreenerAnalysis() {
     setMaxPriceInput("")
     setMinScoreInput("")
     setMaxScoreInput("")
-    setSearchParams(new URLSearchParams())
+    reset()
   }
 
   const { data, isLoading, isError, error } = useQuery({
@@ -170,7 +142,7 @@ export default function ScreenerAnalysis() {
       accDist1W,
       accDist1M,
       accDistOperator,
-      peakReturnInput,
+      peakReturnStr,
       peakReturnOperator,
     ],
     queryFn: () =>
@@ -191,8 +163,8 @@ export default function ScreenerAnalysis() {
         accDist1W: accDist1W ? parseInt(accDist1W) : undefined,
         accDist1M: accDist1M ? parseInt(accDist1M) : undefined,
         accDistOperator: accDistOperator as "gt" | "lt",
-        peakReturn: peakReturnInput
-          ? parseFloat(peakReturnInput) / 100
+        peakReturn: peakReturnStr
+          ? parseFloat(peakReturnStr) / 100
           : undefined,
         peakReturnOperator: peakReturnOperator as "gt" | "lt",
       }),
@@ -226,8 +198,8 @@ export default function ScreenerAnalysis() {
         accDist1W: accDist1W ? parseInt(accDist1W) : undefined,
         accDist1M: accDist1M ? parseInt(accDist1M) : undefined,
         accDistOperator: accDistOperator as "gt" | "lt",
-        peakReturn: peakReturnInput
-          ? parseFloat(peakReturnInput) / 100
+        peakReturn: peakReturnStr
+          ? parseFloat(peakReturnStr) / 100
           : undefined,
         peakReturnOperator: peakReturnOperator as "gt" | "lt",
       })
@@ -351,7 +323,7 @@ export default function ScreenerAnalysis() {
               <Select
                 value={accDistOperator}
                 onValueChange={(val) =>
-                  updateParams({ accDistOperator: val, page: 1 })
+                  setAccDistOperator(val as "gt" | "lt")
                 }
               >
                 <SelectTrigger className="h-6 w-[55px] border-none px-1 text-xs focus:ring-0">
@@ -369,27 +341,21 @@ export default function ScreenerAnalysis() {
                   placeholder="1D"
                   type="number"
                   value={accDist1D}
-                  onChange={(e) =>
-                    updateParams({ accDist1D: e.target.value, page: 1 })
-                  }
+                  onChange={(e) => setAccDist1D(e.target.value)}
                 />
                 <input
                   className="w-8 bg-transparent text-center outline-none placeholder:text-muted-foreground"
                   placeholder="1W"
                   type="number"
                   value={accDist1W}
-                  onChange={(e) =>
-                    updateParams({ accDist1W: e.target.value, page: 1 })
-                  }
+                  onChange={(e) => setAccDist1W(e.target.value)}
                 />
                 <input
                   className="w-8 bg-transparent text-center outline-none placeholder:text-muted-foreground"
                   placeholder="1M"
                   type="number"
                   value={accDist1M}
-                  onChange={(e) =>
-                    updateParams({ accDist1M: e.target.value, page: 1 })
-                  }
+                  onChange={(e) => setAccDist1M(e.target.value)}
                 />
               </div>
             </div>
@@ -399,7 +365,7 @@ export default function ScreenerAnalysis() {
               <Select
                 value={peakReturnOperator}
                 onValueChange={(val) =>
-                  updateParams({ peakReturnOperator: val, page: 1 })
+                  setPeakReturnOperator(val as "gt" | "lt")
                 }
               >
                 <SelectTrigger className="h-6 w-10 border-none px-1 text-xs focus:ring-0">
@@ -416,10 +382,8 @@ export default function ScreenerAnalysis() {
                   className="w-12 bg-transparent text-center outline-none placeholder:text-muted-foreground"
                   placeholder="%"
                   type="number"
-                  value={peakReturnInput}
-                  onChange={(e) =>
-                    updateParams({ peakReturn: e.target.value, page: 1 })
-                  }
+                  value={peakReturnStr}
+                  onChange={(e) => setPeakReturn(e.target.value)}
                 />
                 <span className="text-muted-foreground">%</span>
               </div>
@@ -433,7 +397,7 @@ export default function ScreenerAnalysis() {
                   { label: "Spike", value: "Spike" },
                 ]}
                 selected={signals}
-                onChange={(val) => updateParams({ signals: val, page: 1 })}
+                onChange={(val) => setSignals(val)}
               />
             </div>
 
@@ -446,7 +410,7 @@ export default function ScreenerAnalysis() {
                   { label: "Distribution", value: "Distribution" },
                 ]}
                 selected={bandarStatus}
-                onChange={(val) => updateParams({ bandarStatus: val, page: 1 })}
+                onChange={(val) => setBandarStatus(val)}
               />
             </div>
 
@@ -459,7 +423,7 @@ export default function ScreenerAnalysis() {
                   { label: "Downtrend", value: "Downtrend" },
                 ]}
                 selected={momentum}
-                onChange={(val) => updateParams({ momentum: val, page: 1 })}
+                onChange={(val) => setMomentum(val)}
               />
             </div>
             <Button
@@ -856,7 +820,7 @@ export default function ScreenerAnalysis() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => updateParams({ page: 1 })}
+            onClick={() => setPage(1)}
             disabled={page <= 1 || isLoading}
             title="First Page"
           >
@@ -865,7 +829,7 @@ export default function ScreenerAnalysis() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => updateParams({ page: Math.max(1, page - 1) })}
+            onClick={() => setPage(Math.max(1, page - 1))}
             disabled={page <= 1 || isLoading}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -881,13 +845,13 @@ export default function ScreenerAnalysis() {
               onChange={(e) => setPageInput(e.target.value)}
               onBlur={() => {
                 const p = parseInt(pageInput)
-                if (!isNaN(p) && p > 0) updateParams({ page: p })
+                if (!isNaN(p) && p > 0) setPage(p)
                 else setPageInput(page.toString())
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   const p = parseInt(pageInput)
-                  if (!isNaN(p) && p > 0) updateParams({ page: p })
+                  if (!isNaN(p) && p > 0) setPage(p)
                 }
               }}
             />
@@ -899,7 +863,7 @@ export default function ScreenerAnalysis() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => updateParams({ page: page + 1 })}
+            onClick={() => setPage(page + 1)}
             disabled={!data || page >= data.meta.totalPages || isLoading}
           >
             Next
@@ -908,7 +872,7 @@ export default function ScreenerAnalysis() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => updateParams({ page: data?.meta.totalPages || 1 })}
+            onClick={() => setPage(data?.meta.totalPages || 1)}
             disabled={!data || page >= data.meta.totalPages || isLoading}
             title="Last Page"
           >
