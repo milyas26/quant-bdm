@@ -248,7 +248,7 @@ export default function StockDetail() {
               value={valueType}
               onValueChange={(val) => setValueType(val as "Net" | "Gross")}
             >
-              <SelectTrigger className="w-[100px]">
+              <SelectTrigger className="w-25">
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
               <SelectContent className="text-xs">

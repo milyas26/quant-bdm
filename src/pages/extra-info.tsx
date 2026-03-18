@@ -121,9 +121,9 @@ const ExtraInfo = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[300px]">Label</TableHead>
+              <TableHead className="w-75">Label</TableHead>
               <TableHead>Value</TableHead>
-              <TableHead className="w-[150px] text-right">Actions</TableHead>
+              <TableHead className="w-37.5 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -195,7 +195,7 @@ const ExtraInfo = () => {
                       item.label
                     )}
                   </TableCell>
-                  <TableCell className="max-w-[300px]">
+                  <TableCell className="max-w-75">
                     {editingId === item.id ? (
                       <Input
                         value={editValues.value}

@@ -132,7 +132,7 @@ export default function Layout() {
               ))}
             </nav>
             <div className="flex items-center gap-2">
-              <div className="relative w-[150px]">
+              <div className="relative w-37.5">
                 <Input
                   key={location.pathname}
                   readOnly

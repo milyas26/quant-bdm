@@ -290,7 +290,7 @@ export default function StocksPage() {
       <Card className="bg-card/20">
         <CardContent className="space-y-4">
           <div className="flex flex-col flex-wrap gap-2 md:flex-row md:items-end">
-            <div className="w-full min-w-[200px] md:w-auto md:flex-1">
+            <div className="w-full min-w-50 md:w-auto md:flex-1">
               <div className="relative">
                 <Search className="absolute top-3 left-2 h-4 w-4 text-muted-foreground" />
                 <Input

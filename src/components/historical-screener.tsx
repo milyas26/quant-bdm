@@ -34,7 +34,7 @@ const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length > 0) {
     const item = payload[0].payload
     return (
-      <div className="flex w-[280px] flex-col gap-1 rounded-md border bg-background p-2 shadow-md">
+      <div className="flex w-70 flex-col gap-1 rounded-md border bg-background p-2 shadow-md">
         <div className="flex items-center justify-between border-b pb-1">
           <span className="text-xs font-semibold">
             {format(new Date(item.date), "dd MMM yyyy")}
@@ -392,7 +392,7 @@ export function HistoricalScreener({
             value={months.toString()}
             onValueChange={(val) => onMonthsChange(parseInt(val))}
           >
-            <SelectTrigger className="h-8 w-[100px] text-xs">
+            <SelectTrigger className="h-8 w-25 text-xs">
               <SelectValue placeholder="Period" />
             </SelectTrigger>
             <SelectContent>

@@ -250,7 +250,7 @@ export default function ScreenerAnalysis() {
       <Card className="bg-card/20">
         <CardContent className="space-y-4">
           <div className="flex flex-col flex-wrap gap-2 md:flex-row md:items-end">
-            <div className="w-full min-w-[200px] md:w-auto md:flex-1">
+            <div className="w-full min-w-50 md:w-auto md:flex-1">
               <div className="relative">
                 <Search className="absolute top-3 left-2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -326,7 +326,7 @@ export default function ScreenerAnalysis() {
                   setAccDistOperator(val as "gt" | "lt")
                 }
               >
-                <SelectTrigger className="h-6 w-[55px] border-none px-1 text-xs focus:ring-0">
+                <SelectTrigger className="h-6 w-13.75 border-none px-1 text-xs focus:ring-0">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -492,7 +492,7 @@ export default function ScreenerAnalysis() {
               <div className="flex flex-col items-center justify-between gap-4 text-sm lg:flex-row">
                 {/* 1. Ticker & Date */}
                 <div
-                  className="flex w-full shrink-0 cursor-pointer items-center gap-3 lg:w-[250px]"
+                  className="flex w-full shrink-0 cursor-pointer items-center gap-3 lg:w-62.5"
                   onClick={() => {
                     navigate(`/stock/${row.symbol}`)
                   }}
@@ -521,7 +521,7 @@ export default function ScreenerAnalysis() {
                       )}
                     </div>
                     <span
-                      className="max-w-[150px] truncate text-xs text-muted-foreground"
+                      className="max-w-37.5 truncate text-xs text-muted-foreground"
                       title={row.ticker?.name}
                     >
                       {row.ticker?.name || "-"}
@@ -535,7 +535,7 @@ export default function ScreenerAnalysis() {
                 <Separator orientation="vertical" className="hidden lg:block" />
 
                 {/* 2. Price & Volume */}
-                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-[120px] lg:flex-col lg:justify-center">
+                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-30 lg:flex-col lg:justify-center">
                   <div className="flex items-center justify-between gap-2 lg:justify-end">
                     <span className="text-muted-foreground lg:hidden">
                       Price:
@@ -582,7 +582,7 @@ export default function ScreenerAnalysis() {
                 <Separator orientation="vertical" className="hidden lg:block" />
 
                 {/* 3. Broker & Acc/Dist */}
-                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-[140px] lg:flex-col lg:justify-center">
+                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-35 lg:flex-col lg:justify-center">
                   <div className="flex items-center justify-between gap-2 lg:justify-end">
                     <span className="text-muted-foreground lg:hidden">
                       Net:
@@ -662,13 +662,13 @@ export default function ScreenerAnalysis() {
                 <Separator orientation="vertical" className="hidden lg:block" />
 
                 {/* Top Brokers */}
-                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-[120px] lg:flex-col lg:justify-center">
+                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-30 lg:flex-col lg:justify-center">
                   <div className="flex w-full items-center justify-between gap-2 lg:justify-end">
                     <span className="text-[10px] text-muted-foreground lg:hidden">
                       Top Buy:
                     </span>
                     <span
-                      className="truncate text-[10px] font-medium text-green-600"
+                      className="truncate text-[10px] font-semibold text-green-800"
                       title={row.brokerSummary?.brokersBuy
                         ?.map((b: any) => b.netbsBrokerCode)
                         .join(", ")}
@@ -684,7 +684,7 @@ export default function ScreenerAnalysis() {
                       Top Sell:
                     </span>
                     <span
-                      className="truncate text-[10px] font-medium text-red-600"
+                      className="truncate text-[10px] font-semibold text-red-800"
                       title={row.brokerSummary?.brokersSell
                         ?.map((b: any) => b.netbsBrokerCode)
                         .join(", ")}
@@ -700,7 +700,7 @@ export default function ScreenerAnalysis() {
                 <Separator orientation="vertical" className="hidden lg:block" />
 
                 {/* 4. Status/Score/Momentum */}
-                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-[140px] lg:flex-col lg:justify-center">
+                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-35 lg:flex-col lg:justify-center">
                   <div className="flex items-center justify-between gap-2 lg:justify-end">
                     <Badge
                       variant="outline"
@@ -782,7 +782,7 @@ export default function ScreenerAnalysis() {
                 <Separator orientation="vertical" className="hidden lg:block" />
 
                 {/* 6. Peak Return */}
-                <div className="flex w-full shrink-0 flex-row items-end justify-between gap-0 lg:w-[80px] lg:flex-col lg:justify-center">
+                <div className="flex w-full shrink-0 flex-row items-end justify-between gap-0 lg:w-20 lg:flex-col lg:justify-center">
                   <div className="text-[10px] text-muted-foreground lg:hidden">
                     Peak Return
                   </div>
