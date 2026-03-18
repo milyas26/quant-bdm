@@ -34,6 +34,8 @@ import {
 } from "@/components/ui/select"
 import { FilterMultiSelect } from "@/components/filter-multi-select"
 import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 
 export default function ScreenerAnalysis() {
   const queryClient = useQueryClient()
@@ -75,6 +77,8 @@ export default function ScreenerAnalysis() {
     setAccDistOperator,
     setPeakReturn,
     setPeakReturnOperator,
+    useCutoff,
+    setUseCutoff,
     reset,
   } = useScreenerAnalysisFilterStore()
 
@@ -145,6 +149,7 @@ export default function ScreenerAnalysis() {
       accDistOperator,
       peakReturnStr,
       peakReturnOperator,
+      useCutoff,
     ],
     queryFn: () =>
       getScreenerAnalysis({
@@ -168,6 +173,7 @@ export default function ScreenerAnalysis() {
           ? parseFloat(peakReturnStr) / 100
           : undefined,
         peakReturnOperator: peakReturnOperator as "gt" | "lt",
+        useCutoff,
       }),
   })
 
@@ -436,6 +442,16 @@ export default function ScreenerAnalysis() {
               <X className="mr-2 h-4 w-4" />
               Reset
             </Button>
+            <div className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm">
+              <Switch
+                id="cutoff-toggle"
+                checked={useCutoff}
+                onCheckedChange={(val) => setUseCutoff(val)}
+              />
+              <Label htmlFor="cutoff-toggle" className="cursor-pointer whitespace-nowrap font-medium">
+                Cutoff 20D
+              </Label>
+            </div>
             <Button
               onClick={() => generateMutation.mutate()}
               disabled={generateMutation.isPending}

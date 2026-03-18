@@ -22,6 +22,7 @@ export interface GetScreenerAnalysisParams {
   distBrokerCodes?: string[];
   peakReturn?: number;
   peakReturnOperator?: "gt" | "lt";
+  useCutoff?: boolean;
 }
 
 export interface ScreenerAnalysisResponse {

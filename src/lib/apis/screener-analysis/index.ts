@@ -29,6 +29,7 @@ export const getScreenerAnalysis = async (
   if (params?.distBrokerCodes) params.distBrokerCodes.forEach(s => queryParams.append("distBrokerCodes", s))
   if (params?.peakReturn !== undefined) queryParams.append("peakReturn", params.peakReturn.toString())
   if (params?.peakReturnOperator) queryParams.append("peakReturnOperator", params.peakReturnOperator)
+  if (params?.useCutoff) queryParams.append("useCutoff", "true")
 
   const response = await api.get(`/screener-signals/performance-analysis/stored?${queryParams.toString()}`)
   return response.data

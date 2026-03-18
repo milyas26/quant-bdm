@@ -20,6 +20,7 @@ export interface ScreenerAnalysisFilterState {
   accDistOperator: "gt" | "lt"
   peakReturn: string
   peakReturnOperator: "gt" | "lt"
+  useCutoff: boolean
 
   // Actions
   setPage: (page: number) => void
@@ -41,6 +42,7 @@ export interface ScreenerAnalysisFilterState {
   setAccDistOperator: (operator: "gt" | "lt") => void
   setPeakReturn: (peakReturn: string) => void
   setPeakReturnOperator: (operator: "gt" | "lt") => void
+  setUseCutoff: (useCutoff: boolean) => void
   reset: () => void
 }
 
@@ -63,6 +65,7 @@ const DEFAULT_STATE = {
   accDistOperator: "gt" as const,
   peakReturn: "",
   peakReturnOperator: "gt" as const,
+  useCutoff: false,
 }
 
 export const useScreenerAnalysisFilterStore =
@@ -92,6 +95,7 @@ export const useScreenerAnalysisFilterStore =
         setPeakReturn: (peakReturn) => set({ peakReturn, page: 1 }),
         setPeakReturnOperator: (peakReturnOperator) =>
           set({ peakReturnOperator, page: 1 }),
+        setUseCutoff: (useCutoff) => set({ useCutoff, page: 1 }),
         reset: () => set({ ...DEFAULT_STATE }),
       }),
       {
