@@ -5,7 +5,9 @@ import {
   getTickerDetail,
   fetchAndSaveHistoricalData,
   getHistoricalScreenerData,
+  getScreener,
 } from "@/lib/api"
+import { SimulateBuyButton } from "@/components/simulate-buy-button"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { format, startOfMonth, subMonths } from "date-fns"
@@ -46,6 +48,14 @@ export default function StockDetail() {
     queryFn: () => getTickerDetail(selectedTicker),
     enabled: !!selectedTicker,
   })
+
+  const { data: screenerData } = useQuery({
+    queryKey: ["screener-ticker", selectedTicker],
+    queryFn: () => getScreener({ search: selectedTicker, limit: 1 }),
+    enabled: !!selectedTicker,
+  })
+
+  const screenerTicker = screenerData?.data?.[0]
 
   const [screenerMonths, setScreenerMonths] = useState(3)
 
@@ -154,12 +164,15 @@ export default function StockDetail() {
                     </div>
                   )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   {tickerInfo?.sector && (
                     <Badge variant="default">{tickerInfo.sector}</Badge>
                   )}
                   {tickerInfo?.subSector && (
                     <Badge variant="secondary">{tickerInfo.subSector}</Badge>
+                  )}
+                  {screenerTicker && (
+                    <SimulateBuyButton ticker={screenerTicker} />
                   )}
                 </div>
               </div>

@@ -27,8 +27,8 @@ const navItems = [
   { title: "Screener", url: "/" },
   { title: "History", url: "/history" },
   { title: "Brokers", url: "/brokers" },
-  { title: "Guide", url: "/guide" },
   { title: "Portfolio", url: "/portfolio" },
+  { title: "Guide", url: "/guide" },
 ]
 
 import { AddTickerDialog } from "@/components/add-ticker-dialog"

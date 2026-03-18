@@ -3,14 +3,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
 import {
   getScreener,
-  deleteTicker,
   toggleTickerInWatchlist,
   refreshAllTickers,
 } from "@/lib/api"
 import { useStocksFilterStore } from "@/stores/stocksFilterStore"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Table,
   TableBody,
@@ -26,7 +24,6 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Search,
-  Trash2,
   MoreHorizontal,
   Star,
   RefreshCw,
@@ -37,19 +34,8 @@ import {
 } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -107,10 +93,6 @@ export default function StocksPage() {
     setMomentum,
     reset,
   } = useStocksFilterStore()
-
-  const [tickerToDelete, setTickerToDelete] = useState<string | null>(null)
-  const [selectedTickers, setSelectedTickers] = useState<string[]>([])
-  const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false)
 
   // Local input states for controlled inputs
   const [searchTerm, setSearchTerm] = useState(search)
@@ -192,46 +174,6 @@ export default function StocksPage() {
       }),
   })
 
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      const allSymbols = data?.data.map((t) => t.symbol) || []
-      setSelectedTickers((prev) => {
-        const newSelection = new Set([...prev, ...allSymbols])
-        return Array.from(newSelection)
-      })
-    } else {
-      const pageSymbols = data?.data.map((t) => t.symbol) || []
-      setSelectedTickers((prev) => prev.filter((s) => !pageSymbols.includes(s)))
-    }
-  }
-
-  const handleSelectRow = (symbol: string, checked: boolean) => {
-    if (checked) {
-      setSelectedTickers((prev) => [...prev, symbol])
-    } else {
-      setSelectedTickers((prev) => prev.filter((s) => s !== symbol))
-    }
-  }
-
-  const { mutate: handleDelete, isPending: isDeleting } = useMutation({
-    mutationFn: deleteTicker,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tickers"] })
-      setTickerToDelete(null)
-    },
-  })
-
-  const { mutate: handleBulkDelete, isPending: isBulkDeleting } = useMutation({
-    mutationFn: async (symbols: string[]) => {
-      await Promise.all(symbols.map((symbol) => deleteTicker(symbol)))
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tickers"] })
-      setSelectedTickers([])
-      setIsBulkDeleteConfirmOpen(false)
-    },
-  })
-
   const { mutate: handleRefreshAllTickers, isPending: isRefreshing } =
     useMutation({
       mutationFn: refreshAllTickers,
@@ -245,57 +187,6 @@ export default function StocksPage() {
 
   return (
     <div className="space-y-4">
-      <AlertDialog
-        open={!!tickerToDelete}
-        onOpenChange={(open) => !open && setTickerToDelete(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              ticker
-              <span className="font-bold"> {tickerToDelete}</span> and all
-              associated data.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => tickerToDelete && handleDelete(tickerToDelete)}
-              className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
-            >
-              {isDeleting ? "Deleting..." : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog
-        open={isBulkDeleteConfirmOpen}
-        onOpenChange={setIsBulkDeleteConfirmOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete{" "}
-              <span className="font-bold">{selectedTickers.length}</span>{" "}
-              selected tickers and all associated data.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => handleBulkDelete(selectedTickers)}
-              className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
-            >
-              {isBulkDeleting ? "Deleting..." : "Delete Selected"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
       <Card className="bg-card/20">
         <CardContent className="space-y-4">
           <div className="flex flex-col flex-wrap gap-2 md:flex-row md:items-end">
@@ -375,15 +266,6 @@ export default function StocksPage() {
               />
             </div>
 
-            {selectedTickers.length > 0 && (
-              <Button
-                variant="destructive"
-                onClick={() => setIsBulkDeleteConfirmOpen(true)}
-              >
-                <Trash2 className="h-4 w-4" /> ({selectedTickers.length})
-              </Button>
-            )}
-
             <Button
               onClick={handleResetFilters}
               className="h-10 cursor-pointer text-red-500 hover:bg-red-50 hover:text-red-500/80"
@@ -411,16 +293,6 @@ export default function StocksPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-12.5">
-              <Checkbox
-                checked={
-                  data?.data &&
-                  data.data.length > 0 &&
-                  data.data.every((t) => selectedTickers.includes(t.symbol))
-                }
-                onCheckedChange={(checked) => handleSelectAll(!!checked)}
-              />
-            </TableHead>
             <TableHead
               className="cursor-pointer hover:bg-muted/50"
               onClick={() => handleSort("symbol")}
@@ -604,14 +476,6 @@ export default function StocksPage() {
                 className="cursor-pointer"
                 onClick={() => navigate(`/stock/${ticker.symbol}`)}
               >
-                <TableCell onClick={(e) => e.stopPropagation()}>
-                  <Checkbox
-                    checked={selectedTickers.includes(ticker.symbol)}
-                    onCheckedChange={(checked) => {
-                      handleSelectRow(ticker.symbol, !!checked)
-                    }}
-                  />
-                </TableCell>
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
                     <Button
@@ -802,9 +666,6 @@ export default function StocksPage() {
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex flex-col gap-1 text-[11px]">
                     <div className="flex items-center gap-1">
-                      <span className="shrink-0 font-semibold text-green-700">
-                        B:
-                      </span>
                       <span className="font-semibold text-green-800">
                         {ticker.topBuyers?.length > 0
                           ? ticker.topBuyers.map((b) => b.code).join(", ")
@@ -812,9 +673,6 @@ export default function StocksPage() {
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <span className="shrink-0 font-semibold text-red-700">
-                        S:
-                      </span>
                       <span className="font-semibold text-red-800">
                         {ticker.topSellers?.length > 0
                           ? ticker.topSellers.map((b) => b.code).join(", ")
@@ -831,9 +689,7 @@ export default function StocksPage() {
                   )}
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
-                  <SimulateBuyButton
-                    ticker={ticker}
-                  />
+                  <SimulateBuyButton ticker={ticker} />
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
@@ -845,13 +701,6 @@ export default function StocksPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => setTickerToDelete(ticker.symbol)}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -863,17 +712,24 @@ export default function StocksPage() {
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>Showing {data?.data.length || 0} of {data?.meta.total || 0} results</span>
+          <span>
+            Showing {data?.data.length || 0} of {data?.meta.total || 0} results
+          </span>
           <Select
             value={String(limit)}
-            onValueChange={(val) => { setLimit(Number(val)); setPage(1) }}
+            onValueChange={(val) => {
+              setLimit(Number(val))
+              setPage(1)
+            }}
           >
             <SelectTrigger className="h-8 w-16">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {[10, 25, 50, 100].map((n) => (
-                <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                <SelectItem key={n} value={String(n)}>
+                  {n}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
