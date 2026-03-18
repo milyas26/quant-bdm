@@ -430,7 +430,6 @@ const TradesTable = ({
                 )
               })
             )}
-            ;
           </TableBody>
         </Table>
       </div>
