@@ -21,6 +21,7 @@ import {
   Play,
   Search,
   Download,
+  X,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -91,6 +92,9 @@ export default function ScreenerAnalysis() {
   const accDist1M = searchParams.get("accDist1M") || ""
   const accDistOperator = searchParams.get("accDistOperator") || "gt"
 
+  const peakReturnInput = searchParams.get("peakReturn") || ""
+  const peakReturnOperator = searchParams.get("peakReturnOperator") || "gt"
+
   const [pageInput, setPageInput] = useState(page.toString())
 
   const updateParams = (
@@ -138,6 +142,15 @@ export default function ScreenerAnalysis() {
     })
   }
 
+  const handleResetFilters = () => {
+    setSearchTerm("")
+    setMinPriceInput("")
+    setMaxPriceInput("")
+    setMinScoreInput("")
+    setMaxScoreInput("")
+    setSearchParams(new URLSearchParams())
+  }
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [
       "screenerAnalysis",
@@ -157,6 +170,8 @@ export default function ScreenerAnalysis() {
       accDist1W,
       accDist1M,
       accDistOperator,
+      peakReturnInput,
+      peakReturnOperator,
     ],
     queryFn: () =>
       getScreenerAnalysis({
@@ -176,6 +191,10 @@ export default function ScreenerAnalysis() {
         accDist1W: accDist1W ? parseInt(accDist1W) : undefined,
         accDist1M: accDist1M ? parseInt(accDist1M) : undefined,
         accDistOperator: accDistOperator as "gt" | "lt",
+        peakReturn: peakReturnInput
+          ? parseFloat(peakReturnInput) / 100
+          : undefined,
+        peakReturnOperator: peakReturnOperator as "gt" | "lt",
       }),
   })
 
@@ -207,6 +226,10 @@ export default function ScreenerAnalysis() {
         accDist1W: accDist1W ? parseInt(accDist1W) : undefined,
         accDist1M: accDist1M ? parseInt(accDist1M) : undefined,
         accDistOperator: accDistOperator as "gt" | "lt",
+        peakReturn: peakReturnInput
+          ? parseFloat(peakReturnInput) / 100
+          : undefined,
+        peakReturnOperator: peakReturnOperator as "gt" | "lt",
       })
 
       const url = window.URL.createObjectURL(new Blob([blob]))
@@ -371,6 +394,37 @@ export default function ScreenerAnalysis() {
               </div>
             </div>
 
+            <div className="flex h-10 items-center gap-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+              <span className="mr-1 font-medium">Peak</span>
+              <Select
+                value={peakReturnOperator}
+                onValueChange={(val) =>
+                  updateParams({ peakReturnOperator: val, page: 1 })
+                }
+              >
+                <SelectTrigger className="h-6 w-10 border-none px-1 text-xs focus:ring-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gt">&gt;</SelectItem>
+                  <SelectItem value="lt">&lt;</SelectItem>
+                </SelectContent>
+              </Select>
+              <Separator orientation="vertical" className="mx-1 h-4" />
+              <div className="flex items-center gap-1">
+                <input
+                  className="w-12 bg-transparent text-center outline-none placeholder:text-muted-foreground"
+                  placeholder="%"
+                  type="number"
+                  value={peakReturnInput}
+                  onChange={(e) =>
+                    updateParams({ peakReturn: e.target.value, page: 1 })
+                  }
+                />
+                <span className="text-muted-foreground">%</span>
+              </div>
+            </div>
+
             <div className="w-full space-y-2 md:w-52">
               <FilterMultiSelect
                 title="Signals"
@@ -408,6 +462,15 @@ export default function ScreenerAnalysis() {
                 onChange={(val) => updateParams({ momentum: val, page: 1 })}
               />
             </div>
+            <Button
+              onClick={handleResetFilters}
+              className="h-10 cursor-pointer text-red-500 hover:bg-red-50 hover:text-red-500/80"
+              variant="ghost"
+              title="Reset all filters"
+            >
+              <X className="mr-2 h-4 w-4" />
+              Reset
+            </Button>
             <Button
               onClick={() => generateMutation.mutate()}
               disabled={generateMutation.isPending}

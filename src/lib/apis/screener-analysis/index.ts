@@ -27,6 +27,8 @@ export const getScreenerAnalysis = async (
   if (params?.accDistOperator) queryParams.append("accDistOperator", params.accDistOperator)
   if (params?.accBrokerCodes) params.accBrokerCodes.forEach(s => queryParams.append("accBrokerCodes", s))
   if (params?.distBrokerCodes) params.distBrokerCodes.forEach(s => queryParams.append("distBrokerCodes", s))
+  if (params?.peakReturn !== undefined) queryParams.append("peakReturn", params.peakReturn.toString())
+  if (params?.peakReturnOperator) queryParams.append("peakReturnOperator", params.peakReturnOperator)
 
   const response = await api.get(`/screener-signals/performance-analysis/stored?${queryParams.toString()}`)
   return response.data
@@ -70,8 +72,11 @@ export const exportScreenerAnalysis = async (
   if (params?.accDistOperator) queryParams.append("accDistOperator", params.accDistOperator)
   if (params?.accBrokerCodes) params.accBrokerCodes.forEach(s => queryParams.append("accBrokerCodes", s))
   if (params?.distBrokerCodes) params.distBrokerCodes.forEach(s => queryParams.append("distBrokerCodes", s))
+  if (params?.peakReturn !== undefined) queryParams.append("peakReturn", params.peakReturn.toString())
+  if (params?.peakReturnOperator) queryParams.append("peakReturnOperator", params.peakReturnOperator)
 
-  const response = await api.get(`/screener-signals/performance-analysis/export?${queryParams.toString()}`, {
+  const response = await api.get(`/screener-signals/performance-analysis/export?${queryParams.toString()}`,
+ {
     responseType: "blob",
   })
   return response.data

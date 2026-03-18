@@ -20,6 +20,8 @@ export interface GetScreenerAnalysisParams {
   accDistOperator?: "gt" | "lt";
   accBrokerCodes?: string[];
   distBrokerCodes?: string[];
+  peakReturn?: number;
+  peakReturnOperator?: "gt" | "lt";
 }
 
 export interface ScreenerAnalysisResponse {
