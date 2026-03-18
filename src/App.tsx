@@ -16,7 +16,7 @@ export function App() {
         <Route path="/" element={<StocksPage />} />
         <Route path="stock/:ticker" element={<StockDetail />} />
         <Route path="extra-info" element={<ExtraInfo />} />
-        <Route path="screener" element={<ScreenerAnalysis />} />
+        <Route path="history" element={<ScreenerAnalysis />} />
         <Route path="guide" element={<Guides />} />
         <Route path="brokers" element={<Brokers />} />
         <Route path="*" element={<NotFound />} />

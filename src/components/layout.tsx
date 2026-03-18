@@ -24,8 +24,8 @@ import { Settings, Info } from "lucide-react"
 import { useTheme } from "@/components/theme-provider"
 
 const navItems = [
-  { title: "Stocks", url: "/" },
-  { title: "Screener", url: "/screener" },
+  { title: "Screener", url: "/" },
+  { title: "History", url: "/history" },
   { title: "Brokers", url: "/brokers" },
   { title: "Guide", url: "/guide" },
 ]
