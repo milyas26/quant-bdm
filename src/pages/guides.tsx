@@ -47,7 +47,7 @@ export default function Guides() {
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors text-left",
                   activePage === id
-                    ? "bg-indigo-600 text-white font-medium"
+                    ? "bg-slate-800 text-white font-medium"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >

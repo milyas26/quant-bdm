@@ -124,7 +124,10 @@ export default function Layout() {
                   key={item.url}
                   to={item.url}
                   className={cn(
-                    "cursor-pointer border-l px-4 py-4 text-sm font-medium transition-colors hover:bg-muted/80"
+                    "cursor-pointer border-l px-4 py-4 text-sm transition-colors hover:bg-muted/80",
+                    (item.url === "/" ? location.pathname === "/" : location.pathname.startsWith(item.url))
+                      ? "font-semibold"
+                      : "font-medium text-muted-foreground"
                   )}
                 >
                   {item.title}
