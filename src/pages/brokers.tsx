@@ -7,8 +7,9 @@ import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
 import { AlertCircle, Search } from 'lucide-react'
 import { useState, useMemo } from 'react'
+import { getBrokerColor, cn } from '@/lib/utils'
 
-const GROUP_ORDER = ['SMART_MONEY', 'RITEL', 'PEMERINTAH', 'ASING', 'LOKAL']
+const GROUP_ORDER = ['SMART_MONEY', 'DUMB_MONEY', 'RITEL', 'PEMERINTAH', 'ASING', 'LOKAL']
 
 const Brokers = () => {
   const [search, setSearch] = useState('')
@@ -37,12 +38,7 @@ const Brokers = () => {
   }, [brokerGroup, search])
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Daftar Broker</h1>
-        <p className="text-sm text-muted-foreground">Daftar broker berdasarkan kategori</p>
-      </div>
-
+    <div className="space-y-4">
       <div className="relative w-full max-w-sm">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -54,7 +50,7 @@ const Brokers = () => {
       </div>
 
       {isLoading && (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="space-y-3">
               <Skeleton className="h-5 w-32" />
@@ -87,18 +83,18 @@ const Brokers = () => {
         .sort(([a], [b]) => GROUP_ORDER.indexOf(a) - GROUP_ORDER.indexOf(b))
         .map(([groupKey, brokers]) => (
           <div key={groupKey} className="space-y-3">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Badge variant="default">
                 {groupKey}
               </Badge>
               <Separator className="flex-1" />
               <span className="text-xs text-muted-foreground">{brokers.length} broker</span>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
               {brokers.map((broker) => (
                 <Card key={broker.code} className="hover:bg-muted/50 rounded-sm transition-colors cursor-default py-0">
                   <CardContent className="p-2.5 space-y-0.5">
-                    <p className="text-xs font-bold leading-tight">{broker.code}</p>
+                    <p className={cn("text-xs font-bold leading-tight", getBrokerColor(broker.type))}>{broker.code}</p>
                     <p className="text-[11px] text-muted-foreground truncate leading-tight">{broker.name}</p>
                   </CardContent>
                 </Card>
