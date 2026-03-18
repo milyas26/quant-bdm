@@ -1,4 +1,9 @@
 
+export interface BrokerEntry {
+  code: string
+  value: number
+}
+
 export interface Ticker {
   symbol: string
   name: string | null
@@ -22,6 +27,8 @@ export interface Ticker {
     w1: number
     m1: number
   }
+  topBuyers: BrokerEntry[]
+  topSellers: BrokerEntry[]
 }
 
 export interface Meta {

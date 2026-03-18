@@ -191,7 +191,7 @@ const CustomTooltip = ({ active, payload }: any) => {
                 Top Buyers
               </span>
               {item.topBuyers && item.topBuyers.length > 0 ? (
-                item.topBuyers.map((buyer: any, idx: number) => (
+                item.topBuyers.slice(0, 5).map((buyer: any, idx: number) => (
                   <div
                     key={`buyer-${idx}`}
                     className="flex items-center justify-between"
@@ -216,7 +216,7 @@ const CustomTooltip = ({ active, payload }: any) => {
                 Top Sellers
               </span>
               {item.topSellers && item.topSellers.length > 0 ? (
-                item.topSellers.map((seller: any, idx: number) => (
+                item.topSellers.slice(0, 5).map((seller: any, idx: number) => (
                   <div
                     key={`seller-${idx}`}
                     className="flex items-center justify-between"
@@ -479,6 +479,9 @@ export function HistoricalScreener({
                     {item.isVolumeSpike && (
                       <span className="font-bold text-orange-500">🔥</span>
                     )}
+                    {item.isBreakout && (
+                      <span className="font-bold text-indigo-500" title="Breakout">⚡</span>
+                    )}
                   </div>
                 </div>
 
@@ -560,6 +563,61 @@ export function HistoricalScreener({
                   >
                     M1: {item.accumulationDistribution.m1.toFixed(1)}%
                   </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1 border-t pt-1 text-[9px]">
+                <div className="flex w-full justify-between gap-2">
+                  <div className="flex w-1/2 flex-col gap-0.5">
+                    <span className="text-[8px] font-semibold text-muted-foreground">
+                      Top Buyers
+                    </span>
+                    {item.topBuyers && item.topBuyers.length > 0 ? (
+                      item.topBuyers.slice(0, 5).map((buyer: any, idx: number) => (
+                        <div
+                          key={`history-buyer-${item.date}-${idx}`}
+                          className="flex items-center justify-between"
+                        >
+                          <span className="font-bold text-green-700">
+                            {buyer.code}
+                          </span>
+                          <span className="text-green-600">
+                            {new Intl.NumberFormat("en-US", {
+                              notation: "compact",
+                              maximumFractionDigits: 1,
+                            }).format(buyer.net)}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <span className="text-[8px] text-muted-foreground">-</span>
+                    )}
+                  </div>
+                  <div className="flex w-1/2 flex-col gap-0.5 border-l pl-2">
+                    <span className="text-[8px] font-semibold text-muted-foreground">
+                      Top Sellers
+                    </span>
+                    {item.topSellers && item.topSellers.length > 0 ? (
+                      item.topSellers.slice(0, 5).map((seller: any, idx: number) => (
+                        <div
+                          key={`history-seller-${item.date}-${idx}`}
+                          className="flex items-center justify-between"
+                        >
+                          <span className="font-bold text-red-700">
+                            {seller.code}
+                          </span>
+                          <span className="text-red-600">
+                            {new Intl.NumberFormat("en-US", {
+                              notation: "compact",
+                              maximumFractionDigits: 1,
+                            }).format(seller.net)}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <span className="text-[8px] text-muted-foreground">-</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

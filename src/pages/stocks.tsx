@@ -548,6 +548,7 @@ export default function StocksPage() {
                 )}
               </div>
             </TableHead>
+            <TableHead>Top Brokers</TableHead>
             <TableHead
               className="cursor-pointer hover:bg-muted/50"
               onClick={() => handleSort("sector")}
@@ -565,25 +566,25 @@ export default function StocksPage() {
                 )}
               </div>
             </TableHead>
-            <TableHead className="w-[50px]"></TableHead>
+            <TableHead className="w-12.5"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={13} className="h-24 text-center">
+              <TableCell colSpan={14} className="h-24 text-center">
                 Loading...
               </TableCell>
             </TableRow>
           ) : isError ? (
             <TableRow>
-              <TableCell colSpan={13} className="h-24 text-center text-red-500">
+              <TableCell colSpan={14} className="h-24 text-center text-red-500">
                 Error: {(error as Error).message}
               </TableCell>
             </TableRow>
           ) : data?.data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={13} className="h-24 text-center">
+              <TableCell colSpan={14} className="h-24 text-center">
                 No results found.
               </TableCell>
             </TableRow>
@@ -787,6 +788,31 @@ export default function StocksPage() {
                   >
                     {ticker.momentum}
                   </Badge>
+                </TableCell>
+
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  <div className="flex flex-col gap-1 text-[11px]">
+                    <div className="flex items-center gap-1">
+                      <span className="shrink-0 font-semibold text-green-700">
+                        B:
+                      </span>
+                      <span className="font-semibold text-green-800">
+                        {ticker.topBuyers?.length > 0
+                          ? ticker.topBuyers.map((b) => b.code).join(", ")
+                          : "-"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="shrink-0 font-semibold text-red-700">
+                        S:
+                      </span>
+                      <span className="font-semibold text-red-800">
+                        {ticker.topSellers?.length > 0
+                          ? ticker.topSellers.map((b) => b.code).join(", ")
+                          : "-"}
+                      </span>
+                    </div>
+                  </div>
                 </TableCell>
                 <TableCell>
                   {ticker.sector ? (
