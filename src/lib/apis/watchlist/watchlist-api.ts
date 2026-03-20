@@ -1,5 +1,5 @@
 import api from "@/lib/interceptor"
-import type { Watchlist } from "./interface"
+import type { Watchlist, CreateWatchlistParams, WatchlistTickers } from "./interface"
 
 export * from "./interface"
 
@@ -8,10 +8,29 @@ export const getWatchlists = async () => {
   return data
 }
 
-export const toggleTickerInWatchlist = async (symbol: string) => {
-  const { data } = await api.post<{ isOnWatchlist: boolean; message: string }>(
-    "/watchlists/toggle",
-    { symbol }
-  )
+export const createWatchlist = async (params: CreateWatchlistParams) => {
+  const { data } = await api.post<Watchlist>("/watchlists", params)
   return data
+}
+
+export const deleteWatchlist = async (id: number) => {
+  await api.delete(`/watchlists/${id}`)
+}
+
+export const addTickerToWatchlist = async (watchlistId: number, symbol: string) => {
+  const { data } = await api.post<Watchlist>(`/watchlists/${watchlistId}/tickers`, { symbol })
+  return data
+}
+
+export const getWatchlistTickers = async (watchlistId: number) => {
+  const { data } = await api.get<WatchlistTickers>(`/watchlists/${watchlistId}/tickers`)
+  return data
+}
+
+export const deleteTickerFromWatchlist = async (watchlistId: number, symbol: string) => {
+  await api.delete(`/watchlists/${watchlistId}/tickers/${symbol}`)
+}
+
+export const reorderWatchlists = async (orderedIds: number[]) => {
+  await api.patch("/watchlists/reorder", { orderedIds })
 }

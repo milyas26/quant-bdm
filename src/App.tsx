@@ -8,6 +8,7 @@ import ScreenerAnalysis from "./pages/screener-analysis"
 import Guides from "./pages/guides"
 import Brokers from "./pages/brokers"
 import DemoTradingPage from "./pages/demo-trading"
+import WatchlistPage from "./pages/watchlist"
 
 export function App() {
   return (
@@ -21,6 +22,7 @@ export function App() {
         <Route path="guide" element={<Guides />} />
         <Route path="brokers" element={<Brokers />} />
         <Route path="portfolio" element={<DemoTradingPage />} />
+        <Route path="watchlist" element={<WatchlistPage />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

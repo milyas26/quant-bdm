@@ -26,6 +26,7 @@ import { useTheme } from "@/components/theme-provider"
 const navItems = [
   { title: "Screener", url: "/" },
   { title: "History", url: "/history" },
+  { title: "Watchlist", url: "/watchlist" },
   { title: "Brokers", url: "/brokers" },
   { title: "Portfolio", url: "/portfolio" },
   { title: "Guide", url: "/guide" },

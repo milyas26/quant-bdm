@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
 import {
   getScreener,
-  toggleTickerInWatchlist,
   refreshAllTickers,
 } from "@/lib/api"
+import { AddToWatchlistDialog } from "@/components/add-to-watchlist-dialog"
 import { useStocksFilterStore } from "@/stores/stocksFilterStore"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -25,7 +25,6 @@ import {
   ChevronsRight,
   Search,
   MoreHorizontal,
-  Star,
   RefreshCw,
   ArrowUp,
   ArrowDown,
@@ -52,6 +51,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { SimulateBuyButton } from "@/components/simulate-buy-button"
+import { Bookmark } from "lucide-react"
 
 const formatNumber = (num: number) => {
   if (Math.abs(num) >= 1_000_000_000) {
@@ -67,9 +67,9 @@ const formatNumber = (num: number) => {
 }
 
 export default function StocksPage() {
-  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const [watchlistDialogSymbol, setWatchlistDialogSymbol] = useState<string | null>(null)
 
   const {
     page,
@@ -137,14 +137,6 @@ export default function StocksPage() {
     reset()
   }
 
-  const { mutate: handleToggleWatchlist, isPending: isTogglingWatchlist } =
-    useMutation({
-      mutationFn: toggleTickerInWatchlist,
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["tickers"] })
-      },
-    })
-
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [
       "tickers",
@@ -187,6 +179,10 @@ export default function StocksPage() {
 
   return (
     <div className="space-y-4">
+      <AddToWatchlistDialog
+        symbol={watchlistDialogSymbol}
+        onClose={() => setWatchlistDialogSymbol(null)}
+      />
       <Card className="bg-card/20">
         <CardContent className="space-y-4">
           <div className="flex flex-col flex-wrap gap-2 md:flex-row md:items-end">
@@ -484,15 +480,14 @@ export default function StocksPage() {
                       className="h-6 w-6 cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleToggleWatchlist(ticker.symbol)
+                        setWatchlistDialogSymbol(ticker.symbol)
                       }}
-                      disabled={isTogglingWatchlist}
                     >
-                      <Star
+                      <Bookmark
                         className={cn(
                           "h-4 w-4",
                           ticker.isOnWatchlist
-                            ? "fill-yellow-400 text-yellow-400"
+                            ? "fill-blue-500 text-blue-500"
                             : "text-muted-foreground"
                         )}
                       />
