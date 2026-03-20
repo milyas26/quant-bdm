@@ -5,6 +5,7 @@ import {
   addTickerToWatchlist,
   deleteTickerFromWatchlist,
   createWatchlist,
+  getWatchlistIdsByTicker,
 } from "@/lib/api"
 import {
   Dialog,
@@ -36,12 +37,20 @@ export function AddToWatchlistDialog({ symbol, onClose }: AddToWatchlistDialogPr
     enabled: !!symbol,
   })
 
+  const { data: activeWatchlistIds = [] } = useQuery({
+    queryKey: ["watchlists-by-ticker", symbol],
+    queryFn: () => getWatchlistIdsByTicker(symbol!),
+    enabled: !!symbol,
+  })
+
   const { mutate: addTicker, isPending: isAdding } = useMutation({
     mutationFn: ({ watchlistId, sym }: { watchlistId: number; sym: string }) =>
       addTickerToWatchlist(watchlistId, sym),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["watchlists"] })
+      queryClient.invalidateQueries({ queryKey: ["watchlists-by-ticker", symbol] })
       queryClient.invalidateQueries({ queryKey: ["tickers"] })
+      queryClient.invalidateQueries({ queryKey: ["watchlist-tickers"] })
     },
     onError: () => toast.error("Gagal menambahkan ke watchlist"),
   })
@@ -51,7 +60,9 @@ export function AddToWatchlistDialog({ symbol, onClose }: AddToWatchlistDialogPr
       deleteTickerFromWatchlist(watchlistId, sym),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["watchlists"] })
+      queryClient.invalidateQueries({ queryKey: ["watchlists-by-ticker", symbol] })
       queryClient.invalidateQueries({ queryKey: ["tickers"] })
+      queryClient.invalidateQueries({ queryKey: ["watchlist-tickers"] })
     },
     onError: () => toast.error("Gagal menghapus dari watchlist"),
   })
@@ -110,7 +121,7 @@ export function AddToWatchlistDialog({ symbol, onClose }: AddToWatchlistDialogPr
             </p>
           ) : (
             watchlists?.map((watchlist) => {
-              const isInWatchlist = watchlist.tickers.some((t) => t.symbol === symbol)
+              const isInWatchlist = activeWatchlistIds.includes(watchlist.id)
               return (
                 <div
                   key={watchlist.id}
@@ -127,7 +138,7 @@ export function AddToWatchlistDialog({ symbol, onClose }: AddToWatchlistDialogPr
                   />
                   <span className="flex-1 text-sm font-medium">{watchlist.name}</span>
                   <span className="text-xs text-muted-foreground">
-                    {watchlist.tickers.length} tickers
+                    {watchlist._count.tickers} tickers
                   </span>
                 </div>
               )

@@ -31,6 +31,11 @@ export const deleteTickerFromWatchlist = async (watchlistId: number, symbol: str
   await api.delete(`/watchlists/${watchlistId}/tickers/${symbol}`)
 }
 
+export const getWatchlistIdsByTicker = async (symbol: string) => {
+  const { data } = await api.get<number[]>(`/watchlists/by-ticker/${symbol}`)
+  return data
+}
+
 export const reorderWatchlists = async (orderedIds: number[]) => {
   await api.patch("/watchlists/reorder", { orderedIds })
 }

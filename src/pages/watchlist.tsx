@@ -7,7 +7,9 @@ import {
   deleteWatchlist,
   deleteTickerFromWatchlist,
   reorderWatchlists,
+  getWatchlistTickers,
 } from "@/lib/api"
+import { fmtPrice, fmtCurrency } from "@/lib/format"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -102,7 +104,7 @@ function SortableWatchlistItem({
       </div>
       <div className="flex items-center gap-1">
         <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
-          {watchlist.tickers.length}
+          {watchlist._count.tickers}
         </Badge>
         <Button
           variant="ghost"
@@ -136,6 +138,12 @@ export default function WatchlistPage() {
   const { data: watchlists, isLoading } = useQuery({
     queryKey: ["watchlists"],
     queryFn: getWatchlists,
+  })
+
+  const { data: watchlistTickersData, isLoading: isLoadingTickers } = useQuery({
+    queryKey: ["watchlist-tickers", activeWatchlistId],
+    queryFn: () => getWatchlistTickers(activeWatchlistId!),
+    enabled: !!activeWatchlistId,
   })
 
   // Sync local state from server
@@ -178,6 +186,7 @@ export default function WatchlistPage() {
       deleteTickerFromWatchlist(watchlistId, symbol),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["watchlists"] })
+      queryClient.invalidateQueries({ queryKey: ["watchlist-tickers", activeWatchlistId] })
       toast.success("Ticker berhasil dihapus dari watchlist")
       setDeleteTickerTarget(null)
     },
@@ -312,7 +321,7 @@ export default function WatchlistPage() {
               <div>
                 <h2 className="text-base font-semibold">{activeWatchlist.name}</h2>
                 <p className="text-xs text-muted-foreground">
-                  {activeWatchlist.tickers.length} tickers
+                  {activeWatchlist._count.tickers} tickers
                 </p>
               </div>
               <Button
@@ -332,69 +341,145 @@ export default function WatchlistPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto">
-              {activeWatchlist.tickers.length === 0 ? (
+              {isLoadingTickers ? (
+                <div className="space-y-2 p-4">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-10 w-full" />
+                  ))}
+                </div>
+              ) : (watchlistTickersData?.tickers.length ?? 0) === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center gap-2">
                   <BookmarkX className="h-10 w-10 text-muted-foreground/30" />
-                  <p className="text-sm text-muted-foreground">
-                    Watchlist ini masih kosong
-                  </p>
-                  <p className="text-xs text-muted-foreground/60">
-                    Tambahkan ticker dari halaman Stocks
-                  </p>
+                  <p className="text-sm text-muted-foreground">Watchlist ini masih kosong</p>
+                  <p className="text-xs text-muted-foreground/60">Tambahkan ticker dari halaman Stocks</p>
                 </div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Ticker</TableHead>
-                      <TableHead>Nama</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead>Volume</TableHead>
+                      <TableHead>Net Flow</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Score</TableHead>
+                      <TableHead>Momentum</TableHead>
                       <TableHead>Sektor</TableHead>
-                      <TableHead>Sub Sektor</TableHead>
-                      <TableHead className="w-12"></TableHead>
+                      <TableHead className="w-10"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {activeWatchlist.tickers.map((ticker) => (
-                      <TableRow
-                        key={ticker.symbol}
-                        className="cursor-pointer"
-                        onClick={() => navigate(`/stock/${ticker.symbol}`)}
-                      >
-                        <TableCell className="font-bold">{ticker.symbol}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {ticker.name || "-"}
-                        </TableCell>
-                        <TableCell>
-                          {ticker.sector ? (
-                            <Badge variant="default">{ticker.sector}</Badge>
-                          ) : (
-                            <span className="text-sm text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {ticker.subSector ? (
-                            <Badge variant="secondary">{ticker.subSector}</Badge>
-                          ) : (
-                            <span className="text-sm text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell onClick={(e) => e.stopPropagation()}>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 hover:text-destructive"
-                            onClick={() =>
-                              setDeleteTickerTarget({
-                                watchlistId: activeWatchlist.id,
-                                symbol: ticker.symbol,
-                              })
-                            }
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {watchlistTickersData?.tickers.map((ticker) => {
+                      const s = ticker.screeners[0]
+                      return (
+                        <TableRow
+                          key={ticker.symbol}
+                          className="cursor-pointer"
+                          onClick={() => navigate(`/stock/${ticker.symbol}`)}
+                        >
+                          <TableCell>
+                            <div className="flex flex-col">
+                              <span className="font-bold">
+                                {ticker.symbol}
+                                {s?.isBreakout && (
+                                  <span className="ml-1 text-[10px] text-orange-500">⚡</span>
+                                )}
+                              </span>
+                              <span className="text-xs text-muted-foreground">{ticker.name || "-"}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {s ? (
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium">{fmtPrice(Number(s.price))}</span>
+                                <span
+                                  className={cn(
+                                    "text-xs font-medium",
+                                    Number(s.changePercentage) > 0 ? "text-green-600" : Number(s.changePercentage) < 0 ? "text-red-600" : "text-gray-500"
+                                  )}
+                                >
+                                  {Number(s.changePercentage) > 0 ? "+" : ""}{Number(s.changePercentage).toFixed(2)}%
+                                </span>
+                              </div>
+                            ) : <span className="text-muted-foreground">-</span>}
+                          </TableCell>
+                          <TableCell>
+                            {s ? (
+                              <div className="flex flex-col">
+                                <span className="text-sm">{fmtCurrency(Number(s.volume)).replace("+", "")}</span>
+                                {s.isVolumeSpike && <span className="text-[10px] font-bold text-orange-500">🔥 Spike</span>}
+                              </div>
+                            ) : "-"}
+                          </TableCell>
+                          <TableCell>
+                            {s ? (
+                              <span className={cn(
+                                "text-sm font-medium",
+                                Number(s.netBrokerFlow) > 0 ? "text-green-600" : Number(s.netBrokerFlow) < 0 ? "text-red-600" : "text-gray-500"
+                              )}>
+                                {fmtCurrency(Number(s.netBrokerFlow))}
+                              </span>
+                            ) : "-"}
+                          </TableCell>
+                          <TableCell>
+                            {s ? (
+                              <Badge
+                                className={cn(
+                                  s.bandarStatus === "Accumulation" && "bg-green-100 text-green-800 hover:bg-green-100",
+                                  s.bandarStatus === "Distribution" && "bg-red-100 text-red-800 hover:bg-red-100",
+                                  s.bandarStatus === "Neutral" && "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                                )}
+                              >
+                                {s.bandarStatus}
+                              </Badge>
+                            ) : "-"}
+                          </TableCell>
+                          <TableCell>
+                            {s ? (
+                              <span className={cn(
+                                "font-bold",
+                                Number(s.smartMoneyScore) >= 70 ? "text-green-600" : Number(s.smartMoneyScore) <= 30 ? "text-red-600" : "text-yellow-600"
+                              )}>
+                                {Number(s.smartMoneyScore)}
+                              </span>
+                            ) : "-"}
+                          </TableCell>
+                          <TableCell>
+                            {s ? (
+                              <Badge
+                                variant="secondary"
+                                className={cn(
+                                  s.momentum === "Uptrend" && "text-green-600",
+                                  s.momentum === "Downtrend" && "text-red-600"
+                                )}
+                              >
+                                {s.momentum}
+                              </Badge>
+                            ) : "-"}
+                          </TableCell>
+                          <TableCell>
+                            {ticker.sector ? (
+                              <Badge variant="outline">{ticker.sector}</Badge>
+                            ) : <span className="text-muted-foreground">-</span>}
+                          </TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 hover:text-destructive"
+                              onClick={() =>
+                                setDeleteTickerTarget({
+                                  watchlistId: activeWatchlist!.id,
+                                  symbol: ticker.symbol,
+                                })
+                              }
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })}
                   </TableBody>
                 </Table>
               )}
