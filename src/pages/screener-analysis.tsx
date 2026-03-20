@@ -209,6 +209,7 @@ export default function ScreenerAnalysis() {
           ? parseFloat(peakReturnStr) / 100
           : undefined,
         peakReturnOperator: peakReturnOperator as "gt" | "lt",
+        useCutoff,
       })
 
       const url = window.URL.createObjectURL(new Blob([blob]))
