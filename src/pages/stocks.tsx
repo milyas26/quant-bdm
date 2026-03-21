@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
 import {
   getScreener,
+  getScreenerDates,
   refreshAllTickers,
 } from "@/lib/api"
 import { AddToWatchlistDialog } from "@/components/add-to-watchlist-dialog"
@@ -50,6 +51,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { format, parseISO } from "date-fns"
+import { CalendarIcon } from "lucide-react"
 import { SimulateBuyButton } from "@/components/simulate-buy-button"
 import { Bookmark } from "lucide-react"
 
@@ -82,6 +91,15 @@ export default function StocksPage() {
     signals,
     bandarStatus,
     momentum,
+    date,
+    accDistOperator,
+    accDist1D,
+    accDist1W,
+    accDist1M,
+    minScore,
+    maxScore,
+    netBrokerFlowOperator,
+    netBrokerFlowValue,
     setPage,
     setLimit,
     setSearch,
@@ -91,6 +109,15 @@ export default function StocksPage() {
     setSignals,
     setBandarStatus,
     setMomentum,
+    setDate,
+    setAccDistOperator,
+    setAccDist1D,
+    setAccDist1W,
+    setAccDist1M,
+    setMinScore,
+    setMaxScore,
+    setNetBrokerFlowOperator,
+    setNetBrokerFlowValue,
     reset,
   } = useStocksFilterStore()
 
@@ -98,6 +125,8 @@ export default function StocksPage() {
   const [searchTerm, setSearchTerm] = useState(search)
   const [minPriceInput, setMinPriceInput] = useState(minPriceStr)
   const [maxPriceInput, setMaxPriceInput] = useState(maxPriceStr)
+  const [minScoreInput, setMinScoreInput] = useState(minScore)
+  const [maxScoreInput, setMaxScoreInput] = useState(maxScore)
   const [pageInput, setPageInput] = useState(page.toString())
 
   const debouncedSearch = useDebounce(searchTerm, 500)
@@ -130,12 +159,25 @@ export default function StocksPage() {
     setPage(1)
   }
 
+  const handleScoreUpdate = () => {
+    setMinScore(minScoreInput)
+    setMaxScore(maxScoreInput)
+  }
+
   const handleResetFilters = () => {
     setSearchTerm("")
     setMinPriceInput("")
     setMaxPriceInput("")
+    setMinScoreInput("")
+    setMaxScoreInput("")
     reset()
   }
+
+  const { data: screenerDates, isLoading: isLoadingDates } = useQuery({
+    queryKey: ["screener-dates"],
+    queryFn: getScreenerDates,
+    staleTime: 5 * 60 * 1000,
+  })
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [
@@ -150,6 +192,15 @@ export default function StocksPage() {
       signals,
       bandarStatus,
       momentum,
+      date,
+      accDistOperator,
+      accDist1D,
+      accDist1W,
+      accDist1M,
+      minScore,
+      maxScore,
+      netBrokerFlowOperator,
+      netBrokerFlowValue,
     ],
     queryFn: () =>
       getScreener({
@@ -163,6 +214,15 @@ export default function StocksPage() {
         signals,
         bandarStatus,
         momentum,
+        date: date || undefined,
+        accDistOperator,
+        accDist1D: accDist1D ? parseFloat(accDist1D) : undefined,
+        accDist1W: accDist1W ? parseFloat(accDist1W) : undefined,
+        accDist1M: accDist1M ? parseFloat(accDist1M) : undefined,
+        minScore: minScore ? parseInt(minScore) : undefined,
+        maxScore: maxScore ? parseInt(maxScore) : undefined,
+        netBrokerFlowOperator,
+        netBrokerFlowValue: netBrokerFlowValue ? parseFloat(netBrokerFlowValue) : undefined,
       }),
   })
 
@@ -224,6 +284,36 @@ export default function StocksPage() {
               />
             </div>
 
+            <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+              <span className="font-medium">Score</span>
+              <Separator orientation="vertical" className="mx-2 h-4" />
+              <input
+                className="w-16 bg-transparent outline-none placeholder:text-muted-foreground md:w-20"
+                placeholder="Min"
+                type="number"
+                step="10"
+                min="0"
+                max="100"
+                value={minScoreInput}
+                onChange={(e) => setMinScoreInput(e.target.value)}
+                onBlur={handleScoreUpdate}
+                onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
+              />
+              <span className="mx-1 text-muted-foreground">-</span>
+              <input
+                className="w-16 bg-transparent text-right outline-none placeholder:text-muted-foreground md:w-20"
+                placeholder="Max"
+                type="number"
+                step="10"
+                min="0"
+                max="100"
+                value={maxScoreInput}
+                onChange={(e) => setMaxScoreInput(e.target.value)}
+                onBlur={handleScoreUpdate}
+                onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
+              />
+            </div>
+
             <div className="w-full space-y-2 md:w-60">
               <FilterMultiSelect
                 title="Signals"
@@ -260,6 +350,120 @@ export default function StocksPage() {
                 selected={momentum}
                 onChange={(val) => setMomentum(val)}
               />
+            </div>
+
+            <div className="flex h-10 items-center gap-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+              <span className="mr-1 font-medium">Acc/Dist</span>
+              <Select
+                value={accDistOperator}
+                onValueChange={(val) => setAccDistOperator(val as "gt" | "lt")}
+              >
+                <SelectTrigger className="h-6 w-13.75 border-none px-1 text-xs focus:ring-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gt">&gt;</SelectItem>
+                  <SelectItem value="lt">&lt;</SelectItem>
+                </SelectContent>
+              </Select>
+              <Separator orientation="vertical" className="mx-1 h-4" />
+              <div className="flex gap-2">
+                <input
+                  className="w-8 bg-transparent text-center outline-none placeholder:text-muted-foreground"
+                  placeholder="1D"
+                  type="number"
+                  value={accDist1D}
+                  onChange={(e) => setAccDist1D(e.target.value)}
+                />
+                <input
+                  className="w-8 bg-transparent text-center outline-none placeholder:text-muted-foreground"
+                  placeholder="1W"
+                  type="number"
+                  value={accDist1W}
+                  onChange={(e) => setAccDist1W(e.target.value)}
+                />
+                <input
+                  className="w-8 bg-transparent text-center outline-none placeholder:text-muted-foreground"
+                  placeholder="1M"
+                  type="number"
+                  value={accDist1M}
+                  onChange={(e) => setAccDist1M(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="flex h-10 items-center gap-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+              <span className="mr-1 font-medium whitespace-nowrap">Broker Net</span>
+              <Select
+                value={netBrokerFlowOperator}
+                onValueChange={(val) => setNetBrokerFlowOperator(val as "gt" | "lt")}
+              >
+                <SelectTrigger className="h-6 w-13.75 border-none px-1 text-xs focus:ring-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gt">&gt;</SelectItem>
+                  <SelectItem value="lt">&lt;</SelectItem>
+                </SelectContent>
+              </Select>
+              <Separator orientation="vertical" className="mx-1 h-4" />
+              <input
+                className="w-20 bg-transparent text-center outline-none placeholder:text-muted-foreground"
+                placeholder="0"
+                type="number"
+                value={netBrokerFlowValue}
+                onChange={(e) => setNetBrokerFlowValue(e.target.value)}
+              />
+            </div>
+
+            <div className="w-full md:w-auto">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "h-10 w-full justify-start text-left font-normal md:w-44",
+                      !date && "text-muted-foreground"
+                    )}
+                    disabled={isLoadingDates}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? format(parseISO(date), "dd MMM yyyy") : "Latest"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date ? parseISO(date) : undefined}
+                    onSelect={(d) => {
+                      if (!d) {
+                        setDate(null)
+                        return
+                      }
+                      const str = format(d, "yyyy-MM-dd")
+                      setDate(screenerDates?.includes(str) ? str : null)
+                      setPage(1)
+                    }}
+                    disabled={(d) => {
+                      const str = format(d, "yyyy-MM-dd")
+                      return !screenerDates?.includes(str)
+                    }}
+                    initialFocus
+                  />
+                  {date && (
+                    <div className="border-t p-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full text-xs"
+                        onClick={() => { setDate(null); setPage(1) }}
+                      >
+                        Reset to Latest
+                      </Button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
             </div>
 
             <Button

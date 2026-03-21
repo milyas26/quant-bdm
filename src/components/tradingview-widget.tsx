@@ -35,7 +35,7 @@ function TradingViewWidget({ symbol }: { symbol: string }) {
           "theme": "${widgetTheme}",
           "style": "1",
           "locale": "en",
-          "hide_side_toolbar": true,
+          "hide_side_toolbar": false,
           "hide_top_toolbar": true,
           "hide_legend": true,
           "enable_publishing": false,

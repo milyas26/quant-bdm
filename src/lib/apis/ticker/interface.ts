@@ -64,4 +64,13 @@ export interface GetTickersParams {
   signals?: string[]
   bandarStatus?: string[]
   momentum?: string[]
+  date?: string
+  accDistOperator?: "gt" | "lt"
+  accDist1D?: number
+  accDist1W?: number
+  accDist1M?: number
+  minScore?: number
+  maxScore?: number
+  netBrokerFlowOperator?: "gt" | "lt"
+  netBrokerFlowValue?: number
 }

@@ -31,6 +31,11 @@ export const getScreener = async (params: GetTickersParams) => {
   return data
 }
 
+export const getScreenerDates = async (): Promise<string[]> => {
+  const { data } = await api.get<{ dates: string[] }>("/screener/dates")
+  return data.dates
+}
+
 export const deleteTicker = async (symbol: string) => {
   await api.delete(`/tickers/${symbol}`)
 }
