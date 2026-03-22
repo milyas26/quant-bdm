@@ -173,6 +173,24 @@ export default function StocksPage() {
     reset()
   }
 
+  const handleApplyPerfectSetup = (withBreakout = false) => {
+    reset()
+    setSearchTerm("")
+    setMinPriceInput("")
+    setMaxPriceInput("")
+    setMinScoreInput("70")
+    setMaxScoreInput("")
+    setMinScore("70")
+    setNetBrokerFlowValue("0")
+    setAccDist1D("0")
+    setAccDist1W("0")
+    setAccDist1M("0")
+    setBandarStatus(["Accumulation"])
+    if (withBreakout) {
+      setSignals(["Breakout"])
+    }
+  }
+
   const { data: screenerDates, isLoading: isLoadingDates } = useQuery({
     queryKey: ["screener-dates"],
     queryFn: getScreenerDates,
@@ -245,6 +263,25 @@ export default function StocksPage() {
       />
       <Card className="bg-card/20">
         <CardContent className="space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Presets:</span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 cursor-pointer text-xs"
+              onClick={() => handleApplyPerfectSetup(false)}
+            >
+              ⭐ Perfect Setup
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 cursor-pointer text-xs"
+              onClick={() => handleApplyPerfectSetup(true)}
+            >
+              ⚡ Perfect Setup + Breakout
+            </Button>
+          </div>
           <div className="flex flex-col flex-wrap gap-2 md:flex-row md:items-end">
             <div className="w-full min-w-50 md:w-auto md:flex-1">
               <div className="relative">

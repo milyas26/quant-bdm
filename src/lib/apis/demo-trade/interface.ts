@@ -28,4 +28,5 @@ export interface DemoTrade {
 export interface SimulateTradePayload {
   screenerId: number
   quantity?: number
+  screenerDate?: string
 }

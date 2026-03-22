@@ -1,9 +1,10 @@
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { simulateBuy } from "@/lib/api"
 import type { ScreenerTicker } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import {
   Dialog,
   DialogContent,
@@ -17,9 +18,10 @@ import { ShoppingCart, TrendingUp, Zap, BarChart2, Activity } from "lucide-react
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
+const DEFAULT_TRANSACTION_VALUE = 10_000_000
+
 interface SimulateBuyButtonProps {
   ticker: ScreenerTicker
-  quantity?: number
 }
 
 const fmtPrice = (n: number) =>
@@ -39,18 +41,48 @@ const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) =>
   </div>
 )
 
-export function SimulateBuyButton({
-  ticker,
-  quantity = 100,
-}: SimulateBuyButtonProps) {
+function calcLotsFromValue(value: number, price: number): number {
+  if (!price) return 1
+  return Math.max(1, Math.ceil(value / (price * 100)))
+}
+
+export function SimulateBuyButton({ ticker }: SimulateBuyButtonProps) {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
 
+  const initialLots = calcLotsFromValue(DEFAULT_TRANSACTION_VALUE, ticker.price)
+  const [lots, setLots] = useState(initialLots)
+  const [txValue, setTxValue] = useState(initialLots * ticker.price * 100)
+
+  const handleLotsChange = useCallback((raw: string) => {
+    const parsed = parseInt(raw, 10)
+    if (isNaN(parsed) || parsed < 1) {
+      setLots(1)
+      setTxValue(ticker.price * 100)
+      return
+    }
+    setLots(parsed)
+    setTxValue(parsed * ticker.price * 100)
+  }, [ticker.price])
+
+  const handleTxValueChange = useCallback((raw: string) => {
+    const cleaned = raw.replace(/\D/g, "")
+    const parsed = parseInt(cleaned, 10)
+    if (isNaN(parsed) || parsed < 0) {
+      setTxValue(0)
+      setLots(1)
+      return
+    }
+    const newLots = calcLotsFromValue(parsed, ticker.price)
+    setTxValue(parsed)
+    setLots(newLots)
+  }, [ticker.price])
+
   const { mutate, isPending } = useMutation({
-    mutationFn: () => simulateBuy({ screenerId: ticker.screenerId, quantity }),
+    mutationFn: () => simulateBuy({ screenerId: ticker.screenerId, quantity: lots, screenerDate: ticker.date }),
     onSuccess: (trade) => {
       toast.success(`Simulated BUY ${ticker.symbol} @ ${fmtPrice(trade.entryPrice)}`, {
-        description: `Qty: ${quantity} lot — Trade #${trade.id} is now open.`,
+        description: `Qty: ${lots} lot — Trade #${trade.id} is now open.`,
       })
       queryClient.invalidateQueries({ queryKey: ["demo-trades"] })
       setOpen(false)
@@ -59,8 +91,6 @@ export function SimulateBuyButton({
       toast.error(err?.response?.data?.error ?? `Failed to simulate buy for ${ticker.symbol}`)
     },
   })
-
-  const estimatedCost = ticker.price * quantity * 100
 
   return (
     <>
@@ -186,13 +216,34 @@ export function SimulateBuyButton({
           <Separator />
 
           {/* Order summary */}
-          <div className="rounded-lg bg-muted/40 px-4 py-3 space-y-1.5">
+          <div className="rounded-lg bg-muted/40 px-4 py-3 space-y-2.5">
             <InfoRow label="Entry Price (estimasi)" value={<span className="font-semibold">{fmtPrice(ticker.price)}</span>} />
-            <InfoRow label="Quantity" value={`${quantity} lot (${(quantity * 100).toLocaleString("id-ID")} lembar)`} />
-            <InfoRow
-              label="Estimasi Nilai Transaksi"
-              value={<span className="font-semibold text-green-500">Rp {fmtPrice(estimatedCost)}</span>}
-            />
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs text-muted-foreground shrink-0">Jumlah Lot</span>
+              <div className="flex items-center gap-1.5">
+                <Input
+                  type="number"
+                  min={1}
+                  value={lots}
+                  onChange={(e) => handleLotsChange(e.target.value)}
+                  className="h-7 w-24 text-xs text-right"
+                />
+                <span className="text-xs text-muted-foreground">=&nbsp;{(lots * 100).toLocaleString("id-ID")} lbr</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs text-muted-foreground shrink-0">Nilai Transaksi</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-muted-foreground">Rp</span>
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  value={txValue === 0 ? "" : fmtPrice(txValue)}
+                  onChange={(e) => handleTxValueChange(e.target.value)}
+                  className="h-7 w-36 text-xs text-right font-semibold text-green-500"
+                />
+              </div>
+            </div>
           </div>
 
           <p className="text-xs text-muted-foreground text-center">
