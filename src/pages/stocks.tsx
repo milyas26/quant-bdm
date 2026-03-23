@@ -936,14 +936,14 @@ export default function StocksPage() {
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex flex-col gap-1 text-[11px]">
                     <div className="flex items-center gap-1">
-                      <span className="font-semibold text-green-800">
+                      <span className="font-semibold text-green-800 dark:text-green-600">
                         {ticker.topBuyers?.length > 0
                           ? ticker.topBuyers.map((b) => b.code).join(", ")
                           : "-"}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <span className="font-semibold text-red-800">
+                      <span className="font-semibold text-red-800 dark:text-red-600">
                         {ticker.topSellers?.length > 0
                           ? ticker.topSellers.map((b) => b.code).join(", ")
                           : "-"}

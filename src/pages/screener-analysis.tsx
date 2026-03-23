@@ -704,7 +704,7 @@ export default function ScreenerAnalysis() {
                       Top Buy:
                     </span>
                     <span
-                      className="truncate text-[10px] font-semibold text-green-800"
+                      className="truncate text-[10px] font-semibold text-green-800 dark:text-green-600"
                       title={row.brokerSummary?.brokersBuy
                         ?.map((b: any) => b.netbsBrokerCode)
                         .join(", ")}
@@ -720,7 +720,7 @@ export default function ScreenerAnalysis() {
                       Top Sell:
                     </span>
                     <span
-                      className="truncate text-[10px] font-semibold text-red-800"
+                      className="truncate text-[10px] font-semibold text-red-800 dark:text-red-600"
                       title={row.brokerSummary?.brokersSell
                         ?.map((b: any) => b.netbsBrokerCode)
                         .join(", ")}

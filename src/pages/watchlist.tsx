@@ -5,6 +5,7 @@ import {
   getWatchlists,
   createWatchlist,
   deleteWatchlist,
+  renameWatchlist,
   deleteTickerFromWatchlist,
   reorderWatchlists,
   getWatchlistTickers,
@@ -40,6 +41,7 @@ import {
   BookmarkX,
   ListFilter,
   GripVertical,
+  Pencil,
 } from "lucide-react"
 import {
   DndContext,
@@ -64,11 +66,23 @@ function SortableWatchlistItem({
   isActive,
   onSelect,
   onDelete,
+  isEditing,
+  editName,
+  onEditNameChange,
+  onStartEdit,
+  onFinishEdit,
+  onCancelEdit,
 }: {
   watchlist: Watchlist
   isActive: boolean
   onSelect: () => void
   onDelete: () => void
+  isEditing: boolean
+  editName: string
+  onEditNameChange: (v: string) => void
+  onStartEdit: () => void
+  onFinishEdit: () => void
+  onCancelEdit: () => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: watchlist.id })
@@ -98,14 +112,48 @@ function SortableWatchlistItem({
         >
           <GripVertical className="h-3.5 w-3.5" />
         </div>
-        <span className={cn("truncate text-sm font-medium", isActive && "text-primary")}>
-          {watchlist.name}
-        </span>
+        {isEditing ? (
+          <Input
+            className="h-6 flex-1 text-sm px-1"
+            value={editName}
+            onChange={(e) => onEditNameChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") onFinishEdit()
+              if (e.key === "Escape") onCancelEdit()
+            }}
+            onBlur={onFinishEdit}
+            onClick={(e) => e.stopPropagation()}
+            autoFocus
+          />
+        ) : (
+          <span
+            className={cn("truncate text-sm font-medium", isActive && "text-primary")}
+            onDoubleClick={(e) => {
+              e.stopPropagation()
+              onStartEdit()
+            }}
+          >
+            {watchlist.name}
+          </span>
+        )}
       </div>
       <div className="flex items-center gap-1">
         <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
           {watchlist._count.tickers}
         </Badge>
+        {!isEditing && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5 shrink-0 opacity-0 group-hover:opacity-100"
+            onClick={(e) => {
+              e.stopPropagation()
+              onStartEdit()
+            }}
+          >
+            <Pencil className="h-3 w-3 text-muted-foreground" />
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="icon"
@@ -132,6 +180,8 @@ export default function WatchlistPage() {
   const [showNewInput, setShowNewInput] = useState(false)
   const [deleteWatchlistTarget, setDeleteWatchlistTarget] = useState<{ id: number; name: string } | null>(null)
   const [deleteTickerTarget, setDeleteTickerTarget] = useState<{ watchlistId: number; symbol: string } | null>(null)
+  const [editingWatchlistId, setEditingWatchlistId] = useState<number | null>(null)
+  const [editingName, setEditingName] = useState("")
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
@@ -191,6 +241,16 @@ export default function WatchlistPage() {
       setDeleteTickerTarget(null)
     },
     onError: () => toast.error("Gagal menghapus ticker"),
+  })
+
+  const { mutate: handleRenameWatchlist } = useMutation({
+    mutationFn: ({ id, name }: { id: number; name: string }) =>
+      renameWatchlist(id, name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["watchlists"] })
+      toast.success("Watchlist berhasil di-rename")
+    },
+    onError: () => toast.error("Gagal rename watchlist"),
   })
 
   const { mutate: handleReorder } = useMutation({
@@ -293,6 +353,20 @@ export default function WatchlistPage() {
                     isActive={watchlist.id === activeWatchlistId}
                     onSelect={() => setActiveWatchlistId(watchlist.id)}
                     onDelete={() => setDeleteWatchlistTarget({ id: watchlist.id, name: watchlist.name })}
+                    isEditing={editingWatchlistId === watchlist.id}
+                    editName={editingName}
+                    onEditNameChange={setEditingName}
+                    onStartEdit={() => {
+                      setEditingWatchlistId(watchlist.id)
+                      setEditingName(watchlist.name)
+                    }}
+                    onFinishEdit={() => {
+                      if (editingName.trim() && editingName.trim() !== watchlist.name) {
+                        handleRenameWatchlist({ id: watchlist.id, name: editingName.trim() })
+                      }
+                      setEditingWatchlistId(null)
+                    }}
+                    onCancelEdit={() => setEditingWatchlistId(null)}
                   />
                 ))}
               </SortableContext>

@@ -17,6 +17,11 @@ export const deleteWatchlist = async (id: number) => {
   await api.delete(`/watchlists/${id}`)
 }
 
+export const renameWatchlist = async (id: number, name: string) => {
+  const { data } = await api.patch<Watchlist>(`/watchlists/${id}`, { name })
+  return data
+}
+
 export const addTickerToWatchlist = async (watchlistId: number, symbol: string) => {
   const { data } = await api.post<Watchlist>(`/watchlists/${watchlistId}/tickers`, { symbol })
   return data
