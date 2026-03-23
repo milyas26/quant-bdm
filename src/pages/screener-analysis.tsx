@@ -79,6 +79,8 @@ export default function ScreenerAnalysis() {
     setPeakReturnOperator,
     useCutoff,
     setUseCutoff,
+    liquidity,
+    setLiquidity,
     reset,
   } = useScreenerAnalysisFilterStore()
 
@@ -150,6 +152,7 @@ export default function ScreenerAnalysis() {
       peakReturnStr,
       peakReturnOperator,
       useCutoff,
+      liquidity,
     ],
     queryFn: () =>
       getScreenerAnalysis({
@@ -174,6 +177,7 @@ export default function ScreenerAnalysis() {
           : undefined,
         peakReturnOperator: peakReturnOperator as "gt" | "lt",
         useCutoff,
+        liquidity,
       }),
   })
 
@@ -210,6 +214,7 @@ export default function ScreenerAnalysis() {
           : undefined,
         peakReturnOperator: peakReturnOperator as "gt" | "lt",
         useCutoff,
+        liquidity,
       })
 
       const url = window.URL.createObjectURL(new Blob([blob]))
@@ -432,6 +437,19 @@ export default function ScreenerAnalysis() {
                 ]}
                 selected={momentum}
                 onChange={(val) => setMomentum(val)}
+              />
+            </div>
+
+            <div className="w-full space-y-2 md:w-52">
+              <FilterMultiSelect
+                title="Liquidity"
+                options={[
+                  { label: "High", value: "High" },
+                  { label: "Medium", value: "Medium" },
+                  { label: "Low", value: "Low" },
+                ]}
+                selected={liquidity}
+                onChange={(val) => setLiquidity(val)}
               />
             </div>
             <Button
@@ -718,7 +736,7 @@ export default function ScreenerAnalysis() {
                 <Separator orientation="vertical" className="hidden lg:block" />
 
                 {/* 4. Status/Score/Momentum */}
-                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-35 lg:flex-col lg:justify-center">
+                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-56 lg:flex-col lg:justify-center">
                   <div className="flex items-center justify-between gap-2 lg:justify-end">
                     <Badge
                       variant="outline"
@@ -760,6 +778,20 @@ export default function ScreenerAnalysis() {
                     >
                       {row.screener.momentum}
                     </span>
+                    <span className="text-muted-foreground/30">|</span>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "h-4 px-1 py-0 text-[10px] font-normal",
+                        row.screener.liquidityScore === "High"
+                          ? "border-blue-200 bg-blue-50 text-blue-700"
+                          : row.screener.liquidityScore === "Medium"
+                            ? "border-yellow-200 bg-yellow-50 text-yellow-700"
+                            : "border-gray-200 bg-gray-50 text-gray-600"
+                      )}
+                    >
+                      Liq: {row.screener.liquidityScore}
+                    </Badge>
                   </div>
                 </div>
 

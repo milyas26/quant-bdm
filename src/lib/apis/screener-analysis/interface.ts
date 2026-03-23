@@ -23,6 +23,7 @@ export interface GetScreenerAnalysisParams {
   peakReturn?: number;
   peakReturnOperator?: "gt" | "lt";
   useCutoff?: boolean;
+  liquidity?: string[];
 }
 
 export interface ScreenerAnalysisResponse {

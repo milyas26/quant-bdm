@@ -21,6 +21,7 @@ export interface StocksFilterState {
   maxScore: string
   netBrokerFlowOperator: "gt" | "lt"
   netBrokerFlowValue: string
+  liquidity: string[]
 
   // Actions
   setPage: (page: number) => void
@@ -43,6 +44,7 @@ export interface StocksFilterState {
   setMaxScore: (v: string) => void
   setNetBrokerFlowOperator: (op: "gt" | "lt") => void
   setNetBrokerFlowValue: (v: string) => void
+  setLiquidity: (liquidity: string[]) => void
   reset: () => void
 }
 
@@ -66,6 +68,7 @@ const DEFAULT_STATE = {
   maxScore: "",
   netBrokerFlowOperator: "gt" as const,
   netBrokerFlowValue: "",
+  liquidity: [],
 }
 
 export const useStocksFilterStore = create<StocksFilterState>()(
@@ -93,6 +96,7 @@ export const useStocksFilterStore = create<StocksFilterState>()(
       setMaxScore: (maxScore) => set({ maxScore, page: 1 }),
       setNetBrokerFlowOperator: (netBrokerFlowOperator) => set({ netBrokerFlowOperator, page: 1 }),
       setNetBrokerFlowValue: (netBrokerFlowValue) => set({ netBrokerFlowValue, page: 1 }),
+      setLiquidity: (liquidity) => set({ liquidity, page: 1 }),
       reset: () => set({ ...DEFAULT_STATE }),
     }),
     {

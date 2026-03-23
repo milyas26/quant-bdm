@@ -73,4 +73,5 @@ export interface GetTickersParams {
   maxScore?: number
   netBrokerFlowOperator?: "gt" | "lt"
   netBrokerFlowValue?: number
+  liquidity?: string[]
 }

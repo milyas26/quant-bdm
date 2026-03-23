@@ -118,6 +118,8 @@ export default function StocksPage() {
     setMaxScore,
     setNetBrokerFlowOperator,
     setNetBrokerFlowValue,
+    liquidity,
+    setLiquidity,
     reset,
   } = useStocksFilterStore()
 
@@ -219,6 +221,7 @@ export default function StocksPage() {
       maxScore,
       netBrokerFlowOperator,
       netBrokerFlowValue,
+      liquidity,
     ],
     queryFn: () =>
       getScreener({
@@ -241,6 +244,7 @@ export default function StocksPage() {
         maxScore: maxScore ? parseInt(maxScore) : undefined,
         netBrokerFlowOperator,
         netBrokerFlowValue: netBrokerFlowValue ? parseFloat(netBrokerFlowValue) : undefined,
+        liquidity,
       }),
   })
 
@@ -386,6 +390,19 @@ export default function StocksPage() {
                 ]}
                 selected={momentum}
                 onChange={(val) => setMomentum(val)}
+              />
+            </div>
+
+            <div className="w-full space-y-2 md:w-60">
+              <FilterMultiSelect
+                title="Liquidity"
+                options={[
+                  { label: "High", value: "High" },
+                  { label: "Medium", value: "Medium" },
+                  { label: "Low", value: "Low" },
+                ]}
+                selected={liquidity}
+                onChange={(val) => setLiquidity(val)}
               />
             </div>
 
@@ -669,6 +686,23 @@ export default function StocksPage() {
             <TableHead>Top Brokers</TableHead>
             <TableHead
               className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleSort("liquidityScore")}
+            >
+              <div className="flex items-center gap-1">
+                Liquidity
+                {sortBy === "liquidityScore" ? (
+                  sortOrder === "asc" ? (
+                    <ArrowUp className="h-3 w-3" />
+                  ) : (
+                    <ArrowDown className="h-3 w-3" />
+                  )
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-30" />
+                )}
+              </div>
+            </TableHead>
+            <TableHead
+              className="cursor-pointer hover:bg-muted/50"
               onClick={() => handleSort("sector")}
             >
               <div className="flex items-center gap-1">
@@ -916,6 +950,20 @@ export default function StocksPage() {
                       </span>
                     </div>
                   </div>
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      ticker.liquidityScore === "High"
+                        ? "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-50"
+                        : ticker.liquidityScore === "Medium"
+                          ? "border-yellow-200 bg-yellow-50 text-yellow-700 hover:bg-yellow-50"
+                          : "border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-50"
+                    )}
+                  >
+                    {ticker.liquidityScore}
+                  </Badge>
                 </TableCell>
                 <TableCell>
                   {ticker.sector ? (
