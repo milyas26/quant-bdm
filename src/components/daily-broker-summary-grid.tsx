@@ -67,12 +67,15 @@ export function DailyBrokerSummaryGrid({
           />
         ))}
         {sortedDays.map((day, index) => {
+          const hasData = !!day.data
           return (
             <div
               key={index}
               className={cn(
-                "relative h-32 min-h-32 cursor-pointer border-b border-l border-border px-4 py-2 text-left transition-all duration-200",
-                "bg-card hover:bg-accent/50",
+                "relative h-32 min-h-32 border-b border-l border-border px-4 py-2 text-left transition-all duration-200",
+                hasData
+                  ? "cursor-pointer bg-card hover:bg-accent/50"
+                  : "cursor-default bg-muted/30 opacity-60",
                 day.isToday && "bg-accent/20",
                 selectedDateData &&
                   selectedDateData === day.data &&
@@ -84,12 +87,14 @@ export function DailyBrokerSummaryGrid({
               }}
             >
               {/* Bandar Status Indicator */}
-              <div
-                className={cn(
-                  "absolute right-0.5 bottom-0.5 left-0.5 h-1.5",
-                  getBandarBgColor(day.bandarStatus)
-                )}
-              />
+              {hasData && (
+                <div
+                  className={cn(
+                    "absolute right-0.5 bottom-0.5 left-0.5 h-1.5",
+                    getBandarBgColor(day.bandarStatus)
+                  )}
+                />
+              )}
               <div className="relative flex h-full flex-col">
                 {/* Date positioned in top right corner */}
                 <div className="absolute top-0 right-0 flex items-baseline gap-1 text-right">
@@ -98,7 +103,9 @@ export function DailyBrokerSummaryGrid({
                       "text-xs leading-none font-medium",
                       day.isToday
                         ? "text-blue-600 dark:text-blue-400"
-                        : "text-foreground"
+                        : hasData
+                          ? "text-foreground"
+                          : "text-muted-foreground"
                     )}
                   >
                     {day.dayNumber}
@@ -108,75 +115,83 @@ export function DailyBrokerSummaryGrid({
                   </div>
                 </div>
 
-                {/* Main content area */}
-                <div className="mt-6 flex-1 space-y-1 text-xs">
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Buy Side */}
-                    <div className="space-y-0.5">
-                      {day.topBuyers.length > 0 ? (
-                        day.topBuyers.map((buy, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-center justify-between"
-                          >
-                            <span
-                              className={cn(
-                                "cursor-pointer text-[10px] font-bold",
-                                getBrokerColor(buy.type),
-                                highlightedBroker === buy.netbsBrokerCode &&
-                                  "rounded bg-yellow-200 p-1 dark:bg-yellow-900"
-                              )}
-                              onClick={(e) =>
-                                onBrokerClick(e, buy.netbsBrokerCode)
-                              }
+                {/* Holiday indicator or main content */}
+                {!hasData ? (
+                  <div className="flex flex-1 items-center justify-center">
+                    <span className="rounded bg-muted px-2 py-1 text-[10px] font-medium text-muted-foreground">
+                      Bursa Libur
+                    </span>
+                  </div>
+                ) : (
+                  <div className="mt-6 flex-1 space-y-1 text-xs">
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Buy Side */}
+                      <div className="space-y-0.5">
+                        {day.topBuyers.length > 0 ? (
+                          day.topBuyers.map((buy, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center justify-between"
                             >
-                              {buy.netbsBrokerCode}
-                            </span>
-                            <span className="text-[9px] text-muted-foreground">
-                              {formatNumber(parseFloat(buy.bval))}
-                            </span>
+                              <span
+                                className={cn(
+                                  "cursor-pointer text-[10px] font-bold",
+                                  getBrokerColor(buy.type),
+                                  highlightedBroker === buy.netbsBrokerCode &&
+                                    "rounded bg-yellow-200 p-1 dark:bg-yellow-900"
+                                )}
+                                onClick={(e) =>
+                                  onBrokerClick(e, buy.netbsBrokerCode)
+                                }
+                              >
+                                {buy.netbsBrokerCode}
+                              </span>
+                              <span className="text-[9px] text-muted-foreground">
+                                {formatNumber(parseFloat(buy.bval))}
+                              </span>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-[9px] text-muted-foreground/50">
+                            -
                           </div>
-                        ))
-                      ) : (
-                        <div className="text-[9px] text-muted-foreground/50">
-                          -
-                        </div>
-                      )}
-                    </div>
-                    {/* Sell Side */}
-                    <div className="space-y-0.5">
-                      {day.topSellers.length > 0 ? (
-                        day.topSellers.map((sell, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-center justify-between"
-                          >
-                            <span
-                              className={cn(
-                                "cursor-pointer text-[10px] font-bold",
-                                getBrokerColor(sell.type),
-                                highlightedBroker === sell.netbsBrokerCode &&
-                                  "rounded bg-yellow-200 p-1 dark:bg-yellow-900"
-                              )}
-                              onClick={(e) =>
-                                onBrokerClick(e, sell.netbsBrokerCode)
-                              }
+                        )}
+                      </div>
+                      {/* Sell Side */}
+                      <div className="space-y-0.5">
+                        {day.topSellers.length > 0 ? (
+                          day.topSellers.map((sell, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center justify-between"
                             >
-                              {sell.netbsBrokerCode}
-                            </span>
-                            <span className="text-[9px] text-muted-foreground">
-                              {formatNumber(parseFloat(sell.sval))}
-                            </span>
+                              <span
+                                className={cn(
+                                  "cursor-pointer text-[10px] font-bold",
+                                  getBrokerColor(sell.type),
+                                  highlightedBroker === sell.netbsBrokerCode &&
+                                    "rounded bg-yellow-200 p-1 dark:bg-yellow-900"
+                                )}
+                                onClick={(e) =>
+                                  onBrokerClick(e, sell.netbsBrokerCode)
+                                }
+                              >
+                                {sell.netbsBrokerCode}
+                              </span>
+                              <span className="text-[9px] text-muted-foreground">
+                                {formatNumber(parseFloat(sell.sval))}
+                              </span>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-[9px] text-muted-foreground/50">
+                            -
                           </div>
-                        ))
-                      ) : (
-                        <div className="text-[9px] text-muted-foreground/50">
-                          -
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )
