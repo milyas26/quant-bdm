@@ -13,7 +13,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { cn, getBrokerCodeClass } from "@/lib/utils"
 import {
   ChevronLeft,
   ChevronRight,
@@ -36,6 +36,8 @@ import { FilterMultiSelect } from "@/components/filter-multi-select"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+
+
 
 export default function ScreenerAnalysis() {
   const queryClient = useQueryClient()
@@ -704,15 +706,24 @@ export default function ScreenerAnalysis() {
                       Top Buy:
                     </span>
                     <span
-                      className="truncate text-[10px] font-semibold text-green-800 dark:text-green-600"
+                      className={cn("truncate text-[10px]")}
                       title={row.brokerSummary?.brokersBuy
                         ?.map((b: any) => b.netbsBrokerCode)
                         .join(", ")}
                     >
-                      {row.brokerSummary?.brokersBuy
-                        ?.slice(0, 5)
-                        .map((b: any) => b.netbsBrokerCode)
-                        .join(", ") || "-"}
+                      {(() => {
+                        const list = row.brokerSummary?.brokersBuy?.slice(0, 5) || []
+                        if (list.length === 0) return "-"
+                        return list.map((b: any, idx: number) => (
+                          <span
+                            key={(b.netbsBrokerCode || String(idx)) + "-buy"}
+                            className={cn("text-[11px]", getBrokerCodeClass(b.netbsBrokerCode))}
+                          >
+                            {b.netbsBrokerCode}
+                            {idx < list.length - 1 ? ", " : ""}
+                          </span>
+                        ))
+                      })()}
                     </span>
                   </div>
                   <div className="flex w-full items-center justify-between gap-2 lg:justify-end">
@@ -720,15 +731,24 @@ export default function ScreenerAnalysis() {
                       Top Sell:
                     </span>
                     <span
-                      className="truncate text-[10px] font-semibold text-red-800 dark:text-red-600"
+                      className={cn("truncate text-[10px]")}
                       title={row.brokerSummary?.brokersSell
                         ?.map((b: any) => b.netbsBrokerCode)
                         .join(", ")}
                     >
-                      {row.brokerSummary?.brokersSell
-                        ?.slice(0, 5)
-                        .map((b: any) => b.netbsBrokerCode)
-                        .join(", ") || "-"}
+                      {(() => {
+                        const list = row.brokerSummary?.brokersSell?.slice(0, 5) || []
+                        if (list.length === 0) return "-"
+                        return list.map((b: any, idx: number) => (
+                          <span
+                            key={(b.netbsBrokerCode || String(idx)) + "-sell"}
+                            className={cn("text-[11px]", getBrokerCodeClass(b.netbsBrokerCode))}
+                          >
+                            {b.netbsBrokerCode}
+                            {idx < list.length - 1 ? ", " : ""}
+                          </span>
+                        ))
+                      })()}
                     </span>
                   </div>
                 </div>

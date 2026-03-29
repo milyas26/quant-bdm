@@ -40,7 +40,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { cn, getBrokerCodeClass } from "@/lib/utils"
 import { toast } from "sonner"
 import { FilterMultiSelect } from "@/components/filter-multi-select"
 import { Separator } from "@/components/ui/separator"
@@ -936,18 +936,34 @@ export default function StocksPage() {
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex flex-col gap-1 text-[11px]">
                     <div className="flex items-center gap-1">
-                      <span className="font-semibold text-green-800 dark:text-green-600">
-                        {ticker.topBuyers?.length > 0
-                          ? ticker.topBuyers.map((b) => b.code).join(", ")
-                          : "-"}
-                      </span>
+                      {ticker.topBuyers?.length > 0 ? (
+                        ticker.topBuyers.map((b: any, idx: number) => (
+                          <span
+                            key={(b.code || String(idx)) + "-tb"}
+                            className={cn("text-[11px]", getBrokerCodeClass(b.code))}
+                          >
+                            {b.code}
+                            {idx < (ticker.topBuyers?.length || 0) - 1 ? ", " : ""}
+                          </span>
+                        ))
+                      ) : (
+                        <span>-</span>
+                      )}
                     </div>
                     <div className="flex items-center gap-1">
-                      <span className="font-semibold text-red-800 dark:text-red-600">
-                        {ticker.topSellers?.length > 0
-                          ? ticker.topSellers.map((b) => b.code).join(", ")
-                          : "-"}
-                      </span>
+                      {ticker.topSellers?.length > 0 ? (
+                        ticker.topSellers.map((b: any, idx: number) => (
+                          <span
+                            key={(b.code || String(idx)) + "-ts"}
+                            className={cn("text-[11px]", getBrokerCodeClass(b.code))}
+                          >
+                            {b.code}
+                            {idx < (ticker.topSellers?.length || 0) - 1 ? ", " : ""}
+                          </span>
+                        ))
+                      ) : (
+                        <span>-</span>
+                      )}
                     </div>
                   </div>
                 </TableCell>

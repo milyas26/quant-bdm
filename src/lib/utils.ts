@@ -134,3 +134,24 @@ export const calculateBandarStatus = (
   const avgVol = (top1 + top3 + top5) / 3
   return getBandarStatus(avgVol, totalVol)
 }
+
+// Return Tailwind class for specific broker code (used to color broker code labels)
+export function getBrokerCodeClass(code?: string) {
+  if (!code) return "text-black"
+  const c = code.toUpperCase()
+  switch (c) {
+    case "CC":
+    case "AK":
+    case "ZP":
+    case "BK":
+    case "CP":
+      return "font-semibold text-green-800 dark:text-green-600"
+    case "XL":
+    case "XC":
+    case "PD":
+    case "YP":
+      return "font-semibold text-red-800 dark:text-red-600"
+    default:
+      return "text-black/80"
+  }
+}
