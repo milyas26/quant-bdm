@@ -93,7 +93,7 @@ const indicators = [
       <div className="space-y-3">
         <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Broker yang sering muncul sebelum runner</div>
         <div className="flex flex-wrap gap-2">
-          {["CP", "MG", "YB", "XA", "XL", "XC"].map((b) => (
+          {["CC", "AK", "ZP", "BK", "CP"].map((b) => (
             <Badge key={b} className="bg-indigo-600 text-white font-mono">{b}</Badge>
           ))}
         </div>
