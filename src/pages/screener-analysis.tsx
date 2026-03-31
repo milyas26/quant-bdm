@@ -132,6 +132,23 @@ export default function ScreenerAnalysis() {
     reset()
   }
 
+  const handleApplyPerfectSetup = (withBreakout = false) => {
+    reset()
+    setSearchTerm("")
+    setMinPriceInput("")
+    setMaxPriceInput("")
+    setMinScoreInput("70")
+    setMaxScoreInput("")
+    setMinScore("70")
+    setAccDist1D("-1")
+    setAccDist1W("-1")
+    setAccDist1M("-1")
+    setBandarStatus(["Accumulation"])
+    if (withBreakout) {
+      setSignals(["Breakout"])
+    }
+  }
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [
       "screenerAnalysis",
@@ -264,6 +281,25 @@ export default function ScreenerAnalysis() {
     <div className="space-y-4">
       <Card className="bg-card/20">
         <CardContent className="space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Presets:</span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 cursor-pointer text-xs"
+              onClick={() => handleApplyPerfectSetup(false)}
+            >
+              ⭐ Perfect Setup
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 cursor-pointer text-xs"
+              onClick={() => handleApplyPerfectSetup(true)}
+            >
+              ⚡ Perfect Setup + Breakout
+            </Button>
+          </div>
           <div className="flex flex-col flex-wrap gap-2 md:flex-row md:items-end">
             <div className="w-full min-w-50 md:w-auto md:flex-1">
               <div className="relative">
