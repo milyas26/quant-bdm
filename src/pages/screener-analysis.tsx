@@ -278,9 +278,9 @@ export default function ScreenerAnalysis() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <Card className="bg-card/20">
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-medium text-muted-foreground">Presets:</span>
             <Button
@@ -544,7 +544,7 @@ export default function ScreenerAnalysis() {
         </CardContent>
       </Card>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         {isLoading ? (
           <div className="flex h-24 items-center justify-center text-muted-foreground">
             Loading analysis data...

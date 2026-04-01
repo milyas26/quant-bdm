@@ -260,13 +260,13 @@ export default function StocksPage() {
     })
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <AddToWatchlistDialog
         symbol={watchlistDialogSymbol}
         onClose={() => setWatchlistDialogSymbol(null)}
       />
       <Card className="bg-card/20">
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-medium text-muted-foreground">Presets:</span>
             <Button
