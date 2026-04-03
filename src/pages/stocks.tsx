@@ -871,7 +871,7 @@ export default function StocksPage() {
 
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex flex-col gap-1.5 text-[11px]">
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[125px]">
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[135px]">
                       {ticker.topBuyers?.length > 0 ? (
                         ticker.topBuyers.map((b: any, idx: number) => (
                           <span
@@ -885,7 +885,7 @@ export default function StocksPage() {
                         <span className="text-muted-foreground">-</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[125px]">
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[135px]">
                       {ticker.topSellers?.length > 0 ? (
                         ticker.topSellers.map((b: any, idx: number) => (
                           <span

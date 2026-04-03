@@ -573,7 +573,7 @@ export default function ScreenerAnalysis() {
                           <span className="text-[11px] text-orange-500" title="Breakout">⚡Breakout</span>
                         )}
                       </span>
-                      <span className="text-[10px] text-muted-foreground max-w-[120px] truncate" title={row.ticker?.name || "-"}>
+                      <span className="text-[11px] text-muted-foreground max-w-[120px] truncate" title={row.ticker?.name || "-"}>
                         {row.ticker?.name || "-"}
                       </span>
                     </div>
@@ -688,7 +688,7 @@ export default function ScreenerAnalysis() {
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex flex-col gap-1.5 text-[11px]">
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[125px]">
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[135px]">
                       {row.brokerSummary?.brokersBuy?.length > 0 ? (
                         row.brokerSummary.brokersBuy.map((b: any, idx: number) => (
                           <span
@@ -702,7 +702,7 @@ export default function ScreenerAnalysis() {
                         <span className="text-muted-foreground">-</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[125px]">
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[135px]">
                       {row.brokerSummary?.brokersSell?.length > 0 ? (
                         row.brokerSummary.brokersSell.map((b: any, idx: number) => (
                           <span
