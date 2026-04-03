@@ -90,12 +90,12 @@ const Brokers = () => {
               <Separator className="flex-1" />
               <span className="text-xs text-muted-foreground">{brokers.length} broker</span>
             </div>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
               {brokers.map((broker) => (
-                <Card key={broker.code} className="hover:bg-muted/50 rounded-sm transition-colors cursor-default py-0">
-                  <CardContent className="p-2.5 space-y-0.5">
-                    <p className={cn("text-xs font-bold leading-tight", getBrokerColor(broker.type))}>{broker.code}</p>
-                    <p className="text-[11px] text-muted-foreground truncate leading-tight">{broker.name}</p>
+                <Card key={broker.code} className="hover:bg-muted/50 rounded-sm transition-colors cursor-default py-0 shadow-sm border-muted">
+                  <CardContent className="p-2 space-y-0.5">
+                    <p className={cn("text-xs font-bold leading-none", getBrokerColor(broker.type))}>{broker.code}</p>
+                    <p className="text-[10px] text-muted-foreground truncate max-w-full" title={broker.name}>{broker.name}</p>
                   </CardContent>
                 </Card>
               ))}

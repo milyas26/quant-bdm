@@ -453,10 +453,15 @@ export default function WatchlistPage() {
                         >
                           <TableCell>
                             <div className="flex flex-col">
-                              <span className="font-bold">
+                              <span className="flex items-center gap-1 font-bold">
                                 {ticker.symbol}
                                 {s?.isBreakout && (
-                                  <span className="ml-1 text-[10px] text-orange-500">⚡</span>
+                                  <Badge
+                                    variant="outline"
+                                    className="h-4 border-orange-200 bg-orange-50 px-1 py-0 text-[10px] font-normal text-orange-600"
+                                  >
+                                    Breakout
+                                  </Badge>
                                 )}
                               </span>
                               <span className="text-xs text-muted-foreground">{ticker.name || "-"}</span>
@@ -498,10 +503,12 @@ export default function WatchlistPage() {
                           <TableCell>
                             {s ? (
                               <Badge
+                                variant="outline"
                                 className={cn(
-                                  s.bandarStatus === "Accumulation" && "bg-green-100 text-green-800 hover:bg-green-100",
-                                  s.bandarStatus === "Distribution" && "bg-red-100 text-red-800 hover:bg-red-100",
-                                  s.bandarStatus === "Neutral" && "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                                  "h-4 px-1 py-0 text-[10px] font-normal",
+                                  s.bandarStatus === "Accumulation" && "border-green-200 bg-green-50 text-green-700 hover:bg-green-50",
+                                  s.bandarStatus === "Distribution" && "border-red-200 bg-red-50 text-red-700 hover:bg-red-50",
+                                  s.bandarStatus === "Neutral" && "border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-50"
                                 )}
                               >
                                 {s.bandarStatus}
@@ -520,20 +527,21 @@ export default function WatchlistPage() {
                           </TableCell>
                           <TableCell>
                             {s ? (
-                              <Badge
-                                variant="secondary"
+                              <span
                                 className={cn(
+                                  "font-medium text-[11px]",
                                   s.momentum === "Uptrend" && "text-green-600",
-                                  s.momentum === "Downtrend" && "text-red-600"
+                                  s.momentum === "Downtrend" && "text-red-600",
+                                  s.momentum === "Sideways" && "text-gray-600"
                                 )}
                               >
                                 {s.momentum}
-                              </Badge>
+                              </span>
                             ) : "-"}
                           </TableCell>
                           <TableCell>
                             {ticker.sector ? (
-                              <Badge variant="outline">{ticker.sector}</Badge>
+                              <span className="text-[11px] font-medium text-muted-foreground">{ticker.sector}</span>
                             ) : <span className="text-muted-foreground">-</span>}
                           </TableCell>
                           <TableCell onClick={(e) => e.stopPropagation()}>

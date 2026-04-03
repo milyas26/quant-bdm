@@ -77,10 +77,7 @@ export const TradesTable = ({
               <TableHead className="pl-4 font-semibold">Symbol</TableHead>
               <TableHead className="font-semibold">Status</TableHead>
               <TableHead className="text-right font-semibold">
-                Entry Price
-              </TableHead>
-              <TableHead className="text-right font-semibold">
-                Current
+                Price
               </TableHead>
               <TableHead className="text-right font-semibold">Qty</TableHead>
               <TableHead className="text-right font-semibold">
@@ -112,38 +109,43 @@ export const TradesTable = ({
                       <div className="flex items-center gap-2.5">
                         <div
                           className={cn(
-                            "h-8 w-1 shrink-0 rounded-full",
+                            "h-9 w-1 shrink-0 rounded-full",
                             isPnlPositive ? "bg-green-500" : "bg-red-500"
                           )}
                         />
                         <div
                           onClick={() => navigate(`/stock/${trade.symbol}`)}
-                          className="cursor-pointer"
+                          className="flex cursor-pointer items-center gap-2"
                         >
-                          <div className="text-sm font-semibold">
-                            {trade.symbol}
-                          </div>
-                          {trade.ticker.name && (
-                            <div className="max-w-30 truncate text-xs text-muted-foreground">
-                              {trade.ticker.name}
+                          {(trade.ticker as any)?.logo ? (
+                            <img src={(trade.ticker as any).logo} className="h-8 w-8 rounded-full object-cover border" />
+                          ) : (
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                              {trade.symbol.substring(0, 2)}
                             </div>
                           )}
+                          <div className="flex flex-col">
+                            <span className="text-sm font-bold">{trade.symbol}</span>
+                            {trade.ticker.name && (
+                              <span className="max-w-[120px] truncate text-[10px] text-muted-foreground">{trade.ticker.name}</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={trade.status} />
                     </TableCell>
-                    <TableCell className="text-right font-mono text-sm tabular-nums">
-                      {fmtPrice(trade.entryPrice)}
+                    <TableCell className="text-right flex flex-col font-mono text-sm tabular-nums gap-0.5 justify-center py-3">
+                      <span className="font-medium text-muted-foreground decoration-muted-foreground/30">{fmtPrice(trade.entryPrice)}</span>
                     </TableCell>
                     <TableCell
                       className={cn(
-                        "text-right font-mono text-sm font-medium tabular-nums",
-                        isPnlPositive ? "text-green-500" : "text-red-500"
+                        "text-right flex flex-col font-mono text-sm font-bold tabular-nums gap-0.5 justify-center py-3",
+                        isPnlPositive ? "text-green-600" : "text-red-600"
                       )}
                     >
-                      {fmtPrice(trade.currentPrice)}
+                      <span>{fmtPrice(trade.currentPrice)}</span>
                     </TableCell>
                     <TableCell className="text-right text-sm tabular-nums">
                       {trade.quantity.toLocaleString()}
