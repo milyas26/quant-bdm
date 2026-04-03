@@ -461,7 +461,7 @@ export default function StocksPage() {
                     <span className="text-[10px] text-muted-foreground">Net:</span>
                     <input className="w-full bg-transparent outline-none" placeholder="0" type="number" value={netBrokerFlowValue} onChange={(e) => setNetBrokerFlowValue(e.target.value)} />
                   </div>
-                  
+
                   <div className="flex items-center gap-2 mt-1">
                     <Popover>
                       <PopoverTrigger asChild>
@@ -871,8 +871,7 @@ export default function StocksPage() {
 
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex flex-col gap-1.5 text-[11px]">
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[120px]">
-                      <span className="text-green-600/70 font-medium mr-0.5">B</span>
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[125px]">
                       {ticker.topBuyers?.length > 0 ? (
                         ticker.topBuyers.map((b: any, idx: number) => (
                           <span
@@ -886,8 +885,7 @@ export default function StocksPage() {
                         <span className="text-muted-foreground">-</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[120px]">
-                      <span className="text-red-600/70 font-medium mr-0.5">S</span>
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[125px]">
                       {ticker.topSellers?.length > 0 ? (
                         ticker.topSellers.map((b: any, idx: number) => (
                           <span
@@ -928,19 +926,6 @@ export default function StocksPage() {
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <SimulateBuyButton ticker={ticker} />
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))

@@ -688,8 +688,7 @@ export default function ScreenerAnalysis() {
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex flex-col gap-1.5 text-[11px]">
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[120px]">
-                      <span className="text-green-600/70 font-medium mr-0.5">B</span>
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[125px]">
                       {row.brokerSummary?.brokersBuy?.length > 0 ? (
                         row.brokerSummary.brokersBuy.map((b: any, idx: number) => (
                           <span
@@ -703,8 +702,7 @@ export default function ScreenerAnalysis() {
                         <span className="text-muted-foreground">-</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[120px]">
-                      <span className="text-red-600/70 font-medium mr-0.5">S</span>
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[125px]">
                       {row.brokerSummary?.brokersSell?.length > 0 ? (
                         row.brokerSummary.brokersSell.map((b: any, idx: number) => (
                           <span
