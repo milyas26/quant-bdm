@@ -184,9 +184,9 @@ export default function StocksPage() {
     setMaxScoreInput("")
     setMinScore("70")
     setNetBrokerFlowValue("0")
-    setAccDist1D("0")
-    setAccDist1W("0")
-    setAccDist1M("0")
+    setAccDist1D("-1")
+    setAccDist1W("-1")
+    setAccDist1M("-1")
     setBandarStatus(["Accumulation"])
     if (withBreakout) {
       setSignals(["Breakout"])

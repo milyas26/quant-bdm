@@ -239,57 +239,39 @@ export default function StockDetail() {
         </div>
       </div>
 
-      <Tabs defaultValue="broker-summary" className="w-full">
-        <TabsList className="bg-transparent">
-          <TabsTrigger
-            className="relative rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
-            value="broker-summary"
-          >
-            Broker Summary
-          </TabsTrigger>
-          <TabsTrigger
-            className="relative rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
-            value="inventory"
-          >
-            Inventory
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="broker-summary" className="mt-2">
-          <div className="mb-4 flex items-center gap-2">
-            <DatePickerWithRange date={date} setDate={setDate} />
-            <Select
-              value={valueType}
-              onValueChange={(val) => setValueType(val as "Net" | "Gross")}
-            >
-              <SelectTrigger className="w-25">
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent className="text-xs">
-                <SelectItem value="Net">Net</SelectItem>
-                <SelectItem value="Gross">Gross</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <BrokerSummaryDashboard
-            selectedTicker={selectedTicker}
-            date={date}
-            valueType={valueType}
-            onBrokerClick={handleBrokerClick}
-            highlightedBroker={brokerCode}
+      <div className="mb-4 flex items-center gap-2">
+        <DatePickerWithRange date={date} setDate={setDate} />
+        <Select
+          value={valueType}
+          onValueChange={(val) => setValueType(val as "Net" | "Gross")}
+        >
+          <SelectTrigger className="w-25">
+            <SelectValue placeholder="Type" />
+          </SelectTrigger>
+          <SelectContent className="text-xs">
+            <SelectItem value="Net">Net</SelectItem>
+            <SelectItem value="Gross">Gross</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <BrokerSummaryDashboard
+        selectedTicker={selectedTicker}
+        date={date}
+        valueType={valueType}
+        onBrokerClick={handleBrokerClick}
+        highlightedBroker={brokerCode}
+      />
+      <div className="space-y-6">
+        <BrokerInventory selectedTicker={selectedTicker} />
+        <div>
+          <p className="font-medium">Historical Screener</p>
+          <HistoricalScreener
+            data={historicalScreenerData?.data || []}
+            months={screenerMonths}
+            onMonthsChange={setScreenerMonths}
           />
-        </TabsContent>
-        <TabsContent value="inventory" className="mt-2 space-y-6">
-          <BrokerInventory selectedTicker={selectedTicker} />
-          <div>
-            <p className="font-medium">Historical Screener</p>
-            <HistoricalScreener
-              data={historicalScreenerData?.data || []}
-              months={screenerMonths}
-              onMonthsChange={setScreenerMonths}
-            />
-          </div>
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
     </div>
   )
 }

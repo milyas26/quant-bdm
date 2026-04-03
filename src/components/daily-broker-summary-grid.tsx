@@ -45,7 +45,7 @@ export function DailyBrokerSummaryGrid({
   const emptyEndCells = lastDay ? (lastDay.date.getDay() === 0 ? 6 : lastDay.date.getDay() - 1) : 0 // Adjust for Monday start
 
   return (
-    <div className="space-y-0">
+    <div className="space-y-0 max-h-150 overflow-y-auto rounded border">
       <div className="grid grid-cols-5 border-b border-border">
         {weekDays.map((day) => (
           <div

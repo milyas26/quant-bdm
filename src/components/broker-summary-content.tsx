@@ -285,7 +285,7 @@ export function BrokerSummaryContent({
         <p className="mb-1 text-sm font-semibold text-card-foreground">
           Broker Summary
         </p>
-        <div className="max-h-[500px] overflow-auto rounded-md text-[12px]">
+        <div className="max-h-150 overflow-auto rounded-md text-[12px]">
           <table className="w-full">
             <thead className="bg-muted text-[12px] font-semibold text-muted-foreground">
               <tr>
