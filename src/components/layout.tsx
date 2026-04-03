@@ -27,13 +27,13 @@ const navItems = [
   { title: "Screener", url: "/" },
   { title: "History", url: "/history" },
   { title: "Watchlist", url: "/watchlist" },
-  { title: "Brokers", url: "/brokers" },
   { title: "Portfolio", url: "/portfolio" },
   { title: "Guide", url: "/guide" },
 ]
 
 import { AddTickerDialog } from "@/components/add-ticker-dialog"
 import { RunnerCalculator } from "@/components/runner-calculator"
+import { BrokersSheet } from "@/components/brokers-sheet"
 
 function SettingsMenu() {
   const { theme, setTheme } = useTheme()
@@ -148,6 +148,7 @@ export default function Layout() {
                 />
               </div>
               <AddTickerDialog />
+              <BrokersSheet />
               <RunnerCalculator />
               <SettingsMenu />
             </div>

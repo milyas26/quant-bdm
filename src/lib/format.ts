@@ -7,6 +7,7 @@ export const fmtPrice = (n: number) =>
 export const fmtCurrency = (n: number) => {
   const abs = Math.abs(n)
   const sign = n >= 0 ? "+" : "-"
+  if (abs >= 1_000_000_000) return `${sign}${(abs / 1_000_000_000).toFixed(2)}B`
   if (abs >= 1_000_000) return `${sign}${(abs / 1_000_000).toFixed(2)}M`
   if (abs >= 1_000) return `${sign}${(abs / 1_000).toFixed(1)}K`
   return `${n >= 0 ? "+" : ""}${n.toFixed(0)}`

@@ -4,15 +4,17 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
-import { Input } from '@/components/ui/input'
-import { AlertCircle, Search } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { AlertCircle } from 'lucide-react'
+import { useMemo } from 'react'
 import { getBrokerColor, cn } from '@/lib/utils'
 
 const GROUP_ORDER = ['SMART_MONEY', 'DUMB_MONEY', 'RITEL', 'PEMERINTAH', 'ASING', 'LOKAL']
 
-const Brokers = () => {
-  const [search, setSearch] = useState('')
+interface BrokersProps {
+  search?: string
+}
+
+const Brokers = ({ search = "" }: BrokersProps) => {
 
   const { data: brokerGroup, isLoading, isError, error } = useQuery({
     queryKey: ['brokers'],
@@ -39,15 +41,6 @@ const Brokers = () => {
 
   return (
     <div className="space-y-4">
-      <div className="relative w-full max-w-sm">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Cari kode atau nama broker..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-8 h-9"
-        />
-      </div>
 
       {isLoading && (
         <div className="space-y-4">
@@ -90,7 +83,7 @@ const Brokers = () => {
               <Separator className="flex-1" />
               <span className="text-xs text-muted-foreground">{brokers.length} broker</span>
             </div>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+            <div className="grid grid-cols-2 gap-2">
               {brokers.map((broker) => (
                 <Card key={broker.code} className="hover:bg-muted/50 rounded-sm transition-colors cursor-default py-0 shadow-sm border-muted">
                   <CardContent className="p-2 space-y-0.5">
