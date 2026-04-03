@@ -342,7 +342,7 @@ export default function ScreenerAnalysis() {
                     className="h-9 cursor-pointer shrink-0"
                     variant="default"
                   >
-                    {generateMutation.isPending ? "..." : <><Play className="mr-1.5 h-3.5 w-3.5" /> Generate</>}
+                    {generateMutation.isPending ? "Generating..." : <><Play className="mr-1.5 h-3.5 w-3.5" /> Generate</>}
                   </Button>
                   <Button
                     onClick={() => exportMutation.mutate()}
