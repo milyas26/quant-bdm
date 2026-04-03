@@ -31,6 +31,7 @@ import {
   ArrowDown,
   ArrowUpDown,
   X,
+  SlidersHorizontal,
 } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
 import {
@@ -130,6 +131,7 @@ export default function StocksPage() {
   const [minScoreInput, setMinScoreInput] = useState(minScore)
   const [maxScoreInput, setMaxScoreInput] = useState(maxScore)
   const [pageInput, setPageInput] = useState(page.toString())
+  const [showFilters, setShowFilters] = useState(false)
 
   const debouncedSearch = useDebounce(searchTerm, 500)
 
@@ -265,281 +267,246 @@ export default function StocksPage() {
         symbol={watchlistDialogSymbol}
         onClose={() => setWatchlistDialogSymbol(null)}
       />
-      <Card className="bg-card/20">
-        <CardContent className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground">Presets:</span>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 cursor-pointer text-xs"
-              onClick={() => handleApplyPerfectSetup(false)}
-            >
-              ⭐ Perfect Setup
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 cursor-pointer text-xs"
-              onClick={() => handleApplyPerfectSetup(true)}
-            >
-              ⚡ Perfect Setup + Breakout
-            </Button>
-          </div>
-          <div className="flex flex-col flex-wrap gap-2 md:flex-row md:items-end">
-            <div className="w-full min-w-50 md:w-auto md:flex-1">
-              <div className="relative">
-                <Search className="absolute top-3 left-2 h-4 w-4 text-muted-foreground" />
+      <Card className="bg-card/20 mb-2 border-muted">
+        <CardContent className="p-3">
+          <div className="flex flex-col gap-3">
+            {/* Top Bar: Search, Presets, Filter Toggle */}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative flex-1 min-w-[200px]">
+                <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   ref={searchInputRef}
                   id="search"
                   placeholder="Search symbol or name..."
-                  className="h-10 py-4 pl-8"
+                  className="h-9 py-2 pl-9 bg-background/50"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-            </div>
 
-            <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-              <span className="font-medium">Price</span>
-              <Separator orientation="vertical" className="mx-2 h-4" />
-              <input
-                className="w-16 bg-transparent outline-none placeholder:text-muted-foreground md:w-20"
-                placeholder="Min"
-                type="number"
-                value={minPriceInput}
-                onChange={(e) => setMinPriceInput(e.target.value)}
-                onBlur={handlePriceUpdate}
-                onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
-              />
-              <span className="mx-1 text-muted-foreground">-</span>
-              <input
-                className="w-16 bg-transparent text-right outline-none placeholder:text-muted-foreground md:w-20"
-                placeholder="Max"
-                type="number"
-                value={maxPriceInput}
-                onChange={(e) => setMaxPriceInput(e.target.value)}
-                onBlur={handlePriceUpdate}
-                onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
-              />
-            </div>
-
-            <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-              <span className="font-medium">Score</span>
-              <Separator orientation="vertical" className="mx-2 h-4" />
-              <input
-                className="w-16 bg-transparent outline-none placeholder:text-muted-foreground md:w-20"
-                placeholder="Min"
-                type="number"
-                step="10"
-                min="0"
-                max="100"
-                value={minScoreInput}
-                onChange={(e) => setMinScoreInput(e.target.value)}
-                onBlur={handleScoreUpdate}
-                onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
-              />
-              <span className="mx-1 text-muted-foreground">-</span>
-              <input
-                className="w-16 bg-transparent text-right outline-none placeholder:text-muted-foreground md:w-20"
-                placeholder="Max"
-                type="number"
-                step="10"
-                min="0"
-                max="100"
-                value={maxScoreInput}
-                onChange={(e) => setMaxScoreInput(e.target.value)}
-                onBlur={handleScoreUpdate}
-                onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
-              />
-            </div>
-
-            <div className="w-full space-y-2 md:w-60">
-              <FilterMultiSelect
-                title="Signals"
-                options={[
-                  { label: "Breakout", value: "Breakout" },
-                  { label: "Spike", value: "Spike" },
-                ]}
-                selected={signals}
-                onChange={(val) => setSignals(val)}
-              />
-            </div>
-
-            <div className="w-full space-y-2 md:w-60">
-              <FilterMultiSelect
-                title="Status"
-                options={[
-                  { label: "Accumulation", value: "Accumulation" },
-                  { label: "Neutral", value: "Neutral" },
-                  { label: "Distribution", value: "Distribution" },
-                ]}
-                selected={bandarStatus}
-                onChange={(val) => setBandarStatus(val)}
-              />
-            </div>
-
-            <div className="w-full space-y-2 md:w-60">
-              <FilterMultiSelect
-                title="Momentum"
-                options={[
-                  { label: "Uptrend", value: "Uptrend" },
-                  { label: "Sideways", value: "Sideways" },
-                  { label: "Downtrend", value: "Downtrend" },
-                ]}
-                selected={momentum}
-                onChange={(val) => setMomentum(val)}
-              />
-            </div>
-
-            <div className="w-full space-y-2 md:w-60">
-              <FilterMultiSelect
-                title="Liquidity"
-                options={[
-                  { label: "High", value: "High" },
-                  { label: "Medium", value: "Medium" },
-                  { label: "Low", value: "Low" },
-                ]}
-                selected={liquidity}
-                onChange={(val) => setLiquidity(val)}
-              />
-            </div>
-
-            <div className="flex h-10 items-center gap-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-              <span className="mr-1 font-medium">Acc/Dist</span>
-              <Select
-                value={accDistOperator}
-                onValueChange={(val) => setAccDistOperator(val as "gt" | "lt")}
-              >
-                <SelectTrigger className="h-6 w-13.75 border-none px-1 text-xs focus:ring-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gt">&gt;</SelectItem>
-                  <SelectItem value="lt">&lt;</SelectItem>
-                </SelectContent>
-              </Select>
-              <Separator orientation="vertical" className="mx-1 h-4" />
-              <div className="flex gap-2">
-                <input
-                  className="w-8 bg-transparent text-center outline-none placeholder:text-muted-foreground"
-                  placeholder="1D"
-                  type="number"
-                  value={accDist1D}
-                  onChange={(e) => setAccDist1D(e.target.value)}
-                />
-                <input
-                  className="w-8 bg-transparent text-center outline-none placeholder:text-muted-foreground"
-                  placeholder="1W"
-                  type="number"
-                  value={accDist1W}
-                  onChange={(e) => setAccDist1W(e.target.value)}
-                />
-                <input
-                  className="w-8 bg-transparent text-center outline-none placeholder:text-muted-foreground"
-                  placeholder="1M"
-                  type="number"
-                  value={accDist1M}
-                  onChange={(e) => setAccDist1M(e.target.value)}
-                />
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 hide-scrollbar">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-9 cursor-pointer text-[13px] font-medium"
+                  onClick={() => handleApplyPerfectSetup(false)}
+                >
+                  ⭐ Perfect Setup
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-9 cursor-pointer text-[13px] font-medium whitespace-nowrap"
+                  onClick={() => handleApplyPerfectSetup(true)}
+                >
+                  ⚡ + Breakout
+                </Button>
+                <Separator orientation="vertical" className="h-5 mx-1" />
+                <Button
+                  variant={showFilters ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="h-9"
+                >
+                  <SlidersHorizontal className="h-4 w-4 mr-1.5" />
+                  Filters
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleRefreshAllTickers()}
+                  disabled={isRefreshing}
+                  className="h-9 w-9 shrink-0"
+                  title="Refresh Tickers"
+                >
+                  <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
+                </Button>
               </div>
             </div>
 
-            <div className="flex h-10 items-center gap-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-              <span className="mr-1 font-medium whitespace-nowrap">Broker Net</span>
-              <Select
-                value={netBrokerFlowOperator}
-                onValueChange={(val) => setNetBrokerFlowOperator(val as "gt" | "lt")}
-              >
-                <SelectTrigger className="h-6 w-13.75 border-none px-1 text-xs focus:ring-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gt">&gt;</SelectItem>
-                  <SelectItem value="lt">&lt;</SelectItem>
-                </SelectContent>
-              </Select>
-              <Separator orientation="vertical" className="mx-1 h-4" />
-              <input
-                className="w-20 bg-transparent text-center outline-none placeholder:text-muted-foreground"
-                placeholder="0"
-                type="number"
-                value={netBrokerFlowValue}
-                onChange={(e) => setNetBrokerFlowValue(e.target.value)}
-              />
-            </div>
+            {/* Expandable Advanced Filters */}
+            {showFilters && (
+              <div className="pt-3 border-t grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Price & Score</span>
+                  <div className="flex h-9 items-center rounded-md border bg-background px-2.5 text-xs">
+                    <span className="font-medium text-muted-foreground">Price</span>
+                    <Separator orientation="vertical" className="mx-2 h-4" />
+                    <input
+                      className="w-full bg-transparent outline-none placeholder:text-muted-foreground/50"
+                      placeholder="Min"
+                      type="number"
+                      value={minPriceInput}
+                      onChange={(e) => setMinPriceInput(e.target.value)}
+                      onBlur={handlePriceUpdate}
+                      onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
+                    />
+                    <span className="text-muted-foreground">-</span>
+                    <input
+                      className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground/50"
+                      placeholder="Max"
+                      type="number"
+                      value={maxPriceInput}
+                      onChange={(e) => setMaxPriceInput(e.target.value)}
+                      onBlur={handlePriceUpdate}
+                      onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
+                    />
+                  </div>
+                  <div className="flex h-9 items-center rounded-md border bg-background px-2.5 text-xs">
+                    <span className="font-medium text-muted-foreground">Score</span>
+                    <Separator orientation="vertical" className="mx-2 h-4" />
+                    <input
+                      className="w-full bg-transparent outline-none placeholder:text-muted-foreground/50"
+                      placeholder="Min"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={minScoreInput}
+                      onChange={(e) => setMinScoreInput(e.target.value)}
+                      onBlur={handleScoreUpdate}
+                      onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
+                    />
+                    <span className="text-muted-foreground">-</span>
+                    <input
+                      className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground/50"
+                      placeholder="Max"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={maxScoreInput}
+                      onChange={(e) => setMaxScoreInput(e.target.value)}
+                      onBlur={handleScoreUpdate}
+                      onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
+                    />
+                  </div>
+                </div>
 
-            <div className="w-full md:w-auto">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "h-10 w-full justify-start text-left font-normal md:w-44",
-                      !date && "text-muted-foreground"
-                    )}
-                    disabled={isLoadingDates}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(parseISO(date), "dd MMM yyyy") : "Latest"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={date ? parseISO(date) : undefined}
-                    onSelect={(d) => {
-                      if (!d) {
-                        setDate(null)
-                        return
-                      }
-                      const str = format(d, "yyyy-MM-dd")
-                      setDate(screenerDates?.includes(str) ? str : null)
-                      setPage(1)
-                    }}
-                    disabled={(d) => {
-                      const str = format(d, "yyyy-MM-dd")
-                      return !screenerDates?.includes(str)
-                    }}
-                    initialFocus
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Signals & Status</span>
+                  <FilterMultiSelect
+                    title="Signals"
+                    options={[
+                      { label: "Breakout", value: "Breakout" },
+                      { label: "Spike", value: "Spike" },
+                    ]}
+                    selected={signals}
+                    onChange={(val) => setSignals(val)}
                   />
-                  {date && (
-                    <div className="border-t p-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full text-xs"
-                        onClick={() => { setDate(null); setPage(1) }}
-                      >
-                        Reset to Latest
-                      </Button>
-                    </div>
-                  )}
-                </PopoverContent>
-              </Popover>
-            </div>
+                  <FilterMultiSelect
+                    title="Status"
+                    options={[
+                      { label: "Accumulation", value: "Accumulation" },
+                      { label: "Neutral", value: "Neutral" },
+                      { label: "Distribution", value: "Distribution" },
+                    ]}
+                    selected={bandarStatus}
+                    onChange={(val) => setBandarStatus(val)}
+                  />
+                </div>
 
-            <Button
-              onClick={handleResetFilters}
-              className="h-10 cursor-pointer text-red-500 hover:bg-red-50 hover:text-red-500/80"
-              variant="ghost"
-              title="Reset all filters"
-            >
-              <X className="mr-2 h-4 w-4" />
-              Reset
-            </Button>
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Momentum & Liquidity</span>
+                  <FilterMultiSelect
+                    title="Momentum"
+                    options={[
+                      { label: "Uptrend", value: "Uptrend" },
+                      { label: "Sideways", value: "Sideways" },
+                      { label: "Downtrend", value: "Downtrend" },
+                    ]}
+                    selected={momentum}
+                    onChange={(val) => setMomentum(val)}
+                  />
+                  <FilterMultiSelect
+                    title="Liquidity"
+                    options={[
+                      { label: "High", value: "High" },
+                      { label: "Medium", value: "Medium" },
+                      { label: "Low", value: "Low" },
+                    ]}
+                    selected={liquidity}
+                    onChange={(val) => setLiquidity(val)}
+                  />
+                </div>
 
-            <Button
-              variant="outline"
-              onClick={() => handleRefreshAllTickers()}
-              disabled={isRefreshing}
-              className="h-10 cursor-pointer"
-            >
-              <RefreshCw
-                className={cn("h-4 w-4", isRefreshing && "animate-spin")}
-              />
-            </Button>
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Flow & Date</span>
+                  <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs">
+                    <Select value={accDistOperator} onValueChange={(val) => setAccDistOperator(val as "gt" | "lt")}>
+                      <SelectTrigger className="h-6 w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="gt">&gt;</SelectItem>
+                        <SelectItem value="lt">&lt;</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Separator orientation="vertical" className="mx-1 h-3" />
+                    <span className="text-[10px] text-muted-foreground">A/D:</span>
+                    <input className="w-6 bg-transparent text-center outline-none" placeholder="1D" type="number" value={accDist1D} onChange={(e) => setAccDist1D(e.target.value)} />
+                    <input className="w-6 bg-transparent text-center outline-none" placeholder="1W" type="number" value={accDist1W} onChange={(e) => setAccDist1W(e.target.value)} />
+                    <input className="w-6 bg-transparent text-center outline-none" placeholder="1M" type="number" value={accDist1M} onChange={(e) => setAccDist1M(e.target.value)} />
+                  </div>
+
+                  <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs">
+                    <Select value={netBrokerFlowOperator} onValueChange={(val) => setNetBrokerFlowOperator(val as "gt" | "lt")}>
+                      <SelectTrigger className="h-6 w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="gt">&gt;</SelectItem>
+                        <SelectItem value="lt">&lt;</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Separator orientation="vertical" className="mx-1 h-3" />
+                    <span className="text-[10px] text-muted-foreground">Net:</span>
+                    <input className="w-full bg-transparent outline-none" placeholder="0" type="number" value={netBrokerFlowValue} onChange={(e) => setNetBrokerFlowValue(e.target.value)} />
+                  </div>
+                  
+                  <div className="flex items-center gap-2 mt-1">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={cn("h-8 flex-1 justify-start text-left font-normal text-xs px-2", !date && "text-muted-foreground")}
+                          disabled={isLoadingDates}
+                        >
+                          <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
+                          {date ? format(parseISO(date), "dd MMM yy") : "Latest"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="end">
+                        <Calendar
+                          mode="single"
+                          selected={date ? parseISO(date) : undefined}
+                          onSelect={(d) => {
+                            if (!d) { setDate(null); return }
+                            const str = format(d, "yyyy-MM-dd")
+                            setDate(screenerDates?.includes(str) ? str : null)
+                            setPage(1)
+                          }}
+                          disabled={(d) => {
+                            const str = format(d, "yyyy-MM-dd")
+                            return !screenerDates?.includes(str)
+                          }}
+                          initialFocus
+                        />
+                        {date && (
+                          <div className="border-t p-2">
+                            <Button variant="ghost" size="sm" className="w-full text-xs h-7" onClick={() => { setDate(null); setPage(1) }}>Reset Date</Button>
+                          </div>
+                        )}
+                      </PopoverContent>
+                    </Popover>
+
+                    <Button onClick={handleResetFilters} size="sm" variant="ghost" className="h-8 px-2 text-destructive hover:bg-destructive/10 hover:text-destructive text-xs shrink-0">
+                      <X className="mr-1 h-3 w-3" />
+                      Clear
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -842,66 +809,35 @@ export default function StocksPage() {
                   </span>
                 </TableCell>
                 <TableCell>
-                  <div className="flex flex-col gap-0.5 text-xs">
-                    <div className="flex gap-1">
-                      <span className="w-5 text-muted-foreground">1D:</span>
-                      <span
-                        className={cn(
-                          "font-medium",
-                          ticker.accumulationDistribution.d1 > 0
-                            ? "text-green-600"
-                            : ticker.accumulationDistribution.d1 < 0
-                              ? "text-red-600"
-                              : "text-gray-600"
-                        )}
-                      >
-                        {ticker.accumulationDistribution.d1 > 0 ? "+" : ""}
-                        {ticker.accumulationDistribution.d1.toFixed(1)}%
+                  <div className="flex flex-col gap-1 text-[11px] whitespace-nowrap">
+                    <div className="flex items-center gap-1.5 justify-between">
+                      <span className="text-muted-foreground/70">1D</span>
+                      <span className={cn("font-medium", ticker.accumulationDistribution.d1 > 0 ? "text-green-600" : ticker.accumulationDistribution.d1 < 0 ? "text-red-600" : "text-gray-600")}>
+                        {ticker.accumulationDistribution.d1 > 0 ? "+" : ""}{ticker.accumulationDistribution.d1.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="flex gap-1">
-                      <span className="w-5 text-muted-foreground">1W:</span>
-                      <span
-                        className={cn(
-                          "font-medium",
-                          ticker.accumulationDistribution.w1 > 0
-                            ? "text-green-600"
-                            : ticker.accumulationDistribution.w1 < 0
-                              ? "text-red-600"
-                              : "text-gray-600"
-                        )}
-                      >
-                        {ticker.accumulationDistribution.w1 > 0 ? "+" : ""}
-                        {ticker.accumulationDistribution.w1.toFixed(1)}%
+                    <div className="flex items-center gap-1.5 justify-between">
+                      <span className="text-muted-foreground/70">1W</span>
+                      <span className={cn("font-medium", ticker.accumulationDistribution.w1 > 0 ? "text-green-600" : ticker.accumulationDistribution.w1 < 0 ? "text-red-600" : "text-gray-600")}>
+                        {ticker.accumulationDistribution.w1 > 0 ? "+" : ""}{ticker.accumulationDistribution.w1.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="flex gap-1">
-                      <span className="w-5 text-muted-foreground">1M:</span>
-                      <span
-                        className={cn(
-                          "font-medium",
-                          ticker.accumulationDistribution.m1 > 0
-                            ? "text-green-600"
-                            : ticker.accumulationDistribution.m1 < 0
-                              ? "text-red-600"
-                              : "text-gray-600"
-                        )}
-                      >
-                        {ticker.accumulationDistribution.m1 > 0 ? "+" : ""}
-                        {ticker.accumulationDistribution.m1.toFixed(1)}%
+                    <div className="flex items-center gap-1.5 justify-between">
+                      <span className="text-muted-foreground/70">1M</span>
+                      <span className={cn("font-medium", ticker.accumulationDistribution.m1 > 0 ? "text-green-600" : ticker.accumulationDistribution.m1 < 0 ? "text-red-600" : "text-gray-600")}>
+                        {ticker.accumulationDistribution.m1 > 0 ? "+" : ""}{ticker.accumulationDistribution.m1.toFixed(1)}%
                       </span>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
                   <Badge
+                    variant="outline"
                     className={cn(
-                      ticker.bandarStatus === "Accumulation" &&
-                        "bg-green-100 text-green-800 hover:bg-green-100",
-                      ticker.bandarStatus === "Distribution" &&
-                        "bg-red-100 text-red-800 hover:bg-red-100",
-                      ticker.bandarStatus === "Neutral" &&
-                        "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                      "font-medium tracking-tight",
+                      ticker.bandarStatus === "Accumulation" && "border-green-200 bg-green-50 text-green-700",
+                      ticker.bandarStatus === "Distribution" && "border-red-200 bg-red-50 text-red-700",
+                      ticker.bandarStatus === "Neutral" && "border-gray-200 bg-gray-50 text-gray-700"
                     )}
                   >
                     {ticker.bandarStatus}
@@ -934,35 +870,35 @@ export default function StocksPage() {
                 </TableCell>
 
                 <TableCell onClick={(e) => e.stopPropagation()}>
-                  <div className="flex flex-col gap-1 text-[11px]">
-                    <div className="flex items-center gap-1">
+                  <div className="flex flex-col gap-1.5 text-[11px]">
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[120px]">
+                      <span className="text-green-600/70 font-medium mr-0.5">B</span>
                       {ticker.topBuyers?.length > 0 ? (
                         ticker.topBuyers.map((b: any, idx: number) => (
                           <span
                             key={(b.code || String(idx)) + "-tb"}
-                            className={cn("text-[11px]", getBrokerCodeClass(b.code))}
+                            className={cn("px-1 py-0.5 rounded bg-muted/50 whitespace-nowrap font-medium", getBrokerCodeClass(b.code))}
                           >
                             {b.code}
-                            {idx < (ticker.topBuyers?.length || 0) - 1 ? ", " : ""}
                           </span>
                         ))
                       ) : (
-                        <span>-</span>
+                        <span className="text-muted-foreground">-</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[120px]">
+                      <span className="text-red-600/70 font-medium mr-0.5">S</span>
                       {ticker.topSellers?.length > 0 ? (
                         ticker.topSellers.map((b: any, idx: number) => (
                           <span
                             key={(b.code || String(idx)) + "-ts"}
-                            className={cn("text-[11px]", getBrokerCodeClass(b.code))}
+                            className={cn("px-1 py-0.5 rounded bg-muted/50 whitespace-nowrap font-medium", getBrokerCodeClass(b.code))}
                           >
                             {b.code}
-                            {idx < (ticker.topSellers?.length || 0) - 1 ? ", " : ""}
                           </span>
                         ))
                       ) : (
-                        <span>-</span>
+                        <span className="text-muted-foreground">-</span>
                       )}
                     </div>
                   </div>
@@ -983,9 +919,11 @@ export default function StocksPage() {
                 </TableCell>
                 <TableCell>
                   {ticker.sector ? (
-                    <Badge variant="default">{ticker.sector}</Badge>
+                    <span className="text-[11px] font-medium text-muted-foreground line-clamp-2 leading-tight">
+                      {ticker.sector}
+                    </span>
                   ) : (
-                    "-"
+                    <span className="text-muted-foreground">-</span>
                   )}
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>

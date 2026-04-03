@@ -15,6 +15,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn, getBrokerCodeClass } from "@/lib/utils"
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -23,6 +31,7 @@ import {
   Search,
   Download,
   X,
+  SlidersHorizontal,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -93,6 +102,7 @@ export default function ScreenerAnalysis() {
   const [minScoreInput, setMinScoreInput] = useState(minScoreStr)
   const [maxScoreInput, setMaxScoreInput] = useState(maxScoreStr)
   const [pageInput, setPageInput] = useState(page.toString())
+  const [showFilters, setShowFilters] = useState(false)
 
   const debouncedSearch = useDebounce(searchTerm, 500)
 
@@ -279,621 +289,470 @@ export default function ScreenerAnalysis() {
 
   return (
     <div className="space-y-3">
-      <Card className="bg-card/20">
-        <CardContent className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground">Presets:</span>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 cursor-pointer text-xs"
-              onClick={() => handleApplyPerfectSetup(false)}
-            >
-              ⭐ Perfect Setup
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 cursor-pointer text-xs"
-              onClick={() => handleApplyPerfectSetup(true)}
-            >
-              ⚡ Perfect Setup + Breakout
-            </Button>
-          </div>
-          <div className="flex flex-col flex-wrap gap-2 md:flex-row md:items-end">
-            <div className="w-full min-w-50 md:w-auto md:flex-1">
-              <div className="relative">
-                <Search className="absolute top-3 left-2 h-4 w-4 text-muted-foreground" />
+      <Card className="bg-card/20 mb-2 border-muted">
+        <CardContent className="p-3">
+          <div className="flex flex-col gap-3">
+            {/* Top Bar: Search, Presets, Filter Toggle */}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative flex-1 min-w-[200px]">
+                <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   ref={searchInputRef}
                   id="search"
                   placeholder="Search symbol..."
-                  className="h-10 py-4 pl-8"
+                  className="h-9 py-2 pl-9 bg-background/50"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-            </div>
 
-            <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-              <span className="font-medium">Price</span>
-              <Separator orientation="vertical" className="mx-2 h-4" />
-              <input
-                className="w-16 bg-transparent outline-none placeholder:text-muted-foreground md:w-20"
-                placeholder="Min"
-                type="number"
-                value={minPriceInput}
-                onChange={(e) => setMinPriceInput(e.target.value)}
-                onBlur={handlePriceUpdate}
-                onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
-              />
-              <span className="mx-1 text-muted-foreground">-</span>
-              <input
-                className="w-16 bg-transparent text-right outline-none placeholder:text-muted-foreground md:w-20"
-                placeholder="Max"
-                type="number"
-                value={maxPriceInput}
-                onChange={(e) => setMaxPriceInput(e.target.value)}
-                onBlur={handlePriceUpdate}
-                onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
-              />
-            </div>
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 hide-scrollbar">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-9 cursor-pointer text-[13px] font-medium"
+                  onClick={() => handleApplyPerfectSetup(false)}
+                >
+                  ⭐ Perfect Setup
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-9 cursor-pointer text-[13px] font-medium whitespace-nowrap"
+                  onClick={() => handleApplyPerfectSetup(true)}
+                >
+                  ⚡ + Breakout
+                </Button>
+                <Separator orientation="vertical" className="h-5 mx-1" />
+                <Button
+                  variant={showFilters ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="h-9"
+                >
+                  <SlidersHorizontal className="h-4 w-4 mr-1.5" />
+                  Filters
+                </Button>
 
-            <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-              <span className="font-medium">Score</span>
-              <Separator orientation="vertical" className="mx-2 h-4" />
-              <input
-                className="w-16 bg-transparent outline-none placeholder:text-muted-foreground md:w-20"
-                placeholder="Min"
-                type="number"
-                step="10"
-                min="0"
-                max="100"
-                value={minScoreInput}
-                onChange={(e) => setMinScoreInput(e.target.value)}
-                onBlur={handleScoreUpdate}
-                onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
-              />
-              <span className="mx-1 text-muted-foreground">-</span>
-              <input
-                className="w-16 bg-transparent text-right outline-none placeholder:text-muted-foreground md:w-20"
-                placeholder="Max"
-                type="number"
-                step="10"
-                min="0"
-                max="100"
-                value={maxScoreInput}
-                onChange={(e) => setMaxScoreInput(e.target.value)}
-                onBlur={handleScoreUpdate}
-                onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
-              />
-            </div>
-
-            <div className="flex h-10 items-center gap-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-              <span className="mr-1 font-medium">Acc/Dist</span>
-              <Select
-                value={accDistOperator}
-                onValueChange={(val) =>
-                  setAccDistOperator(val as "gt" | "lt")
-                }
-              >
-                <SelectTrigger className="h-6 w-13.75 border-none px-1 text-xs focus:ring-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gt">&gt;</SelectItem>
-                  <SelectItem value="lt">&lt;</SelectItem>
-                </SelectContent>
-              </Select>
-              <Separator orientation="vertical" className="mx-1 h-4" />
-              <div className="flex gap-2">
-                <input
-                  className="w-8 bg-transparent text-center outline-none placeholder:text-muted-foreground"
-                  placeholder="1D"
-                  type="number"
-                  value={accDist1D}
-                  onChange={(e) => setAccDist1D(e.target.value)}
-                />
-                <input
-                  className="w-8 bg-transparent text-center outline-none placeholder:text-muted-foreground"
-                  placeholder="1W"
-                  type="number"
-                  value={accDist1W}
-                  onChange={(e) => setAccDist1W(e.target.value)}
-                />
-                <input
-                  className="w-8 bg-transparent text-center outline-none placeholder:text-muted-foreground"
-                  placeholder="1M"
-                  type="number"
-                  value={accDist1M}
-                  onChange={(e) => setAccDist1M(e.target.value)}
-                />
+                <div className="flex items-center gap-1.5 ml-1">
+                  <Button
+                    onClick={() => generateMutation.mutate()}
+                    disabled={generateMutation.isPending}
+                    size="sm"
+                    className="h-9 cursor-pointer shrink-0"
+                    variant="default"
+                  >
+                    {generateMutation.isPending ? "..." : <><Play className="mr-1.5 h-3.5 w-3.5" /> Generate</>}
+                  </Button>
+                  <Button
+                    onClick={() => exportMutation.mutate()}
+                    disabled={exportMutation.isPending}
+                    size="sm"
+                    className="h-9 cursor-pointer shrink-0"
+                    variant="outline"
+                    title="Export CSV"
+                  >
+                    {exportMutation.isPending ? "..." : <Download className="h-3.5 w-3.5" />}
+                  </Button>
+                </div>
               </div>
             </div>
 
-            <div className="flex h-10 items-center gap-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-              <span className="mr-1 font-medium">Peak</span>
-              <Select
-                value={peakReturnOperator}
-                onValueChange={(val) =>
-                  setPeakReturnOperator(val as "gt" | "lt")
-                }
-              >
-                <SelectTrigger className="h-6 w-10 border-none px-1 text-xs focus:ring-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gt">&gt;</SelectItem>
-                  <SelectItem value="lt">&lt;</SelectItem>
-                </SelectContent>
-              </Select>
-              <Separator orientation="vertical" className="mx-1 h-4" />
-              <div className="flex items-center gap-1">
-                <input
-                  className="w-12 bg-transparent text-center outline-none placeholder:text-muted-foreground"
-                  placeholder="%"
-                  type="number"
-                  value={peakReturnStr}
-                  onChange={(e) => setPeakReturn(e.target.value)}
-                />
-                <span className="text-muted-foreground">%</span>
+            {/* Expandable Advanced Filters */}
+            {showFilters && (
+              <div className="pt-3 border-t grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Price & Score</span>
+                  <div className="flex h-9 items-center rounded-md border bg-background px-2.5 text-xs">
+                    <span className="font-medium text-muted-foreground">Price</span>
+                    <Separator orientation="vertical" className="mx-2 h-4" />
+                    <input
+                      className="w-full bg-transparent outline-none placeholder:text-muted-foreground/50"
+                      placeholder="Min"
+                      type="number"
+                      value={minPriceInput}
+                      onChange={(e) => setMinPriceInput(e.target.value)}
+                      onBlur={handlePriceUpdate}
+                      onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
+                    />
+                    <span className="text-muted-foreground">-</span>
+                    <input
+                      className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground/50"
+                      placeholder="Max"
+                      type="number"
+                      value={maxPriceInput}
+                      onChange={(e) => setMaxPriceInput(e.target.value)}
+                      onBlur={handlePriceUpdate}
+                      onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
+                    />
+                  </div>
+                  <div className="flex h-9 items-center rounded-md border bg-background px-2.5 text-xs">
+                    <span className="font-medium text-muted-foreground">Score</span>
+                    <Separator orientation="vertical" className="mx-2 h-4" />
+                    <input
+                      className="w-full bg-transparent outline-none placeholder:text-muted-foreground/50"
+                      placeholder="Min"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={minScoreInput}
+                      onChange={(e) => setMinScoreInput(e.target.value)}
+                      onBlur={handleScoreUpdate}
+                      onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
+                    />
+                    <span className="text-muted-foreground">-</span>
+                    <input
+                      className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground/50"
+                      placeholder="Max"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={maxScoreInput}
+                      onChange={(e) => setMaxScoreInput(e.target.value)}
+                      onBlur={handleScoreUpdate}
+                      onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Signals & Status</span>
+                  <FilterMultiSelect
+                    title="Signals"
+                    options={[
+                      { label: "Breakout", value: "Breakout" },
+                      { label: "Spike", value: "Spike" },
+                    ]}
+                    selected={signals}
+                    onChange={(val) => setSignals(val)}
+                  />
+                  <FilterMultiSelect
+                    title="Status"
+                    options={[
+                      { label: "Accumulation", value: "Accumulation" },
+                      { label: "Neutral", value: "Neutral" },
+                      { label: "Distribution", value: "Distribution" },
+                    ]}
+                    selected={bandarStatus}
+                    onChange={(val) => setBandarStatus(val)}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Momentum & Liquidity</span>
+                  <FilterMultiSelect
+                    title="Momentum"
+                    options={[
+                      { label: "Uptrend", value: "Uptrend" },
+                      { label: "Sideways", value: "Sideways" },
+                      { label: "Downtrend", value: "Downtrend" },
+                    ]}
+                    selected={momentum}
+                    onChange={(val) => setMomentum(val)}
+                  />
+                  <FilterMultiSelect
+                    title="Liquidity"
+                    options={[
+                      { label: "High", value: "High" },
+                      { label: "Medium", value: "Medium" },
+                      { label: "Low", value: "Low" },
+                    ]}
+                    selected={liquidity}
+                    onChange={(val) => setLiquidity(val)}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Returns & Cutoff</span>
+
+                  <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs">
+                    <Select value={accDistOperator} onValueChange={(val) => setAccDistOperator(val as "gt" | "lt")}>
+                      <SelectTrigger className="h-6 w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="gt">&gt;</SelectItem>
+                        <SelectItem value="lt">&lt;</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Separator orientation="vertical" className="mx-1 h-3" />
+                    <span className="text-[10px] text-muted-foreground">A/D:</span>
+                    <input className="w-6 bg-transparent text-center outline-none" placeholder="1D" type="number" value={accDist1D} onChange={(e) => setAccDist1D(e.target.value)} />
+                    <input className="w-6 bg-transparent text-center outline-none" placeholder="1W" type="number" value={accDist1W} onChange={(e) => setAccDist1W(e.target.value)} />
+                    <input className="w-6 bg-transparent text-center outline-none" placeholder="1M" type="number" value={accDist1M} onChange={(e) => setAccDist1M(e.target.value)} />
+                  </div>
+
+                  <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs">
+                    <Select value={peakReturnOperator} onValueChange={(val) => setPeakReturnOperator(val as "gt" | "lt")}>
+                      <SelectTrigger className="h-6 w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="gt">&gt;</SelectItem>
+                        <SelectItem value="lt">&lt;</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Separator orientation="vertical" className="mx-1 h-3" />
+                    <span className="text-[10px] text-muted-foreground">Peak:</span>
+                    <div className="flex items-center gap-1 flex-1">
+                      <input className="w-full bg-transparent text-right outline-none" placeholder="Value" type="number" value={peakReturnStr} onChange={(e) => setPeakReturn(e.target.value)} />
+                      <span className="text-muted-foreground">%</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-1">
+                    <div className="flex items-center gap-2">
+                      <Switch id="cutoff-toggle" checked={useCutoff} onCheckedChange={(val) => setUseCutoff(val)} />
+                      <Label htmlFor="cutoff-toggle" className="cursor-pointer text-xs font-medium">Cutoff 20D</Label>
+                    </div>
+
+                    <Button onClick={handleResetFilters} size="sm" variant="ghost" className="h-8 px-2 text-destructive hover:bg-destructive/10 hover:text-destructive text-xs shrink-0">
+                      <X className="mr-1 h-3 w-3" />
+                      Clear
+                    </Button>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div className="w-full space-y-2 md:w-52">
-              <FilterMultiSelect
-                title="Signals"
-                options={[
-                  { label: "Breakout", value: "Breakout" },
-                  { label: "Spike", value: "Spike" },
-                ]}
-                selected={signals}
-                onChange={(val) => setSignals(val)}
-              />
-            </div>
-
-            <div className="w-full space-y-2 md:w-52">
-              <FilterMultiSelect
-                title="Status"
-                options={[
-                  { label: "Accumulation", value: "Accumulation" },
-                  { label: "Neutral", value: "Neutral" },
-                  { label: "Distribution", value: "Distribution" },
-                ]}
-                selected={bandarStatus}
-                onChange={(val) => setBandarStatus(val)}
-              />
-            </div>
-
-            <div className="w-full space-y-2 md:w-52">
-              <FilterMultiSelect
-                title="Momentum"
-                options={[
-                  { label: "Uptrend", value: "Uptrend" },
-                  { label: "Sideways", value: "Sideways" },
-                  { label: "Downtrend", value: "Downtrend" },
-                ]}
-                selected={momentum}
-                onChange={(val) => setMomentum(val)}
-              />
-            </div>
-
-            <div className="w-full space-y-2 md:w-52">
-              <FilterMultiSelect
-                title="Liquidity"
-                options={[
-                  { label: "High", value: "High" },
-                  { label: "Medium", value: "Medium" },
-                  { label: "Low", value: "Low" },
-                ]}
-                selected={liquidity}
-                onChange={(val) => setLiquidity(val)}
-              />
-            </div>
-            <Button
-              onClick={handleResetFilters}
-              className="h-10 cursor-pointer text-red-500 hover:bg-red-50 hover:text-red-500/80"
-              variant="ghost"
-              title="Reset all filters"
-            >
-              <X className="mr-2 h-4 w-4" />
-              Reset
-            </Button>
-            <div className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm">
-              <Switch
-                id="cutoff-toggle"
-                checked={useCutoff}
-                onCheckedChange={(val) => setUseCutoff(val)}
-              />
-              <Label htmlFor="cutoff-toggle" className="cursor-pointer whitespace-nowrap font-medium">
-                Cutoff 20D
-              </Label>
-            </div>
-            <Button
-              onClick={() => generateMutation.mutate()}
-              disabled={generateMutation.isPending}
-              className="h-10 cursor-pointer"
-              variant="default"
-            >
-              {generateMutation.isPending ? (
-                "Generating..."
-              ) : (
-                <>
-                  <Play className="mr-2 h-4 w-4" />
-                  Generate All
-                </>
-              )}
-            </Button>
-            <Button
-              onClick={() => exportMutation.mutate()}
-              disabled={exportMutation.isPending}
-              className="h-10 cursor-pointer"
-              variant="outline"
-              title="Export CSV"
-            >
-              {exportMutation.isPending ? (
-                "Exporting..."
-              ) : (
-                <>
-                  <Download className="mr-2 h-4 w-4" />
-                  Export
-                </>
-              )}
-            </Button>
+            )}
           </div>
         </CardContent>
       </Card>
-
-      <div className="flex flex-col gap-1">
-        {isLoading ? (
-          <div className="flex h-24 items-center justify-center text-muted-foreground">
-            Loading analysis data...
-          </div>
-        ) : isError ? (
-          <div className="flex h-24 items-center justify-center text-red-500">
-            Error: {(error as Error).message}
-          </div>
-        ) : !data || data.data.length === 0 ? (
-          <div className="flex h-24 items-center justify-center text-muted-foreground">
-            No analysis data found
-          </div>
-        ) : (
-          data.data.map((row: any) => (
-            <Card
-              key={row.id}
-              className="overflow-hidden p-2 transition-all hover:shadow-md"
-            >
-              <div className="flex flex-col items-center justify-between gap-4 text-sm lg:flex-row">
-                {/* 1. Ticker & Date */}
-                <div
-                  className="flex w-full shrink-0 cursor-pointer items-center gap-3 lg:w-62.5"
-                  onClick={() => {
-                    navigate(`/stock/${row.symbol}`)
-                  }}
-                >
-                  {row.ticker?.logo ? (
-                    <img
-                      src={row.ticker.logo}
-                      alt={row.symbol}
-                      className="h-10 w-10 rounded-full border object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
-                      {row.symbol.substring(0, 2)}
-                    </div>
-                  )}
-                  <div className="flex min-w-0 flex-col">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base font-bold">{row.symbol}</span>
-                      {row.screener.isBreakout && (
-                        <Badge
-                          variant="outline"
-                          className="h-4 border-orange-200 bg-orange-50 px-1 py-0 text-[10px] text-orange-600"
-                        >
-                          Breakout
-                        </Badge>
-                      )}
-                    </div>
-                    <span
-                      className="max-w-37.5 truncate text-xs text-muted-foreground"
-                      title={row.ticker?.name}
-                    >
-                      {row.ticker?.name || "-"}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">
-                      {format(new Date(row.signalDate), "dd MMM yyyy")}
-                    </span>
-                  </div>
-                </div>
-
-                <Separator orientation="vertical" className="hidden lg:block" />
-
-                {/* 2. Price & Volume */}
-                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-30 lg:flex-col lg:justify-center">
-                  <div className="flex items-center justify-between gap-2 lg:justify-end">
-                    <span className="text-muted-foreground lg:hidden">
-                      Price:
-                    </span>
-                    <div className="text-right">
-                      <div className="font-medium">
-                        {Number(row.screener.price).toLocaleString()}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Ticker</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Price</TableHead>
+            <TableHead>Volume</TableHead>
+            <TableHead>Broker Net</TableHead>
+            <TableHead>Acc/Dist (%)</TableHead>
+            <TableHead>Bandar Status</TableHead>
+            <TableHead>Insight</TableHead>
+            <TableHead>Top Brokers</TableHead>
+            <TableHead className="text-center">Returns (%)</TableHead>
+            <TableHead className="text-right">Peak Return</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={11} className="h-24 text-center">Loading analysis data...</TableCell>
+            </TableRow>
+          ) : isError ? (
+            <TableRow>
+              <TableCell colSpan={11} className="h-24 text-center text-red-500">Error: {(error as Error).message}</TableCell>
+            </TableRow>
+          ) : !data || data.data.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={11} className="h-24 text-center text-muted-foreground">No analysis data found</TableCell>
+            </TableRow>
+          ) : (
+            data.data.map((row: any) => (
+              <TableRow
+                key={row.id}
+                className="cursor-pointer"
+                onClick={() => navigate(`/stock/${row.symbol}`)}
+              >
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    {row.ticker?.logo ? (
+                      <img
+                        src={row.ticker?.logo}
+                        alt={row.symbol}
+                        className="h-8 w-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                        {row.symbol?.substring(0, 2)}
                       </div>
-                      <div
-                        className={cn(
-                          "text-[10px]",
-                          Number(row.screener.changePercentage) > 0
-                            ? "text-green-600"
-                            : Number(row.screener.changePercentage) < 0
-                              ? "text-red-600"
-                              : "text-gray-600"
+                    )}
+                    <div className="flex flex-col">
+                      <span className="flex items-center gap-1 text-sm font-bold">
+                        {row.symbol}
+                        {row.screener?.isBreakout && (
+                          <span className="text-[11px] text-orange-500" title="Breakout">⚡Breakout</span>
                         )}
-                      >
-                        {Number(row.screener.changePercentage) > 0 ? "+" : ""}
-                        {Number(row.screener.changePercentage).toFixed(2)}%
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between gap-2 lg:justify-end">
-                    <span className="text-muted-foreground lg:hidden">
-                      Vol:
-                    </span>
-                    <div className="flex items-center justify-end gap-1 text-right">
-                      <span className="text-xs text-muted-foreground">
-                        {formatNumber(Number(row.screener.volume))}
                       </span>
-                      {row.screener.isVolumeSpike && (
-                        <span
-                          className="text-[10px] font-bold text-orange-600"
-                          title="Volume Spike"
-                        >
-                          🔥Spike
-                        </span>
-                      )}
+                      <span className="text-[10px] text-muted-foreground max-w-[120px] truncate" title={row.ticker?.name || "-"}>
+                        {row.ticker?.name || "-"}
+                      </span>
                     </div>
                   </div>
-                </div>
-
-                <Separator orientation="vertical" className="hidden lg:block" />
-
-                {/* 3. Broker & Acc/Dist */}
-                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-35 lg:flex-col lg:justify-center">
-                  <div className="flex items-center justify-between gap-2 lg:justify-end">
-                    <span className="text-muted-foreground lg:hidden">
-                      Net:
+                </TableCell>
+                <TableCell>
+                  <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+                    {format(new Date(row.signalDate), "dd MMM yy")}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold">
+                      {Number(row.screener?.price || 0).toLocaleString()}
                     </span>
                     <span
                       className={cn(
-                        "font-medium",
-                        Number(row.screener.netBrokerFlow) > 0
+                        "text-xs font-medium",
+                        Number(row.screener?.changePercentage || 0) > 0
                           ? "text-green-600"
-                          : Number(row.screener.netBrokerFlow) < 0
+                          : Number(row.screener?.changePercentage || 0) < 0
                             ? "text-red-600"
                             : "text-gray-600"
                       )}
                     >
-                      {formatNumber(Number(row.screener.netBrokerFlow))}
+                      {Number(row.screener?.changePercentage || 0) > 0 ? "+" : ""}
+                      {Number(row.screener?.changePercentage || 0).toFixed(2)}%
                     </span>
                   </div>
-                  <div className="flex items-center justify-between gap-2 text-[10px] lg:justify-end">
-                    <span className="text-muted-foreground lg:hidden">
-                      A/D:
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">
+                      {formatNumber(Number(row.screener?.volume || 0))}
                     </span>
-                    <div className="flex gap-1.5 text-right">
-                      <span
-                        title="1D"
-                        className={cn(
-                          Number(row.screener.accumulationDistribution1D) > 0
-                            ? "text-green-600"
-                            : Number(row.screener.accumulationDistribution1D) <
-                                0
-                              ? "text-red-600"
-                              : "text-gray-600"
-                        )}
-                      >
-                        {Number(
-                          row.screener.accumulationDistribution1D
-                        ).toFixed(0)}
-                        %
+                    {row.screener?.isVolumeSpike && (
+                      <span className="text-[10px] font-bold text-orange-500">🔥 Spike</span>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <span
+                    className={cn(
+                      "font-medium tracking-tight",
+                      Number(row.screener?.netBrokerFlow || 0) > 0
+                        ? "text-green-600"
+                        : Number(row.screener?.netBrokerFlow || 0) < 0
+                          ? "text-red-600"
+                          : "text-gray-600"
+                    )}
+                  >
+                    {Number(row.screener?.netBrokerFlow || 0) > 0 ? "+" : ""}
+                    {formatNumber(Number(row.screener?.netBrokerFlow || 0))}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col gap-1 text-[11px] whitespace-nowrap">
+                    <div className="flex items-center gap-1.5 justify-between">
+                      <span className="text-muted-foreground/70">1D</span>
+                      <span className={cn("font-medium", Number(row.screener?.accumulationDistribution1D || 0) > 0 ? "text-green-600" : Number(row.screener?.accumulationDistribution1D || 0) < 0 ? "text-red-600" : "text-gray-600")}>
+                        {Number(row.screener?.accumulationDistribution1D || 0) > 0 ? "+" : ""}{Number(row.screener?.accumulationDistribution1D || 0).toFixed(0)}%
                       </span>
-                      <span className="text-muted-foreground/30">/</span>
-                      <span
-                        title="1W"
-                        className={cn(
-                          Number(row.screener.accumulationDistribution1W) > 0
-                            ? "text-green-600"
-                            : Number(row.screener.accumulationDistribution1W) <
-                                0
-                              ? "text-red-600"
-                              : "text-gray-600"
-                        )}
-                      >
-                        {Number(
-                          row.screener.accumulationDistribution1W
-                        ).toFixed(0)}
-                        %
+                    </div>
+                    <div className="flex items-center gap-1.5 justify-between">
+                      <span className="text-muted-foreground/70">1W</span>
+                      <span className={cn("font-medium", Number(row.screener?.accumulationDistribution1W || 0) > 0 ? "text-green-600" : Number(row.screener?.accumulationDistribution1W || 0) < 0 ? "text-red-600" : "text-gray-600")}>
+                        {Number(row.screener?.accumulationDistribution1W || 0) > 0 ? "+" : ""}{Number(row.screener?.accumulationDistribution1W || 0).toFixed(0)}%
                       </span>
-                      <span className="text-muted-foreground/30">/</span>
-                      <span
-                        title="1M"
-                        className={cn(
-                          Number(row.screener.accumulationDistribution1M) > 0
-                            ? "text-green-600"
-                            : Number(row.screener.accumulationDistribution1M) <
-                                0
-                              ? "text-red-600"
-                              : "text-gray-600"
-                        )}
-                      >
-                        {Number(
-                          row.screener.accumulationDistribution1M
-                        ).toFixed(0)}
-                        %
+                    </div>
+                    <div className="flex items-center gap-1.5 justify-between">
+                      <span className="text-muted-foreground/70">1M</span>
+                      <span className={cn("font-medium", Number(row.screener?.accumulationDistribution1M || 0) > 0 ? "text-green-600" : Number(row.screener?.accumulationDistribution1M || 0) < 0 ? "text-red-600" : "text-gray-600")}>
+                        {Number(row.screener?.accumulationDistribution1M || 0) > 0 ? "+" : ""}{Number(row.screener?.accumulationDistribution1M || 0).toFixed(0)}%
                       </span>
                     </div>
                   </div>
-                </div>
-
-                <Separator orientation="vertical" className="hidden lg:block" />
-
-                {/* Top Brokers */}
-                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-30 lg:flex-col lg:justify-center">
-                  <div className="flex w-full items-center justify-between gap-2 lg:justify-end">
-                    <span className="text-[10px] text-muted-foreground lg:hidden">
-                      Top Buy:
-                    </span>
-                    <span
-                      className={cn("truncate text-[10px]")}
-                      title={row.brokerSummary?.brokersBuy
-                        ?.map((b: any) => b.netbsBrokerCode)
-                        .join(", ")}
-                    >
-                      {(() => {
-                        const list = row.brokerSummary?.brokersBuy?.slice(0, 5) || []
-                        if (list.length === 0) return "-"
-                        return list.map((b: any, idx: number) => (
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "font-medium tracking-tight",
+                      row.screener?.bandarStatus === "Accumulation" && "border-green-200 bg-green-50 text-green-700",
+                      row.screener?.bandarStatus === "Distribution" && "border-red-200 bg-red-50 text-red-700",
+                      row.screener?.bandarStatus === "Neutral" && "border-gray-200 bg-gray-50 text-gray-700"
+                    )}
+                  >
+                    {row.screener?.bandarStatus || "-"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col gap-1 text-[11px] whitespace-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-muted-foreground/70 w-6">Scr:</span>
+                      <span className={cn("font-bold", Number(row.screener?.smartMoneyScore || 0) >= 70 ? "text-green-600" : Number(row.screener?.smartMoneyScore || 0) <= 30 ? "text-red-600" : "text-yellow-600")}>
+                        {row.screener?.smartMoneyScore || 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-muted-foreground/70 w-6">Mom:</span>
+                      <span className={cn("font-medium", row.screener?.momentum === "Uptrend" ? "text-green-600" : row.screener?.momentum === "Downtrend" ? "text-red-600" : "text-gray-600")}>
+                        {row.screener?.momentum || "-"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-muted-foreground/70 w-6">Liq:</span>
+                      <span className={cn("font-medium", row.screener?.liquidityScore === "High" ? "text-blue-600" : row.screener?.liquidityScore === "Medium" ? "text-yellow-600" : "text-gray-600")}>
+                        {row.screener?.liquidityScore || "-"}
+                      </span>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  <div className="flex flex-col gap-1.5 text-[11px]">
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[120px]">
+                      <span className="text-green-600/70 font-medium mr-0.5">B</span>
+                      {row.brokerSummary?.brokersBuy?.length > 0 ? (
+                        row.brokerSummary.brokersBuy.map((b: any, idx: number) => (
                           <span
                             key={(b.netbsBrokerCode || String(idx)) + "-buy"}
-                            className={cn("text-[11px]", getBrokerCodeClass(b.netbsBrokerCode))}
+                            className={cn("px-1 py-0.5 rounded bg-muted/50 whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
                           >
                             {b.netbsBrokerCode}
-                            {idx < list.length - 1 ? ", " : ""}
                           </span>
                         ))
-                      })()}
-                    </span>
-                  </div>
-                  <div className="flex w-full items-center justify-between gap-2 lg:justify-end">
-                    <span className="text-[10px] text-muted-foreground lg:hidden">
-                      Top Sell:
-                    </span>
-                    <span
-                      className={cn("truncate text-[10px]")}
-                      title={row.brokerSummary?.brokersSell
-                        ?.map((b: any) => b.netbsBrokerCode)
-                        .join(", ")}
-                    >
-                      {(() => {
-                        const list = row.brokerSummary?.brokersSell?.slice(0, 5) || []
-                        if (list.length === 0) return "-"
-                        return list.map((b: any, idx: number) => (
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[120px]">
+                      <span className="text-red-600/70 font-medium mr-0.5">S</span>
+                      {row.brokerSummary?.brokersSell?.length > 0 ? (
+                        row.brokerSummary.brokersSell.map((b: any, idx: number) => (
                           <span
                             key={(b.netbsBrokerCode || String(idx)) + "-sell"}
-                            className={cn("text-[11px]", getBrokerCodeClass(b.netbsBrokerCode))}
+                            className={cn("px-1 py-0.5 rounded bg-muted/50 whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
                           >
                             {b.netbsBrokerCode}
-                            {idx < list.length - 1 ? ", " : ""}
                           </span>
                         ))
-                      })()}
-                    </span>
-                  </div>
-                </div>
-
-                <Separator orientation="vertical" className="hidden lg:block" />
-
-                {/* 4. Status/Score/Momentum */}
-                <div className="flex w-full shrink-0 flex-row justify-between gap-1 lg:w-56 lg:flex-col lg:justify-center">
-                  <div className="flex items-center justify-between gap-2 lg:justify-end">
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "ml-auto h-4 px-1 py-0 text-[10px] font-normal",
-                        row.screener.bandarStatus === "Accumulation"
-                          ? "border-green-200 bg-green-50 text-green-700"
-                          : row.screener.bandarStatus === "Distribution"
-                            ? "border-red-200 bg-red-50 text-red-700"
-                            : "border-gray-200 bg-gray-50 text-gray-600"
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
                       )}
-                    >
-                      {row.screener.bandarStatus}
-                    </Badge>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between gap-2 text-[10px] lg:justify-end">
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col gap-1 text-center justify-center">
+                    <div className="flex gap-1.5 justify-center">
+                      {["1D", "3D", "5D", "10D", "20D"].map((label) => (
+                        <div key={`head-${label}`} className="w-9 text-[10px] text-muted-foreground">{label}</div>
+                      ))}
+                    </div>
+                    <div className="flex gap-1.5 justify-center">
+                      {["1D", "3D", "5D", "10D", "20D"].map((label) => {
+                        const key = `return${label}` as keyof typeof row
+                        const val = row[key]
+                        return (
+                          <div
+                            key={label}
+                            className={cn(
+                              "w-9 rounded p-1 text-[10px] font-medium tracking-tighter truncate",
+                              Number(val) > 0
+                                ? "bg-green-50 text-green-700"
+                                : Number(val) < 0
+                                  ? "bg-red-50 text-red-700"
+                                  : "bg-muted/50 text-muted-foreground"
+                            )}
+                          >
+                            {val ? formatPercent(val).replace("%", "") : "-"}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex flex-col items-end">
                     <span
-                      className={cn(
-                        "font-bold",
-                        Number(row.screener.smartMoneyScore) >= 70
-                          ? "text-green-600"
-                          : Number(row.screener.smartMoneyScore) <= 30
-                            ? "text-red-600"
-                            : "text-yellow-600"
-                      )}
-                    >
-                      Score: {row.screener.smartMoneyScore}
-                    </span>
-                    <span className="text-muted-foreground/30">|</span>
-                    <span
-                      className={cn(
-                        "font-medium",
-                        row.screener.momentum === "Uptrend"
-                          ? "text-green-600"
-                          : row.screener.momentum === "Downtrend"
-                            ? "text-red-600"
-                            : "text-gray-600"
-                      )}
-                    >
-                      {row.screener.momentum}
-                    </span>
-                    <span className="text-muted-foreground/30">|</span>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "h-4 px-1 py-0 text-[10px] font-normal",
-                        row.screener.liquidityScore === "High"
-                          ? "border-blue-200 bg-blue-50 text-blue-700"
-                          : row.screener.liquidityScore === "Medium"
-                            ? "border-yellow-200 bg-yellow-50 text-yellow-700"
-                            : "border-gray-200 bg-gray-50 text-gray-600"
-                      )}
-                    >
-                      Liq: {row.screener.liquidityScore}
-                    </Badge>
-                  </div>
-                </div>
-
-                <Separator orientation="vertical" className="hidden lg:block" />
-
-                {/* 5. Returns */}
-                <div className="flex w-full grow flex-col gap-1 lg:w-auto">
-                  <div className="mb-0.5 flex justify-between gap-1 text-[10px] tracking-wider text-muted-foreground uppercase lg:justify-center">
-                    <span>1D</span>
-                    <span>3D</span>
-                    <span>5D</span>
-                    <span>10D</span>
-                    <span>20D</span>
-                  </div>
-                  <div className="grid grid-cols-5 gap-1 text-center">
-                    {["1D", "3D", "5D", "10D", "20D"].map((label) => {
-                      const key = `return${label}` as keyof typeof row
-                      const val = row[key]
-                      return (
-                        <div
-                          key={label}
-                          className={cn(
-                            "rounded p-1 text-xs font-medium",
-                            Number(val) > 0
-                              ? "bg-green-50 text-green-700"
-                              : Number(val) < 0
-                                ? "bg-red-50 text-red-700"
-                                : "bg-muted/50 text-muted-foreground"
-                          )}
-                        >
-                          {val ? formatPercent(val).replace("%", "") : "-"}
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                <Separator orientation="vertical" className="hidden lg:block" />
-
-                {/* 6. Peak Return */}
-                <div className="flex w-full shrink-0 flex-row items-end justify-between gap-0 lg:w-20 lg:flex-col lg:justify-center">
-                  <div className="text-[10px] text-muted-foreground lg:hidden">
-                    Peak Return
-                  </div>
-                  <div className="text-right">
-                    <div
                       className={cn(
                         "text-sm font-bold",
                         Number(row.peakReturn) > 0
@@ -904,19 +763,19 @@ export default function ScreenerAnalysis() {
                       )}
                     >
                       {formatPercent(row.peakReturn)}
-                    </div>
+                    </span>
                     {row.daysToPeak && (
-                      <div className="text-[10px] text-muted-foreground">
+                      <span className="text-[10px] text-muted-foreground">
                         {row.daysToPeak} days
-                      </div>
+                      </span>
                     )}
                   </div>
-                </div>
-              </div>
-            </Card>
-          ))
-        )}
-      </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">

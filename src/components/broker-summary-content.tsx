@@ -32,7 +32,7 @@ export function BrokerSummaryPopover({
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent
-        className="max-h-[500px] w-[800px] max-w-none overflow-y-auto border border-border bg-popover p-1 text-popover-foreground shadow-xl"
+        className="max-h-125 w-200 max-w-none overflow-y-auto border border-border bg-popover p-1 text-popover-foreground shadow-xl"
         side="top"
         align="start"
       >
