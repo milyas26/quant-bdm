@@ -259,7 +259,7 @@ export default function StocksPage() {
         symbol={watchlistDialogSymbol}
         onClose={() => setWatchlistDialogSymbol(null)}
       />
-      <Card className="bg-card/20 mb-2 border-muted">
+      <Card className="bg-card/20 mb-2 py-0 border-muted">
         <CardContent className="p-3">
           <div className="flex flex-col gap-3">
             {/* Top Bar: Search, Presets, Filter Toggle */}

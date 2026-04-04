@@ -289,7 +289,7 @@ export default function ScreenerAnalysis() {
 
   return (
     <div className="space-y-3">
-      <Card className="bg-card/20 mb-2 border-muted">
+      <Card className="bg-card/20 mb-2 border-muted py-0">
         <CardContent className="p-3">
           <div className="flex flex-col gap-3">
             {/* Top Bar: Search, Presets, Filter Toggle */}
