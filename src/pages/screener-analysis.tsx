@@ -523,7 +523,7 @@ export default function ScreenerAnalysis() {
             <TableHead>Ticker</TableHead>
             <TableHead>Date</TableHead>
             <TableHead>Price</TableHead>
-            <TableHead>Volume</TableHead>
+            <TableHead>Vol / Val</TableHead>
             <TableHead>Broker Net</TableHead>
             <TableHead>Acc/Dist (%)</TableHead>
             <TableHead>Bandar Status</TableHead>
@@ -609,25 +609,46 @@ export default function ScreenerAnalysis() {
                     <span className="text-sm font-medium">
                       {formatNumber(Number(row.screener?.volume || 0))}
                     </span>
+                    <span className="text-[11px] text-muted-foreground font-medium mt-0.5">
+                      Rp {formatNumber(Number(row.transactionValue || 0))}
+                    </span>
                     {row.screener?.isVolumeSpike && (
-                      <span className="text-[10px] font-bold text-orange-500">🔥 Spike</span>
+                      <span className="text-[10px] font-bold text-orange-500 mt-0.5">🔥 Spike</span>
                     )}
                   </div>
                 </TableCell>
                 <TableCell>
-                  <span
-                    className={cn(
-                      "font-medium tracking-tight",
-                      Number(row.screener?.netBrokerFlow || 0) > 0
-                        ? "text-green-600"
-                        : Number(row.screener?.netBrokerFlow || 0) < 0
-                          ? "text-red-600"
-                          : "text-gray-600"
+                  <div className="flex flex-col">
+                    <span
+                      className={cn(
+                        "font-medium tracking-tight",
+                        Number(row.screener?.netBrokerFlow || 0) > 0
+                          ? "text-green-600"
+                          : Number(row.screener?.netBrokerFlow || 0) < 0
+                            ? "text-red-600"
+                            : "text-gray-600"
+                      )}
+                    >
+                      {Number(row.screener?.netBrokerFlow || 0) > 0 ? "+" : ""}
+                      {formatNumber(Number(row.screener?.netBrokerFlow || 0))}
+                    </span>
+                    {row.netForeign !== undefined && (
+                      <span
+                        className={cn(
+                          "text-[10px] font-medium tracking-tight mt-0.5",
+                          Number(row.netForeign) > 0
+                            ? "text-green-600"
+                            : Number(row.netForeign) < 0
+                              ? "text-red-600"
+                              : "text-gray-500"
+                        )}
+                        title="Net Foreign"
+                      >
+                        {Number(row.netForeign) > 0 ? "+F " : Number(row.netForeign) < 0 ? "-F " : "F "}
+                        {formatNumber(Math.abs(Number(row.netForeign)))}
+                      </span>
                     )}
-                  >
-                    {Number(row.screener?.netBrokerFlow || 0) > 0 ? "+" : ""}
-                    {formatNumber(Number(row.screener?.netBrokerFlow || 0))}
-                  </span>
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-1 text-[11px] whitespace-nowrap">
@@ -688,28 +709,28 @@ export default function ScreenerAnalysis() {
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex flex-col gap-1.5 text-[11px]">
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[135px]">
+                    <div className="flex items-center gap-1">
                       {row.brokerSummary?.brokersBuy?.length > 0 ? (
                         row.brokerSummary.brokersBuy.map((b: any, idx: number) => (
                           <span
                             key={(b.netbsBrokerCode || String(idx)) + "-buy"}
                             className={cn("px-1 py-0.5 rounded bg-muted/50 whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
                           >
-                            {b.netbsBrokerCode}
+                            {b.netbsBrokerCode} {formatNumber(Number(b.bval || b.net || 0))}
                           </span>
                         ))
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[135px]">
+                    <div className="flex items-center gap-1">
                       {row.brokerSummary?.brokersSell?.length > 0 ? (
                         row.brokerSummary.brokersSell.map((b: any, idx: number) => (
                           <span
                             key={(b.netbsBrokerCode || String(idx)) + "-sell"}
                             className={cn("px-1 py-0.5 rounded bg-muted/50 whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
                           >
-                            {b.netbsBrokerCode}
+                            {b.netbsBrokerCode} {formatNumber(Number(b.sval || Math.abs(b.net) || 0))}
                           </span>
                         ))
                       ) : (
