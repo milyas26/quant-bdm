@@ -778,6 +778,9 @@ export default function StocksPage() {
                     <span className="text-sm font-medium">
                       {formatNumber(ticker.volume)}
                     </span>
+                    <span className="text-[11px] text-muted-foreground font-medium mt-0.5">
+                      Rp {formatNumber(Number(ticker.transactionValue || 0))}
+                    </span>
                     {ticker.isVolumeSpike && (
                       <span className="text-xs font-bold text-orange-500">
                         🔥 Spike

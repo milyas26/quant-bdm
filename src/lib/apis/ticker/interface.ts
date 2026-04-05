@@ -44,6 +44,7 @@ export interface GetTickersResponse {
 }
 
 export interface ScreenerTicker extends Ticker {
+  transactionValue: number
   screenerId: number
   date: string
 }
