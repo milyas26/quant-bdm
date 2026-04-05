@@ -545,7 +545,7 @@ export default function StocksPage() {
               onClick={() => handleSort("volume")}
             >
               <div className="flex items-center gap-1">
-                Volume
+                Vol/Val
                 {sortBy === "volume" ? (
                   sortOrder === "asc" ? (
                     <ArrowUp className="h-3 w-3" />
