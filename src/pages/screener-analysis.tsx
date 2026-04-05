@@ -573,7 +573,7 @@ export default function ScreenerAnalysis() {
                           <span className="text-[11px] text-orange-500" title="Breakout">⚡Breakout</span>
                         )}
                       </span>
-                      <span className="text-[11px] text-muted-foreground max-w-[120px] truncate" title={row.ticker?.name || "-"}>
+                      <span className="text-[11px] text-muted-foreground max-w-[160px] truncate" title={row.ticker?.name || "-"}>
                         {row.ticker?.name || "-"}
                       </span>
                     </div>
@@ -709,28 +709,28 @@ export default function ScreenerAnalysis() {
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex flex-col gap-1.5 text-[11px]">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[150px]">
                       {row.brokerSummary?.brokersBuy?.length > 0 ? (
                         row.brokerSummary.brokersBuy.map((b: any, idx: number) => (
                           <span
                             key={(b.netbsBrokerCode || String(idx)) + "-buy"}
                             className={cn("px-1 py-0.5 rounded bg-muted/50 whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
                           >
-                            {b.netbsBrokerCode} {formatNumber(Number(b.bval || b.net || 0))}
+                            {b.netbsBrokerCode}
                           </span>
                         ))
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[150px]">
                       {row.brokerSummary?.brokersSell?.length > 0 ? (
                         row.brokerSummary.brokersSell.map((b: any, idx: number) => (
                           <span
                             key={(b.netbsBrokerCode || String(idx)) + "-sell"}
                             className={cn("px-1 py-0.5 rounded bg-muted/50 whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
                           >
-                            {b.netbsBrokerCode} {formatNumber(Number(b.sval || Math.abs(b.net) || 0))}
+                            {b.netbsBrokerCode}
                           </span>
                         ))
                       ) : (
@@ -740,7 +740,7 @@ export default function ScreenerAnalysis() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="flex flex-col gap-1 text-center justify-center">
+                  <div className="flex flex-col gap-1 text-center">
                     <div className="flex gap-1.5 justify-center">
                       {["1D", "3D", "5D", "10D", "20D"].map((label) => (
                         <div key={`head-${label}`} className="w-9 text-[10px] text-muted-foreground">{label}</div>
