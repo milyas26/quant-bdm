@@ -2,6 +2,7 @@ export interface DemoTrade {
   id: number
   symbol: string
   screenerId: number | null
+  screenerDate: string | null
   entryPrice: number
   currentPrice: number
   exitPrice: number | null

@@ -163,12 +163,14 @@ export const TradesTable = ({
                     </TableCell>
                     <TableCell>
                       <div className="text-xs whitespace-nowrap text-muted-foreground">
-                        {format(new Date(trade.entryTime), "dd MMM yy")}
+                        {trade.screenerDate
+                          ? format(new Date(trade.screenerDate), "dd MMM yy")
+                          : format(new Date(trade.entryTime), "dd MMM yy")}
                       </div>
                       <div className="text-[10px] text-muted-foreground/60">
-                        {formatDistanceToNow(new Date(trade.entryTime), {
-                          addSuffix: true,
-                        })}
+                        {trade.screenerDate
+                          ? formatDistanceToNow(new Date(trade.screenerDate), { addSuffix: true })
+                          : formatDistanceToNow(new Date(trade.entryTime), { addSuffix: true })}
                       </div>
                     </TableCell>
                     {showCloseButton && (
