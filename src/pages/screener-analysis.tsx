@@ -714,7 +714,7 @@ export default function ScreenerAnalysis() {
                         row.brokerSummary.brokersBuy.map((b: any, idx: number) => (
                           <span
                             key={(b.netbsBrokerCode || String(idx)) + "-buy"}
-                            className={cn("px-1 py-0.5 rounded bg-muted/50 whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
+                            className={cn("px-1 py-0.5 rounded whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
                           >
                             {b.netbsBrokerCode}
                           </span>
@@ -728,7 +728,7 @@ export default function ScreenerAnalysis() {
                         row.brokerSummary.brokersSell.map((b: any, idx: number) => (
                           <span
                             key={(b.netbsBrokerCode || String(idx)) + "-sell"}
-                            className={cn("px-1 py-0.5 rounded bg-muted/50 whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
+                            className={cn("px-1 py-0.5 rounded whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
                           >
                             {b.netbsBrokerCode}
                           </span>
