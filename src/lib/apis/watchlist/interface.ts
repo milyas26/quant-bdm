@@ -17,6 +17,7 @@ export interface ScreenerSnapshot {
 
 export interface WatchlistTicker {
   symbol: string
+  logo: string | null
   name: string | null
   sector: string | null
   subSector: string | null

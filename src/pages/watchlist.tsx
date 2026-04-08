@@ -85,8 +85,14 @@ function SortableWatchlistItem({
   onFinishEdit: () => void
   onCancelEdit: () => void
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: watchlist.id })
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: watchlist.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -98,7 +104,7 @@ function SortableWatchlistItem({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group flex cursor-pointer items-center justify-between rounded-md mx-1 px-2 py-2.5 transition-colors hover:bg-muted",
+        "group mx-1 flex cursor-pointer items-center justify-between rounded-md px-2 py-2.5 transition-colors hover:bg-muted",
         isActive && "bg-primary/10 text-primary hover:bg-primary/10",
         isDragging && "opacity-50 shadow-lg"
       )}
@@ -115,7 +121,7 @@ function SortableWatchlistItem({
         </div>
         {isEditing ? (
           <Input
-            className="h-6 flex-1 text-sm px-1"
+            className="h-6 flex-1 px-1 text-sm"
             value={editName}
             onChange={(e) => onEditNameChange(e.target.value)}
             onKeyDown={(e) => {
@@ -128,7 +134,10 @@ function SortableWatchlistItem({
           />
         ) : (
           <span
-            className={cn("truncate text-sm font-medium", isActive && "text-primary")}
+            className={cn(
+              "truncate text-sm font-medium",
+              isActive && "text-primary"
+            )}
             onDoubleClick={(e) => {
               e.stopPropagation()
               onStartEdit()
@@ -175,16 +184,28 @@ export default function WatchlistPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const [activeWatchlistId, setActiveWatchlistId] = useState<number | null>(null)
+  const [activeWatchlistId, setActiveWatchlistId] = useState<number | null>(
+    null
+  )
   const [localWatchlists, setLocalWatchlists] = useState<Watchlist[]>([])
   const [newWatchlistName, setNewWatchlistName] = useState("")
   const [showNewInput, setShowNewInput] = useState(false)
-  const [deleteWatchlistTarget, setDeleteWatchlistTarget] = useState<{ id: number; name: string } | null>(null)
-  const [deleteTickerTarget, setDeleteTickerTarget] = useState<{ watchlistId: number; symbol: string } | null>(null)
-  const [editingWatchlistId, setEditingWatchlistId] = useState<number | null>(null)
+  const [deleteWatchlistTarget, setDeleteWatchlistTarget] = useState<{
+    id: number
+    name: string
+  } | null>(null)
+  const [deleteTickerTarget, setDeleteTickerTarget] = useState<{
+    watchlistId: number
+    symbol: string
+  } | null>(null)
+  const [editingWatchlistId, setEditingWatchlistId] = useState<number | null>(
+    null
+  )
   const [editingName, setEditingName] = useState("")
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  )
 
   const { data: watchlists, isLoading } = useQuery({
     queryKey: ["watchlists"],
@@ -219,25 +240,33 @@ export default function WatchlistPage() {
     onError: () => toast.error("Gagal membuat watchlist"),
   })
 
-  const { mutate: handleDeleteWatchlist, isPending: isDeletingWatchlist } = useMutation({
-    mutationFn: deleteWatchlist,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["watchlists"] })
-      if (deleteWatchlistTarget?.id === activeWatchlistId) {
-        setActiveWatchlistId(null)
-      }
-      toast.success("Watchlist berhasil dihapus")
-      setDeleteWatchlistTarget(null)
-    },
-    onError: () => toast.error("Gagal menghapus watchlist"),
-  })
+  const { mutate: handleDeleteWatchlist, isPending: isDeletingWatchlist } =
+    useMutation({
+      mutationFn: deleteWatchlist,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["watchlists"] })
+        if (deleteWatchlistTarget?.id === activeWatchlistId) {
+          setActiveWatchlistId(null)
+        }
+        toast.success("Watchlist berhasil dihapus")
+        setDeleteWatchlistTarget(null)
+      },
+      onError: () => toast.error("Gagal menghapus watchlist"),
+    })
 
   const { mutate: handleDeleteTicker } = useMutation({
-    mutationFn: ({ watchlistId, symbol }: { watchlistId: number; symbol: string }) =>
-      deleteTickerFromWatchlist(watchlistId, symbol),
+    mutationFn: ({
+      watchlistId,
+      symbol,
+    }: {
+      watchlistId: number
+      symbol: string
+    }) => deleteTickerFromWatchlist(watchlistId, symbol),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["watchlists"] })
-      queryClient.invalidateQueries({ queryKey: ["watchlist-tickers", activeWatchlistId] })
+      queryClient.invalidateQueries({
+        queryKey: ["watchlist-tickers", activeWatchlistId],
+      })
       toast.success("Ticker berhasil dihapus dari watchlist")
       setDeleteTickerTarget(null)
     },
@@ -276,7 +305,9 @@ export default function WatchlistPage() {
     })
   }
 
-  const activeWatchlist = localWatchlists.find((w) => w.id === activeWatchlistId)
+  const activeWatchlist = localWatchlists.find(
+    (w) => w.id === activeWatchlistId
+  )
 
   return (
     <div className="flex h-[calc(100vh-5rem)] gap-0 overflow-hidden rounded-lg border bg-card">
@@ -342,18 +373,32 @@ export default function WatchlistPage() {
           ) : localWatchlists.length === 0 ? (
             <div className="flex flex-col items-center justify-center px-4 py-10 text-center">
               <BookmarkX className="mb-2 h-8 w-8 text-muted-foreground/50" />
-              <p className="text-xs text-muted-foreground">Belum ada watchlist</p>
+              <p className="text-xs text-muted-foreground">
+                Belum ada watchlist
+              </p>
             </div>
           ) : (
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={localWatchlists.map((w) => w.id)} strategy={verticalListSortingStrategy}>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={localWatchlists.map((w) => w.id)}
+                strategy={verticalListSortingStrategy}
+              >
                 {localWatchlists.map((watchlist) => (
                   <SortableWatchlistItem
                     key={watchlist.id}
                     watchlist={watchlist}
                     isActive={watchlist.id === activeWatchlistId}
                     onSelect={() => setActiveWatchlistId(watchlist.id)}
-                    onDelete={() => setDeleteWatchlistTarget({ id: watchlist.id, name: watchlist.name })}
+                    onDelete={() =>
+                      setDeleteWatchlistTarget({
+                        id: watchlist.id,
+                        name: watchlist.name,
+                      })
+                    }
                     isEditing={editingWatchlistId === watchlist.id}
                     editName={editingName}
                     onEditNameChange={setEditingName}
@@ -362,8 +407,14 @@ export default function WatchlistPage() {
                       setEditingName(watchlist.name)
                     }}
                     onFinishEdit={() => {
-                      if (editingName.trim() && editingName.trim() !== watchlist.name) {
-                        handleRenameWatchlist({ id: watchlist.id, name: editingName.trim() })
+                      if (
+                        editingName.trim() &&
+                        editingName.trim() !== watchlist.name
+                      ) {
+                        handleRenameWatchlist({
+                          id: watchlist.id,
+                          name: editingName.trim(),
+                        })
                       }
                       setEditingWatchlistId(null)
                     }}
@@ -385,7 +436,7 @@ export default function WatchlistPage() {
               <p className="text-sm font-medium text-muted-foreground">
                 Pilih watchlist untuk melihat tickers
               </p>
-              <p className="text-xs text-muted-foreground/60 mt-1">
+              <p className="mt-1 text-xs text-muted-foreground/60">
                 Atau buat watchlist baru menggunakan tombol + di sebelah kiri
               </p>
             </div>
@@ -394,7 +445,9 @@ export default function WatchlistPage() {
           <>
             <div className="flex items-center justify-between border-b px-6 py-3">
               <div>
-                <h2 className="text-base font-semibold">{activeWatchlist.name}</h2>
+                <h2 className="text-base font-semibold">
+                  {activeWatchlist.name}
+                </h2>
                 <p className="text-xs text-muted-foreground">
                   {activeWatchlist._count.tickers} tickers
                 </p>
@@ -425,8 +478,12 @@ export default function WatchlistPage() {
               ) : (watchlistTickersData?.tickers.length ?? 0) === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center gap-2">
                   <BookmarkX className="h-10 w-10 text-muted-foreground/30" />
-                  <p className="text-sm text-muted-foreground">Watchlist ini masih kosong</p>
-                  <p className="text-xs text-muted-foreground/60">Tambahkan ticker dari halaman Stocks</p>
+                  <p className="text-sm text-muted-foreground">
+                    Watchlist ini masih kosong
+                  </p>
+                  <p className="text-xs text-muted-foreground/60">
+                    Tambahkan ticker dari halaman Stocks
+                  </p>
                 </div>
               ) : (
                 <Table>
@@ -455,52 +512,97 @@ export default function WatchlistPage() {
                         >
                           <TableCell>
                             <div className="flex flex-col">
-                              <span className="flex items-center gap-1 font-bold">
-                                {ticker.symbol}
-                                {s?.isBreakout && (
-                                  <Badge
-                                    variant="outline"
-                                    className="h-4 border-orange-200 bg-orange-50 px-1 py-0 text-[10px] font-normal text-orange-600"
-                                  >
-                                    Breakout
-                                  </Badge>
+                              <span className="flex items-center gap-2 font-bold">
+                                {ticker.logo ? (
+                                  <img
+                                    src={ticker.logo}
+                                    alt={ticker.symbol}
+                                    className="h-8 w-8 rounded-full border object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted-foreground/10 text-[11px] font-medium">
+                                    {ticker.symbol?.[0] || "-"}
+                                  </div>
                                 )}
+                                <div>
+                                  <span className="flex items-center gap-1">
+                                    {ticker.symbol}
+                                    {s?.isBreakout && (
+                                      <Badge
+                                        variant="outline"
+                                        className="h-4 border-orange-200 bg-orange-50 px-1 py-0 text-[10px] font-normal text-orange-600"
+                                      >
+                                        Breakout
+                                      </Badge>
+                                    )}
+                                  </span>
+                                  <span className="text-xs font-normal text-muted-foreground">
+                                    {ticker.name || "-"}
+                                  </span>
+                                </div>
                               </span>
-                              <span className="text-xs text-muted-foreground">{ticker.name || "-"}</span>
                             </div>
                           </TableCell>
                           <TableCell>
                             {s ? (
                               <div className="flex flex-col">
-                                <span className="text-sm font-medium">{fmtPrice(Number(s.price))}</span>
+                                <span className="text-sm font-medium">
+                                  {fmtPrice(Number(s.price))}
+                                </span>
                                 <span
                                   className={cn(
                                     "text-xs font-medium",
-                                    Number(s.changePercentage) > 0 ? "text-green-600" : Number(s.changePercentage) < 0 ? "text-red-600" : "text-gray-500"
+                                    Number(s.changePercentage) > 0
+                                      ? "text-green-600"
+                                      : Number(s.changePercentage) < 0
+                                        ? "text-red-600"
+                                        : "text-gray-500"
                                   )}
                                 >
-                                  {Number(s.changePercentage) > 0 ? "+" : ""}{Number(s.changePercentage).toFixed(2)}%
+                                  {Number(s.changePercentage) > 0 ? "+" : ""}
+                                  {Number(s.changePercentage).toFixed(2)}%
                                 </span>
                               </div>
-                            ) : <span className="text-muted-foreground">-</span>}
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
                           </TableCell>
                           <TableCell>
                             {s ? (
                               <div className="flex flex-col">
-                                <span className="text-sm">{fmtCurrency(Number(s.volume)).replace("+", "")}</span>
-                                {s.isVolumeSpike && <span className="text-[10px] font-bold text-orange-500">🔥 Spike</span>}
+                                <span className="text-sm">
+                                  {fmtCurrency(Number(s.volume)).replace(
+                                    "+",
+                                    ""
+                                  )}
+                                </span>
+                                {s.isVolumeSpike && (
+                                  <span className="text-[10px] font-bold text-orange-500">
+                                    🔥 Spike
+                                  </span>
+                                )}
                               </div>
-                            ) : "-"}
+                            ) : (
+                              "-"
+                            )}
                           </TableCell>
                           <TableCell>
                             {s ? (
-                              <span className={cn(
-                                "text-sm font-medium",
-                                Number(s.netBrokerFlow) > 0 ? "text-green-600" : Number(s.netBrokerFlow) < 0 ? "text-red-600" : "text-gray-500"
-                              )}>
+                              <span
+                                className={cn(
+                                  "text-sm font-medium",
+                                  Number(s.netBrokerFlow) > 0
+                                    ? "text-green-600"
+                                    : Number(s.netBrokerFlow) < 0
+                                      ? "text-red-600"
+                                      : "text-gray-500"
+                                )}
+                              >
                                 {fmtCurrency(Number(s.netBrokerFlow))}
                               </span>
-                            ) : "-"}
+                            ) : (
+                              "-"
+                            )}
                           </TableCell>
                           <TableCell>
                             {s ? (
@@ -508,30 +610,43 @@ export default function WatchlistPage() {
                                 variant="outline"
                                 className={cn(
                                   "h-4 px-1 py-0 text-[10px] font-normal",
-                                  s.bandarStatus === "Accumulation" && "border-green-200 bg-green-50 text-green-700 hover:bg-green-50",
-                                  s.bandarStatus === "Distribution" && "border-red-200 bg-red-50 text-red-700 hover:bg-red-50",
-                                  s.bandarStatus === "Neutral" && "border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-50"
+                                  s.bandarStatus === "Accumulation" &&
+                                    "border-green-200 bg-green-50 text-green-700 hover:bg-green-50",
+                                  s.bandarStatus === "Distribution" &&
+                                    "border-red-200 bg-red-50 text-red-700 hover:bg-red-50",
+                                  s.bandarStatus === "Neutral" &&
+                                    "border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-50"
                                 )}
                               >
                                 {s.bandarStatus}
                               </Badge>
-                            ) : "-"}
-                          </TableCell>
-                          <TableCell>
-                            {s ? (
-                              <span className={cn(
-                                "font-bold",
-                                Number(s.smartMoneyScore) >= 70 ? "text-green-600" : Number(s.smartMoneyScore) <= 30 ? "text-red-600" : "text-yellow-600"
-                              )}>
-                                {Number(s.smartMoneyScore)}
-                              </span>
-                            ) : "-"}
+                            ) : (
+                              "-"
+                            )}
                           </TableCell>
                           <TableCell>
                             {s ? (
                               <span
                                 className={cn(
-                                  "font-medium text-[11px]",
+                                  "font-bold",
+                                  Number(s.smartMoneyScore) >= 70
+                                    ? "text-green-600"
+                                    : Number(s.smartMoneyScore) <= 30
+                                      ? "text-red-600"
+                                      : "text-yellow-600"
+                                )}
+                              >
+                                {Number(s.smartMoneyScore)}
+                              </span>
+                            ) : (
+                              "-"
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {s ? (
+                              <span
+                                className={cn(
+                                  "text-[11px] font-medium",
                                   s.momentum === "Uptrend" && "text-green-600",
                                   s.momentum === "Downtrend" && "text-red-600",
                                   s.momentum === "Sideways" && "text-gray-600"
@@ -539,46 +654,64 @@ export default function WatchlistPage() {
                               >
                                 {s.momentum}
                               </span>
-                            ) : "-"}
+                            ) : (
+                              "-"
+                            )}
                           </TableCell>
                           <TableCell onClick={(e) => e.stopPropagation()}>
                             {s ? (
                               <div className="flex flex-col gap-1 text-[11px]">
-                                <div className="flex items-center gap-1 flex-wrap max-w-[140px]">
+                                <div className="flex max-w-[140px] flex-wrap items-center gap-1">
                                   {s.brokersBuy?.length > 0 ? (
                                     s.brokersBuy.map((b, idx) => (
                                       <span
                                         key={b.netbsBrokerCode + "-buy-" + idx}
-                                        className={cn("px-1 py-0.5 rounded whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
+                                        className={cn(
+                                          "rounded px-1 py-0.5 font-medium whitespace-nowrap",
+                                          getBrokerCodeClass(b.netbsBrokerCode)
+                                        )}
                                       >
                                         {b.netbsBrokerCode}
                                       </span>
                                     ))
                                   ) : (
-                                    <span className="text-muted-foreground">-</span>
+                                    <span className="text-muted-foreground">
+                                      -
+                                    </span>
                                   )}
                                 </div>
-                                <div className="flex items-center gap-1 flex-wrap max-w-[140px]">
+                                <div className="flex max-w-[140px] flex-wrap items-center gap-1">
                                   {s.brokersSell?.length > 0 ? (
                                     s.brokersSell.map((b, idx) => (
                                       <span
                                         key={b.netbsBrokerCode + "-sell-" + idx}
-                                        className={cn("px-1 py-0.5 rounded whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
+                                        className={cn(
+                                          "rounded px-1 py-0.5 font-medium whitespace-nowrap",
+                                          getBrokerCodeClass(b.netbsBrokerCode)
+                                        )}
                                       >
                                         {b.netbsBrokerCode}
                                       </span>
                                     ))
                                   ) : (
-                                    <span className="text-muted-foreground">-</span>
+                                    <span className="text-muted-foreground">
+                                      -
+                                    </span>
                                   )}
                                 </div>
                               </div>
-                            ) : "-"}
+                            ) : (
+                              "-"
+                            )}
                           </TableCell>
                           <TableCell>
                             {ticker.sector ? (
-                              <span className="text-[11px] font-medium text-muted-foreground">{ticker.sector}</span>
-                            ) : <span className="text-muted-foreground">-</span>}
+                              <span className="text-[11px] font-medium text-muted-foreground">
+                                {ticker.sector}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
                           </TableCell>
                           <TableCell onClick={(e) => e.stopPropagation()}>
                             <Button
@@ -615,16 +748,17 @@ export default function WatchlistPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Hapus Watchlist?</AlertDialogTitle>
             <AlertDialogDescription>
-              Watchlist <strong>"{deleteWatchlistTarget?.name}"</strong> akan dihapus secara
-              permanen. Aksi ini tidak dapat dibatalkan.
+              Watchlist <strong>"{deleteWatchlistTarget?.name}"</strong> akan
+              dihapus secara permanen. Aksi ini tidak dapat dibatalkan.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
               onClick={() =>
-                deleteWatchlistTarget && handleDeleteWatchlist(deleteWatchlistTarget.id)
+                deleteWatchlistTarget &&
+                handleDeleteWatchlist(deleteWatchlistTarget.id)
               }
               disabled={isDeletingWatchlist}
             >
@@ -643,13 +777,14 @@ export default function WatchlistPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Hapus Ticker?</AlertDialogTitle>
             <AlertDialogDescription>
-              <strong>{deleteTickerTarget?.symbol}</strong> akan dihapus dari watchlist ini.
+              <strong>{deleteTickerTarget?.symbol}</strong> akan dihapus dari
+              watchlist ini.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
               onClick={() =>
                 deleteTickerTarget &&
                 handleDeleteTicker({
