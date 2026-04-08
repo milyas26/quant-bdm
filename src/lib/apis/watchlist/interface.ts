@@ -11,6 +11,8 @@ export interface ScreenerSnapshot {
   momentum: string
   isBreakout: boolean
   date: string
+  brokersBuy: { netbsBrokerCode: string }[]
+  brokersSell: { netbsBrokerCode: string }[]
 }
 
 export interface WatchlistTicker {

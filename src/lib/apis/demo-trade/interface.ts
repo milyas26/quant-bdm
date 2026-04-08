@@ -24,6 +24,8 @@ export interface DemoTrade {
     logo: string | null
     sector: string | null
   }
+  brokersBuy: { netbsBrokerCode: string }[]
+  brokersSell: { netbsBrokerCode: string }[]
 }
 
 export interface SimulateTradePayload {

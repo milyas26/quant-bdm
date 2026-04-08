@@ -34,6 +34,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
+import { getBrokerCodeClass } from "@/lib/utils"
 import { toast } from "sonner"
 import {
   Plus,
@@ -438,6 +439,7 @@ export default function WatchlistPage() {
                       <TableHead>Status</TableHead>
                       <TableHead>Score</TableHead>
                       <TableHead>Momentum</TableHead>
+                      <TableHead>Top Brokers</TableHead>
                       <TableHead>Sektor</TableHead>
                       <TableHead className="w-10"></TableHead>
                     </TableRow>
@@ -537,6 +539,40 @@ export default function WatchlistPage() {
                               >
                                 {s.momentum}
                               </span>
+                            ) : "-"}
+                          </TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
+                            {s ? (
+                              <div className="flex flex-col gap-1 text-[11px]">
+                                <div className="flex items-center gap-1 flex-wrap max-w-[140px]">
+                                  {s.brokersBuy?.length > 0 ? (
+                                    s.brokersBuy.map((b, idx) => (
+                                      <span
+                                        key={b.netbsBrokerCode + "-buy-" + idx}
+                                        className={cn("px-1 py-0.5 rounded whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
+                                      >
+                                        {b.netbsBrokerCode}
+                                      </span>
+                                    ))
+                                  ) : (
+                                    <span className="text-muted-foreground">-</span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1 flex-wrap max-w-[140px]">
+                                  {s.brokersSell?.length > 0 ? (
+                                    s.brokersSell.map((b, idx) => (
+                                      <span
+                                        key={b.netbsBrokerCode + "-sell-" + idx}
+                                        className={cn("px-1 py-0.5 rounded whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
+                                      >
+                                        {b.netbsBrokerCode}
+                                      </span>
+                                    ))
+                                  ) : (
+                                    <span className="text-muted-foreground">-</span>
+                                  )}
+                                </div>
+                              </div>
                             ) : "-"}
                           </TableCell>
                           <TableCell>

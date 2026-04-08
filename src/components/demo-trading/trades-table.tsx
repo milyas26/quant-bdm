@@ -3,6 +3,7 @@ import { format, formatDistanceToNow } from "date-fns"
 import type { DemoTrade } from "@/lib/api"
 import { fmtPrice, fmtIDR, fmtCurrency } from "@/lib/format"
 import { cn } from "@/lib/utils"
+import { getBrokerCodeClass } from "@/lib/utils"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,7 +47,7 @@ export const TradesTable = ({
   closingId,
   loading,
 }: TradesTableProps) => {
-  const colCount = showCloseButton ? 10 : 9
+  const colCount = showCloseButton ? 11 : 10
   const [confirmTrade, setConfirmTrade] = useState<DemoTrade | null>(null)
   const navigate = useNavigate()
 
@@ -85,6 +86,7 @@ export const TradesTable = ({
               </TableHead>
               <TableHead className="text-right font-semibold">PnL</TableHead>
               <TableHead className="font-semibold">Signals</TableHead>
+              <TableHead className="font-semibold">Top Brokers</TableHead>
               <TableHead className="font-semibold">Entry Time</TableHead>
               {showCloseButton && <TableHead />}
             </TableRow>
@@ -160,6 +162,38 @@ export const TradesTable = ({
                     </TableCell>
                     <TableCell>
                       <SignalBadges trade={trade} />
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="flex flex-col gap-1 text-[11px]">
+                        <div className="flex items-center gap-1 flex-wrap max-w-[140px]">
+                          {trade.brokersBuy?.length > 0 ? (
+                            trade.brokersBuy.map((b, idx) => (
+                              <span
+                                key={b.netbsBrokerCode + "-buy-" + idx}
+                                className={cn("px-1 py-0.5 rounded whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
+                              >
+                                {b.netbsBrokerCode}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 flex-wrap max-w-[140px]">
+                          {trade.brokersSell?.length > 0 ? (
+                            trade.brokersSell.map((b, idx) => (
+                              <span
+                                key={b.netbsBrokerCode + "-sell-" + idx}
+                                className={cn("px-1 py-0.5 rounded whitespace-nowrap font-medium", getBrokerCodeClass(b.netbsBrokerCode))}
+                              >
+                                {b.netbsBrokerCode}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </div>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="text-xs whitespace-nowrap text-muted-foreground">
