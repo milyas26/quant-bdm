@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { BookOpen, Activity, BarChart2, Target, LogOut, Zap, ListChecks } from "lucide-react"
+import { BookOpen, Activity, BarChart2, Target, LogOut, Zap, ListChecks, Radar } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 import GuideOverview from "@/components/guides/guide-overview"
@@ -9,6 +9,7 @@ import GuideEntryStrategy from "@/components/guides/guide-entry-strategy"
 import GuideExitStrategy from "@/components/guides/guide-exit-strategy"
 import GuideRunnerScore from "@/components/guides/guide-runner-score"
 import GuidePracticalWorkflow from "@/components/guides/guide-practical-workflow"
+import GuideRemora from "@/components/guides/guide-remora"
 
 const pages = [
   { id: "overview", label: "Overview", shortLabel: "Overview", icon: BookOpen, component: GuideOverview },
@@ -18,6 +19,7 @@ const pages = [
   { id: "exit", label: "Exit Strategy", shortLabel: "Exit", icon: LogOut, component: GuideExitStrategy },
   { id: "score", label: "Runner Score", shortLabel: "Score", icon: Zap, component: GuideRunnerScore },
   { id: "workflow", label: "Practical Workflow", shortLabel: "Workflow", icon: ListChecks, component: GuidePracticalWorkflow },
+  { id: "remora", label: "Remora Indicators", shortLabel: "Remora", icon: Radar, component: GuideRemora },
 ]
 
 export default function Guides() {
