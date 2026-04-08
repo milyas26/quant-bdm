@@ -562,7 +562,7 @@ export default function StocksPage() {
               onClick={() => handleSort("netBrokerFlow")}
             >
               <div className="flex items-center gap-1">
-                Broker Net
+                B. Net
                 {sortBy === "netBrokerFlow" ? (
                   sortOrder === "asc" ? (
                     <ArrowUp className="h-3 w-3" />
@@ -630,7 +630,7 @@ export default function StocksPage() {
               onClick={() => handleSort("momentum")}
             >
               <div className="flex items-center gap-1">
-                Momentum
+                Mom
                 {sortBy === "momentum" ? (
                   sortOrder === "asc" ? (
                     <ArrowUp className="h-3 w-3" />
@@ -747,7 +747,7 @@ export default function StocksPage() {
                             </span>
                           )}
                         </span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-muted-foreground line-clamp-1 max-w-48">
                           {ticker.name || "-"}
                         </span>
                       </div>

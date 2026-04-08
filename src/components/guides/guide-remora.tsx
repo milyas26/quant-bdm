@@ -391,14 +391,14 @@ export default function GuideRemora() {
             <CardHeader className="border-b pb-3">
               <CardTitle className="text-sm">Retail Exhaustion Chart</CardTitle>
               <CardDescription className="text-xs">
-                Melacak akumulasi net lot XC (retail indicator broker) dan % yang sudah keluar
+                Melacak akumulasi net lot XC dan XL (retail indicator broker) dan % yang sudah keluar
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-4 space-y-3">
               <div className="space-y-2">
                 <Bullet color="bg-indigo-500">
                   <span>
-                    <span className="font-medium text-foreground">Garis kumulatif lot:</span> posisi total XC dari
+                    <span className="font-medium text-foreground">Garis kumulatif lot:</span> posisi total XC dan XL dari
                     awal periode
                   </span>
                 </Bullet>
@@ -416,7 +416,7 @@ export default function GuideRemora() {
                 </Bullet>
               </div>
               <div className="rounded-md border border-indigo-500/30 bg-indigo-500/5 p-3 text-xs text-muted-foreground">
-                <span className="font-medium text-indigo-400">Konsep Hengki:</span> "XC makan 95.000 lot. Minimal
+                <span className="font-medium text-indigo-400">Konsep Hengki:</span> "XC dan XL makan 95.000 lot. Minimal
                 harus keluar 50% dulu sebelum sahamnya naik."
               </div>
             </CardContent>
