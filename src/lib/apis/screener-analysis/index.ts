@@ -31,6 +31,8 @@ export const getScreenerAnalysis = async (
   if (params?.peakReturnOperator) queryParams.append("peakReturnOperator", params.peakReturnOperator)
   if (params?.useCutoff) queryParams.append("useCutoff", "true")
   if (params?.liquidity) params.liquidity.forEach(s => queryParams.append("liquidity", s))
+  if (params?.startDate) queryParams.append("startDate", params.startDate)
+  if (params?.endDate) queryParams.append("endDate", params.endDate)
 
   const response = await api.get(`/screener-signals/performance-analysis/stored?${queryParams.toString()}`)
   return response.data
@@ -78,6 +80,8 @@ export const exportScreenerAnalysis = async (
   if (params?.peakReturnOperator) queryParams.append("peakReturnOperator", params.peakReturnOperator)
   if (params?.useCutoff) queryParams.append("useCutoff", "true")
   if (params?.liquidity) params.liquidity.forEach(s => queryParams.append("liquidity", s))
+  if (params?.startDate) queryParams.append("startDate", params.startDate)
+  if (params?.endDate) queryParams.append("endDate", params.endDate)
 
   const response = await api.get(`/screener-signals/performance-analysis/export?${queryParams.toString()}`,
  {

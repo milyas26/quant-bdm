@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
 import { format } from "date-fns"
+import { type DateRange } from "react-day-picker"
 import {
   getScreenerAnalysis,
   generateScreenerAnalysis,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/api"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useScreenerAnalysisFilterStore } from "@/stores/screenerAnalysisFilterStore"
+import { DatePickerWithRange } from "@/components/date-range-picker"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -92,6 +94,10 @@ export default function ScreenerAnalysis() {
     setUseCutoff,
     liquidity,
     setLiquidity,
+    startDate,
+    endDate,
+    setStartDate,
+    setEndDate,
     reset,
   } = useScreenerAnalysisFilterStore()
 
@@ -103,6 +109,15 @@ export default function ScreenerAnalysis() {
   const [maxScoreInput, setMaxScoreInput] = useState(maxScoreStr)
   const [pageInput, setPageInput] = useState(page.toString())
   const [showFilters, setShowFilters] = useState(false)
+
+  const dateRange: DateRange | undefined = startDate || endDate
+    ? { from: startDate ? new Date(startDate) : undefined, to: endDate ? new Date(endDate) : undefined }
+    : undefined
+
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    setStartDate(range?.from ? range.from.toISOString().split("T")[0] : "")
+    setEndDate(range?.to ? range.to.toISOString().split("T")[0] : "")
+  }
 
   const debouncedSearch = useDebounce(searchTerm, 500)
 
@@ -182,6 +197,8 @@ export default function ScreenerAnalysis() {
       peakReturnOperator,
       useCutoff,
       liquidity,
+      startDate,
+      endDate,
     ],
     queryFn: () =>
       getScreenerAnalysis({
@@ -207,6 +224,8 @@ export default function ScreenerAnalysis() {
         peakReturnOperator: peakReturnOperator as "gt" | "lt",
         useCutoff,
         liquidity,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
       }),
   })
 
@@ -244,6 +263,8 @@ export default function ScreenerAnalysis() {
         peakReturnOperator: peakReturnOperator as "gt" | "lt",
         useCutoff,
         liquidity,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
       })
 
       const url = window.URL.createObjectURL(new Blob([blob]))
@@ -360,7 +381,7 @@ export default function ScreenerAnalysis() {
 
             {/* Expandable Advanced Filters */}
             {showFilters && (
-              <div className="pt-3 border-t grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="pt-3 border-t grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="flex flex-col gap-1.5">
                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Price & Score</span>
                   <div className="flex h-9 items-center rounded-md border bg-background px-2.5 text-xs">
@@ -477,9 +498,9 @@ export default function ScreenerAnalysis() {
                     </Select>
                     <Separator orientation="vertical" className="mx-1 h-3" />
                     <span className="text-[10px] text-muted-foreground">A/D:</span>
-                    <input className="w-6 bg-transparent text-center outline-none" placeholder="1D" type="number" value={accDist1D} onChange={(e) => setAccDist1D(e.target.value)} />
-                    <input className="w-6 bg-transparent text-center outline-none" placeholder="1W" type="number" value={accDist1W} onChange={(e) => setAccDist1W(e.target.value)} />
-                    <input className="w-6 bg-transparent text-center outline-none" placeholder="1M" type="number" value={accDist1M} onChange={(e) => setAccDist1M(e.target.value)} />
+                    <input className="w-12 bg-transparent text-center outline-none" placeholder="1D" type="number" value={accDist1D} onChange={(e) => setAccDist1D(e.target.value)} />
+                    <input className="w-12 bg-transparent text-center outline-none" placeholder="1W" type="number" value={accDist1W} onChange={(e) => setAccDist1W(e.target.value)} />
+                    <input className="w-12 bg-transparent text-center outline-none" placeholder="1M" type="number" value={accDist1M} onChange={(e) => setAccDist1M(e.target.value)} />
                   </div>
 
                   <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs">
@@ -510,6 +531,59 @@ export default function ScreenerAnalysis() {
                       <X className="mr-1 h-3 w-3" />
                       Clear
                     </Button>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Date Range</span>
+                  <DatePickerWithRange
+                    date={dateRange}
+                    setDate={handleDateRangeChange}
+                    className="w-full"
+                  />
+                  <div className="flex gap-1">
+                    {[
+                      {
+                        label: "1W",
+                        fn: () => {
+                          const to = new Date()
+                          const from = new Date()
+                          from.setDate(to.getDate() - 7)
+                          handleDateRangeChange({ from, to })
+                        },
+                      },
+                      {
+                        label: "2W",
+                        fn: () => {
+                          const to = new Date()
+                          const from = new Date()
+                          from.setDate(to.getDate() - 14)
+                          handleDateRangeChange({ from, to })
+                        },
+                      },
+                      {
+                        label: "1M",
+                        fn: () => {
+                          const to = new Date()
+                          const from = new Date()
+                          from.setMonth(to.getMonth() - 1)
+                          handleDateRangeChange({ from, to })
+                        },
+                      },
+                      {
+                        label: "All",
+                        fn: () => handleDateRangeChange(undefined),
+                      },
+                    ].map(({ label, fn }) => (
+                      <Button
+                        key={label}
+                        variant="outline"
+                        size="sm"
+                        className="h-7 flex-1 text-[11px] px-1"
+                        onClick={fn}
+                      >
+                        {label}
+                      </Button>
+                    ))}
                   </div>
                 </div>
               </div>

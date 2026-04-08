@@ -24,6 +24,8 @@ export interface GetScreenerAnalysisParams {
   peakReturnOperator?: "gt" | "lt";
   useCutoff?: boolean;
   liquidity?: string[];
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface ScreenerAnalysisResponse {

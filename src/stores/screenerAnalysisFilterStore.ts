@@ -22,6 +22,8 @@ export interface ScreenerAnalysisFilterState {
   peakReturnOperator: "gt" | "lt"
   useCutoff: boolean
   liquidity: string[]
+  startDate: string
+  endDate: string
 
   // Actions
   setPage: (page: number) => void
@@ -45,6 +47,8 @@ export interface ScreenerAnalysisFilterState {
   setPeakReturnOperator: (operator: "gt" | "lt") => void
   setUseCutoff: (useCutoff: boolean) => void
   setLiquidity: (liquidity: string[]) => void
+  setStartDate: (startDate: string) => void
+  setEndDate: (endDate: string) => void
   reset: () => void
 }
 
@@ -69,6 +73,8 @@ const DEFAULT_STATE = {
   peakReturnOperator: "gt" as const,
   useCutoff: false,
   liquidity: [],
+  startDate: "",
+  endDate: "",
 }
 
 export const useScreenerAnalysisFilterStore =
@@ -100,6 +106,8 @@ export const useScreenerAnalysisFilterStore =
           set({ peakReturnOperator, page: 1 }),
         setUseCutoff: (useCutoff) => set({ useCutoff, page: 1 }),
         setLiquidity: (liquidity) => set({ liquidity, page: 1 }),
+        setStartDate: (startDate) => set({ startDate, page: 1 }),
+        setEndDate: (endDate) => set({ endDate, page: 1 }),
         reset: () => set({ ...DEFAULT_STATE }),
       }),
       {
