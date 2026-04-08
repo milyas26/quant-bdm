@@ -264,7 +264,7 @@ export default function StocksPage() {
           <div className="flex flex-col gap-3">
             {/* Top Bar: Search, Presets, Filter Toggle */}
             <div className="flex flex-wrap items-center gap-2">
-              <div className="relative flex-1 min-w-[200px]">
+              <div className="relative flex-1 min-w-50">
                 <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   ref={searchInputRef}
@@ -424,7 +424,7 @@ export default function StocksPage() {
                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Flow & Date</span>
                   <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs">
                     <Select value={accDistOperator} onValueChange={(val) => setAccDistOperator(val as "gt" | "lt")}>
-                      <SelectTrigger className="h-6 w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
+                      <SelectTrigger className="w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -441,7 +441,7 @@ export default function StocksPage() {
 
                   <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs">
                     <Select value={netBrokerFlowOperator} onValueChange={(val) => setNetBrokerFlowOperator(val as "gt" | "lt")}>
-                      <SelectTrigger className="h-6 w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
+                      <SelectTrigger className="w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -642,6 +642,7 @@ export default function StocksPage() {
                 )}
               </div>
             </TableHead>
+            <TableHead>Remora</TableHead>
             <TableHead>Top Brokers</TableHead>
             <TableHead
               className="cursor-pointer hover:bg-muted/50"
@@ -864,9 +865,42 @@ export default function StocksPage() {
                   </Badge>
                 </TableCell>
 
+                <TableCell>
+                  <div className="flex flex-col gap-0.5 text-[11px] whitespace-nowrap">
+                    <span className={cn(
+                      "font-medium",
+                      ticker.pvaTrend === "UPTREND" ? "text-green-600" :
+                      ticker.pvaTrend === "DOWNTREND" ? "text-red-600" :
+                      ticker.pvaTrend === "MIXED" ? "text-orange-500" : "text-muted-foreground"
+                    )}>
+                      PVA: {ticker.pvaTrend ?? "-"}
+                    </span>
+                    {ticker.volumeAnomaly && ticker.volumeAnomaly !== "NONE" && (
+                      <span className={cn(
+                        "font-medium",
+                        ticker.volumeAnomaly === "EXTREME" ? "text-red-600" :
+                        ticker.volumeAnomaly === "STRONG" ? "text-orange-500" : "text-yellow-600"
+                      )}>Vol:{ticker.volumeAnomaly}</span>
+                    )}
+                    {ticker.washTradingRisk && ticker.washTradingRisk !== "LOW" && (
+                      <span className={cn("font-medium", ticker.washTradingRisk === "HIGH" ? "text-red-600" : "text-orange-500")}>
+                        Wash:{ticker.washTradingRisk}
+                      </span>
+                    )}
+                    {ticker.distributionRisk != null && ticker.distributionRisk > 30 && (
+                      <span className={cn("font-medium", ticker.distributionRisk > 60 ? "text-red-600" : "text-orange-500")}>
+                        Dist:{ticker.distributionRisk.toFixed(0)}%
+                      </span>
+                    )}
+                    {ticker.repoPatternDetected && (
+                      <span className="font-medium text-red-600">⚠ Repo</span>
+                    )}
+                  </div>
+                </TableCell>
+
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex flex-col gap-1.5 text-[11px]">
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[135px]">
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-33.75">
                       {ticker.topBuyers?.length > 0 ? (
                         ticker.topBuyers.map((b: any, idx: number) => (
                           <span
@@ -880,7 +914,7 @@ export default function StocksPage() {
                         <span className="text-muted-foreground">-</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[135px]">
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-33.75">
                       {ticker.topSellers?.length > 0 ? (
                         ticker.topSellers.map((b: any, idx: number) => (
                           <span

@@ -315,7 +315,7 @@ export default function ScreenerAnalysis() {
           <div className="flex flex-col gap-3">
             {/* Top Bar: Search, Presets, Filter Toggle */}
             <div className="flex flex-wrap items-center gap-2">
-              <div className="relative flex-1 min-w-[200px]">
+              <div className="relative flex-1 min-w-50">
                 <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   ref={searchInputRef}
@@ -488,7 +488,7 @@ export default function ScreenerAnalysis() {
 
                   <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs">
                     <Select value={accDistOperator} onValueChange={(val) => setAccDistOperator(val as "gt" | "lt")}>
-                      <SelectTrigger className="h-6 w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
+                      <SelectTrigger className="w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -505,7 +505,7 @@ export default function ScreenerAnalysis() {
 
                   <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs">
                     <Select value={peakReturnOperator} onValueChange={(val) => setPeakReturnOperator(val as "gt" | "lt")}>
-                      <SelectTrigger className="h-6 w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
+                      <SelectTrigger className="w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -602,6 +602,7 @@ export default function ScreenerAnalysis() {
             <TableHead>Acc/Dist (%)</TableHead>
             <TableHead>Bandar Status</TableHead>
             <TableHead>Insight</TableHead>
+            <TableHead>Remora</TableHead>
             <TableHead>Top Brokers</TableHead>
             <TableHead className="text-center">Returns (%)</TableHead>
             <TableHead className="text-right">Peak Return</TableHead>
@@ -610,15 +611,15 @@ export default function ScreenerAnalysis() {
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={11} className="h-24 text-center">Loading analysis data...</TableCell>
+              <TableCell colSpan={12} className="h-24 text-center">Loading analysis data...</TableCell>
             </TableRow>
           ) : isError ? (
             <TableRow>
-              <TableCell colSpan={11} className="h-24 text-center text-red-500">Error: {(error as Error).message}</TableCell>
+              <TableCell colSpan={12} className="h-24 text-center text-red-500">Error: {(error as Error).message}</TableCell>
             </TableRow>
           ) : !data || data.data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={11} className="h-24 text-center text-muted-foreground">No analysis data found</TableCell>
+              <TableCell colSpan={12} className="h-24 text-center text-muted-foreground">No analysis data found</TableCell>
             </TableRow>
           ) : (
             data.data.map((row: any) => (
@@ -647,7 +648,7 @@ export default function ScreenerAnalysis() {
                           <span className="text-[11px] text-orange-500" title="Breakout">⚡Breakout</span>
                         )}
                       </span>
-                      <span className="text-[11px] text-muted-foreground max-w-[160px] truncate" title={row.ticker?.name || "-"}>
+                      <span className="text-[11px] text-muted-foreground max-w-40 truncate" title={row.ticker?.name || "-"}>
                         {row.ticker?.name || "-"}
                       </span>
                     </div>
@@ -781,9 +782,41 @@ export default function ScreenerAnalysis() {
                     </div>
                   </div>
                 </TableCell>
+                <TableCell>
+                  <div className="flex flex-col gap-0.5 text-[11px] whitespace-nowrap">
+                    <span className={cn(
+                      "font-medium",
+                      row.screener?.pvaTrend === "UPTREND" ? "text-green-600" :
+                      row.screener?.pvaTrend === "DOWNTREND" ? "text-red-600" :
+                      row.screener?.pvaTrend === "MIXED" ? "text-orange-500" : "text-muted-foreground"
+                    )}>
+                      PVA: {row.screener?.pvaTrend ?? "-"}
+                    </span>
+                    {row.screener?.volumeAnomaly && row.screener.volumeAnomaly !== "NONE" && (
+                      <span className={cn(
+                        "font-medium",
+                        row.screener.volumeAnomaly === "EXTREME" ? "text-red-600" :
+                        row.screener.volumeAnomaly === "STRONG" ? "text-orange-500" : "text-yellow-600"
+                      )}>Vol:{row.screener.volumeAnomaly}</span>
+                    )}
+                    {row.screener?.washTradingRisk && row.screener.washTradingRisk !== "LOW" && (
+                      <span className={cn("font-medium", row.screener.washTradingRisk === "HIGH" ? "text-red-600" : "text-orange-500")}>
+                        Wash:{row.screener.washTradingRisk}
+                      </span>
+                    )}
+                    {row.screener?.distributionRisk != null && Number(row.screener.distributionRisk) > 30 && (
+                      <span className={cn("font-medium", Number(row.screener.distributionRisk) > 60 ? "text-red-600" : "text-orange-500")}>
+                        Dist:{Number(row.screener.distributionRisk).toFixed(0)}%
+                      </span>
+                    )}
+                    {row.screener?.repoPatternDetected && (
+                      <span className="font-medium text-red-600">⚠ Repo</span>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex flex-col gap-1.5 text-[11px]">
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[150px]">
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-37.5">
                       {row.brokerSummary?.brokersBuy?.length > 0 ? (
                         row.brokerSummary.brokersBuy.map((b: any, idx: number) => (
                           <span
@@ -797,7 +830,7 @@ export default function ScreenerAnalysis() {
                         <span className="text-muted-foreground">-</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[150px]">
+                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-37.5">
                       {row.brokerSummary?.brokersSell?.length > 0 ? (
                         row.brokerSummary.brokersSell.map((b: any, idx: number) => (
                           <span

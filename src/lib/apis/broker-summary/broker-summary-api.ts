@@ -7,6 +7,10 @@ import type {
   BrokerSummaryResponse,
   BrokerAccumulationChartResponse,
   BrokerPositionChartResponse,
+  RetailExhaustionResponse,
+  FloorPriceResponse,
+  TransactionPatternResponse,
+  CohesionAnalysisResponse,
 } from "./interface"
 
 export * from "./interface"
@@ -139,4 +143,75 @@ export const fetchAllBrokerSummary = async () => {
     details: any[]
   }>("/fetch-all-broker-summary")
   return data
+}
+
+// --- Remora API Functions ---
+
+export const getRetailExhaustion = async (
+  symbol: string,
+  period: string = "3 month"
+) => {
+  try {
+    const { data } = await api.get<RetailExhaustionResponse>("/retail-exhaustion", {
+      params: { symbol, period },
+    })
+    return data
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.error || "Failed to fetch data")
+    }
+    throw error
+  }
+}
+
+export const getFloorPrice = async (
+  symbol: string,
+  period: string = "3 month"
+) => {
+  try {
+    const { data } = await api.get<FloorPriceResponse>("/floor-price", {
+      params: { symbol, period },
+    })
+    return data
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.error || "Failed to fetch data")
+    }
+    throw error
+  }
+}
+
+export const getTransactionPattern = async (
+  symbol: string,
+  from?: string,
+  to?: string
+) => {
+  try {
+    const { data } = await api.get<TransactionPatternResponse>("/transaction-pattern", {
+      params: { symbol, from, to },
+    })
+    return data
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.error || "Failed to fetch data")
+    }
+    throw error
+  }
+}
+
+export const getCohesionAnalysis = async (
+  symbol: string,
+  period: string = "1 month"
+) => {
+  try {
+    const { data } = await api.get<CohesionAnalysisResponse>("/cohesion-analysis", {
+      params: { symbol, period },
+    })
+    return data
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.error || "Failed to fetch data")
+    }
+    throw error
+  }
 }

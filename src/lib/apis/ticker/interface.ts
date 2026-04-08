@@ -44,6 +44,16 @@ export interface GetTickersResponse {
 }
 
 export interface ScreenerTicker extends Ticker {
+  pvaScore: number | null
+  pvaTrend: string | null
+  volumeAnomaly: string | null
+  correctionHealth: number | null
+  volumeDistributionRisk: boolean | null
+  volumeChangeRatio: number | null
+  washTradingRisk: string | null
+  washTradingScore: number | null
+  distributionRisk: number | null
+  repoPatternDetected: boolean | null
   transactionValue: number
   screenerId: number
   date: string

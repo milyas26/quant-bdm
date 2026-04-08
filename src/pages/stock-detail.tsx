@@ -32,6 +32,11 @@ import { ArrowLeftIcon, ChevronDown } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { BrokerInventory } from "@/components/broker-inventory"
 import { HistoricalScreener } from "@/components/historical-screener"
+import { PvaAnalysis } from "@/components/pva-analysis"
+import { RetailExhaustionChart } from "@/components/retail-exhaustion-chart"
+import { FloorPriceChart } from "@/components/floor-price-chart"
+import { WhaleDetection } from "@/components/whale-detection"
+import { CohesionAnalysisChart } from "@/components/cohesion-analysis-chart"
 
 import { cn } from "@/lib/utils"
 
@@ -261,7 +266,40 @@ export default function StockDetail() {
         highlightedBroker={brokerCode}
       />
       <div className="space-y-6">
+        {/* Remora PVA Analysis */}
+        {screenerTicker && (
+          <PvaAnalysis
+            pvaTrend={screenerTicker.pvaTrend}
+            pvaScore={screenerTicker.pvaScore}
+            volumeAnomaly={screenerTicker.volumeAnomaly}
+            correctionHealth={screenerTicker.correctionHealth}
+            volumeDistributionRisk={screenerTicker.volumeDistributionRisk}
+            volumeChangeRatio={screenerTicker.volumeChangeRatio}
+            washTradingRisk={screenerTicker.washTradingRisk}
+            washTradingScore={screenerTicker.washTradingScore}
+            distributionRisk={screenerTicker.distributionRisk}
+            repoPatternDetected={screenerTicker.repoPatternDetected}
+          />
+        )}
+
         <BrokerInventory selectedTicker={selectedTicker} />
+
+        {/* Remora: Floor Price & Retail Exhaustion */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <FloorPriceChart symbol={selectedTicker} />
+          <RetailExhaustionChart symbol={selectedTicker} />
+        </div>
+
+        {/* Remora: Whale Detection & Cohesion Analysis */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <WhaleDetection
+            symbol={selectedTicker}
+            from={date?.from ? format(date.from, "yyyy-MM-dd") : undefined}
+            to={date?.to ? format(date.to, "yyyy-MM-dd") : undefined}
+          />
+          <CohesionAnalysisChart symbol={selectedTicker} />
+        </div>
+
         <div>
           <p className="font-medium">Historical Screener</p>
           <HistoricalScreener

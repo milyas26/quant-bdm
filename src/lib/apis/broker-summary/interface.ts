@@ -155,3 +155,99 @@ export interface BrokerPositionChartQuery {
   to?: string
   top_n?: string
 }
+
+// --- Remora Interfaces ---
+
+export interface RetailExhaustionData {
+  date: string
+  dailyNetLot: number
+  cumulativeNetLot: number
+  peakHolding: number
+  exhaustionPct: number
+  avgBuyPrice: number
+  avgSellPrice: number
+}
+
+export interface RetailExhaustionResponse {
+  message: string
+  data: RetailExhaustionData[]
+  summary: {
+    currentHolding: number
+    peakHolding: number
+    exhaustionPct: number
+    isExhausted: boolean
+    broker: string
+  }
+}
+
+export interface FloorPriceData {
+  date: string
+  smBuyLot: number
+  smSellLot: number
+  smNetLot: number
+  cumulativeNetLot: number
+  avgEntryPrice: number
+}
+
+export interface FloorPriceResponse {
+  message: string
+  data: FloorPriceData[]
+  summary: {
+    floorPrice: number
+    latestPrice: number
+    distanceFromFloor: number
+    smNetLot: number
+    isAboveFloor: boolean
+  }
+}
+
+export interface TransactionPatternData {
+  code: string
+  category: string
+  buyVal: number
+  sellVal: number
+  netVal: number
+  netLot: number
+  buyFreq: number
+  sellFreq: number
+  avgBuySize: number
+  avgSellSize: number
+  aggressiveness: number
+  isSmart: boolean
+  isRetail: boolean
+}
+
+export interface TransactionPatternResponse {
+  message: string
+  data: TransactionPatternData[]
+  whales: TransactionPatternData[]
+  totalBrokers: number
+}
+
+export interface CohesionData {
+  date: string
+  smNetVal: number
+  retailNetVal: number
+  totalNetVal: number
+  smDirection: string
+  retailDirection: string
+  isAligned: boolean
+  isContrarian: boolean
+  smPctOfTotal: number
+  retailPctOfTotal: number
+}
+
+export interface CohesionAnalysisResponse {
+  message: string
+  data: CohesionData[]
+  summary: {
+    cohesionScore: number
+    totalDays: number
+    alignedDays: number
+    contrarianDays: number
+    isImposterMove: boolean
+    avgRetailPct: number
+    avgSmPct: number
+    interpretation: string
+  }
+}
