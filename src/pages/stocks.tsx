@@ -53,7 +53,7 @@ import {
 import { format, parseISO } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import { SimulateBuyButton } from "@/components/simulate-buy-button"
-import { Bookmark } from "lucide-react"
+import { Bookmark, Activity, BarChart2, Shuffle, ArrowDownRight, AlertTriangle } from "lucide-react"
 
 const formatNumber = (num: number) => {
   if (Math.abs(num) >= 1_000_000_000) {
@@ -867,33 +867,42 @@ export default function StocksPage() {
 
                 <TableCell>
                   <div className="flex flex-col gap-0.5 text-[11px] whitespace-nowrap">
-                    <span className={cn(
-                      "font-medium",
+                    <div title="Price Volume Analysis" className={cn(
+                      "flex items-center gap-1 font-medium",
                       ticker.pvaTrend === "UPTREND" ? "text-green-600" :
                       ticker.pvaTrend === "DOWNTREND" ? "text-red-600" :
                       ticker.pvaTrend === "MIXED" ? "text-orange-500" : "text-muted-foreground"
                     )}>
-                      PVA: {ticker.pvaTrend ?? "-"}
-                    </span>
+                      <Activity className="h-3 w-3 shrink-0" />
+                      <span>{ticker.pvaTrend ?? "-"}</span>
+                    </div>
                     {ticker.volumeAnomaly && ticker.volumeAnomaly !== "NONE" && (
-                      <span className={cn(
-                        "font-medium",
+                      <div title="Volume Anomaly" className={cn(
+                        "flex items-center gap-1 font-medium",
                         ticker.volumeAnomaly === "EXTREME" ? "text-red-600" :
                         ticker.volumeAnomaly === "STRONG" ? "text-orange-500" : "text-yellow-600"
-                      )}>Vol:{ticker.volumeAnomaly}</span>
+                      )}>
+                        <BarChart2 className="h-3 w-3 shrink-0" />
+                        <span>{ticker.volumeAnomaly}</span>
+                      </div>
                     )}
                     {ticker.washTradingRisk && ticker.washTradingRisk !== "LOW" && (
-                      <span className={cn("font-medium", ticker.washTradingRisk === "HIGH" ? "text-red-600" : "text-orange-500")}>
-                        Wash:{ticker.washTradingRisk}
-                      </span>
+                      <div title="Wash Trading Risk" className={cn("flex items-center gap-1 font-medium", ticker.washTradingRisk === "HIGH" ? "text-red-600" : "text-orange-500")}>
+                        <Shuffle className="h-3 w-3 shrink-0" />
+                        <span>{ticker.washTradingRisk}</span>
+                      </div>
                     )}
                     {ticker.distributionRisk != null && ticker.distributionRisk > 30 && (
-                      <span className={cn("font-medium", ticker.distributionRisk > 60 ? "text-red-600" : "text-orange-500")}>
-                        Dist:{ticker.distributionRisk.toFixed(0)}%
-                      </span>
+                      <div title="Distribution Risk" className={cn("flex items-center gap-1 font-medium", ticker.distributionRisk > 60 ? "text-red-600" : "text-orange-500")}>
+                        <ArrowDownRight className="h-3 w-3 shrink-0" />
+                        <span>{ticker.distributionRisk.toFixed(0)}%</span>
+                      </div>
                     )}
                     {ticker.repoPatternDetected && (
-                      <span className="font-medium text-red-600">⚠ Repo</span>
+                      <div title="Repo Pattern Detected" className="flex items-center gap-1 font-medium text-red-600">
+                        <AlertTriangle className="h-3 w-3 shrink-0" />
+                        <span>Repo</span>
+                      </div>
                     )}
                   </div>
                 </TableCell>

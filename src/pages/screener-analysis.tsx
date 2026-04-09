@@ -34,6 +34,11 @@ import {
   Download,
   X,
   SlidersHorizontal,
+  Activity,
+  BarChart2,
+  Shuffle,
+  ArrowDownRight,
+  AlertTriangle,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -784,33 +789,42 @@ export default function ScreenerAnalysis() {
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-0.5 text-[11px] whitespace-nowrap">
-                    <span className={cn(
-                      "font-medium",
+                    <div title="Price Volume Analysis" className={cn(
+                      "flex items-center gap-1 font-medium",
                       row.screener?.pvaTrend === "UPTREND" ? "text-green-600" :
                       row.screener?.pvaTrend === "DOWNTREND" ? "text-red-600" :
                       row.screener?.pvaTrend === "MIXED" ? "text-orange-500" : "text-muted-foreground"
                     )}>
-                      PVA: {row.screener?.pvaTrend ?? "-"}
-                    </span>
+                      <Activity className="h-3 w-3 shrink-0" />
+                      <span>{row.screener?.pvaTrend ?? "-"}</span>
+                    </div>
                     {row.screener?.volumeAnomaly && row.screener.volumeAnomaly !== "NONE" && (
-                      <span className={cn(
-                        "font-medium",
+                      <div title="Volume Anomaly" className={cn(
+                        "flex items-center gap-1 font-medium",
                         row.screener.volumeAnomaly === "EXTREME" ? "text-red-600" :
                         row.screener.volumeAnomaly === "STRONG" ? "text-orange-500" : "text-yellow-600"
-                      )}>Vol:{row.screener.volumeAnomaly}</span>
+                      )}>
+                        <BarChart2 className="h-3 w-3 shrink-0" />
+                        <span>{row.screener.volumeAnomaly}</span>
+                      </div>
                     )}
                     {row.screener?.washTradingRisk && row.screener.washTradingRisk !== "LOW" && (
-                      <span className={cn("font-medium", row.screener.washTradingRisk === "HIGH" ? "text-red-600" : "text-orange-500")}>
-                        Wash:{row.screener.washTradingRisk}
-                      </span>
+                      <div title="Wash Trading Risk" className={cn("flex items-center gap-1 font-medium", row.screener.washTradingRisk === "HIGH" ? "text-red-600" : "text-orange-500")}>
+                        <Shuffle className="h-3 w-3 shrink-0" />
+                        <span>{row.screener.washTradingRisk}</span>
+                      </div>
                     )}
                     {row.screener?.distributionRisk != null && Number(row.screener.distributionRisk) > 30 && (
-                      <span className={cn("font-medium", Number(row.screener.distributionRisk) > 60 ? "text-red-600" : "text-orange-500")}>
-                        Dist:{Number(row.screener.distributionRisk).toFixed(0)}%
-                      </span>
+                      <div title="Distribution Risk" className={cn("flex items-center gap-1 font-medium", Number(row.screener.distributionRisk) > 60 ? "text-red-600" : "text-orange-500")}>
+                        <ArrowDownRight className="h-3 w-3 shrink-0" />
+                        <span>{Number(row.screener.distributionRisk).toFixed(0)}%</span>
+                      </div>
                     )}
                     {row.screener?.repoPatternDetected && (
-                      <span className="font-medium text-red-600">⚠ Repo</span>
+                      <div title="Repo Pattern Detected" className="flex items-center gap-1 font-medium text-red-600">
+                        <AlertTriangle className="h-3 w-3 shrink-0" />
+                        <span>Repo</span>
+                      </div>
                     )}
                   </div>
                 </TableCell>
