@@ -1,11 +1,9 @@
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query"
 import {
-  fetchAndSaveBrokerSummary,
-  fetchAndSaveTickerInfo,
   getTickerDetail,
-  fetchAndSaveHistoricalData,
   getHistoricalScreenerData,
   getScreener,
+  refreshSingleTicker,
 } from "@/lib/api"
 import { SimulateBuyButton } from "@/components/simulate-buy-button"
 import { Button } from "@/components/ui/button"
@@ -22,13 +20,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { useParams, useNavigate } from "react-router-dom"
-import { ArrowLeftIcon, ChevronDown } from "lucide-react"
+import { ArrowLeftIcon, RefreshCw } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { BrokerInventory } from "@/components/broker-inventory"
 import { HistoricalScreener } from "@/components/historical-screener"
@@ -37,6 +36,7 @@ import { RetailExhaustionChart } from "@/components/retail-exhaustion-chart"
 import { FloorPriceChart } from "@/components/floor-price-chart"
 import { WhaleDetection } from "@/components/whale-detection"
 import { CohesionAnalysisChart } from "@/components/cohesion-analysis-chart"
+import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
 
@@ -46,8 +46,13 @@ export default function StockDetail() {
   const { ticker } = useParams()
   const selectedTicker = ticker?.toUpperCase() || ""
   const [brokerCode, setBrokerCode] = useState("")
+  const [refreshDialogOpen, setRefreshDialogOpen] = useState(false)
+  const [refreshDateRange, setRefreshDateRange] = useState<DateRange | undefined>({
+    from: startOfMonth(subMonths(new Date(), 1)),
+    to: new Date(),
+  })
 
-  const { data: tickerInfo, refetch: refetchTickerInfo } = useQuery({
+  const { data: tickerInfo } = useQuery({
     queryKey: ["ticker-detail", selectedTicker],
     queryFn: () => getTickerDetail(selectedTicker),
     enabled: !!selectedTicker,
@@ -79,32 +84,22 @@ export default function StockDetail() {
   })
   const [valueType, setValueType] = useState<"Net" | "Gross">("Net")
 
-  const fetchMutation = useMutation({
+  const refreshMutation = useMutation({
     mutationFn: () =>
-      fetchAndSaveBrokerSummary({
-        symbol: selectedTicker!,
-        from: date?.from ? format(date.from, "yyyy-MM-dd") : "",
-        to: date?.to ? format(date.to, "yyyy-MM-dd") : "",
-      }),
+      refreshSingleTicker(
+        selectedTicker,
+        refreshDateRange?.from ? format(refreshDateRange.from, "yyyy-MM-dd") : "",
+        refreshDateRange?.to ? format(refreshDateRange.to, "yyyy-MM-dd") : "",
+      ),
     onSuccess: () => {
+      toast.success(`Refreshing ${selectedTicker} in background.`)
+      setRefreshDialogOpen(false)
       queryClient.invalidateQueries({ queryKey: ["broker-summary-range"] })
+      queryClient.invalidateQueries({ queryKey: ["ticker-detail", selectedTicker] })
+      queryClient.invalidateQueries({ queryKey: ["screener-ticker", selectedTicker] })
     },
-  })
-
-  const fetchTickerInfoMutation = useMutation({
-    mutationFn: () => fetchAndSaveTickerInfo(selectedTicker!),
-    onSuccess: () => {
-      refetchTickerInfo()
-    },
-  })
-
-  const fetchHistoricalDataMutation = useMutation({
-    mutationFn: () =>
-      fetchAndSaveHistoricalData({
-        symbol: selectedTicker!,
-      }),
-    onSuccess: () => {
-      // You might want to invalidate queries here if you display historical data
+    onError: (error) => {
+      toast.error(`Failed to refresh: ${(error as Error).message}`)
     },
   })
 
@@ -184,64 +179,52 @@ export default function StockDetail() {
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="default"
-                size="sm"
-                disabled={
-                  fetchMutation.isPending ||
-                  fetchTickerInfoMutation.isPending ||
-                  fetchHistoricalDataMutation.isPending
-                }
-              >
-                {fetchMutation.isPending ||
-                fetchTickerInfoMutation.isPending ||
-                fetchHistoricalDataMutation.isPending
-                  ? "Fetching..."
-                  : "Fetch Data"}
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => fetchMutation.mutate()}
-                disabled={!date?.from || !date?.to}
-              >
-                Broker Summary
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => fetchTickerInfoMutation.mutate()}
-              >
-                Ticker Info
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => fetchHistoricalDataMutation.mutate()}
-              >
-                Historical Data
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {fetchMutation.isError && (
-            <div className="text-right text-xs text-red-500">
-              {(fetchMutation.error as any)?.response?.data?.error ||
-                (fetchMutation.error as Error).message}
-            </div>
-          )}
-          {fetchTickerInfoMutation.isError && (
-            <div className="text-right text-xs text-red-500">
-              {(fetchTickerInfoMutation.error as any)?.response?.data?.error ||
-                (fetchTickerInfoMutation.error as Error).message}
-            </div>
-          )}
-          {fetchHistoricalDataMutation.isError && (
-            <div className="text-right text-xs text-red-500">
-              {(fetchHistoricalDataMutation.error as any)?.response?.data
-                ?.error || (fetchHistoricalDataMutation.error as Error).message}
-            </div>
-          )}
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setRefreshDialogOpen(true)}
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh Ticker
+          </Button>
         </div>
       </div>
+
+      {/* Refresh Ticker Dialog */}
+      <Dialog open={refreshDialogOpen} onOpenChange={setRefreshDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Refresh Ticker — {selectedTicker}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="mb-3 text-sm text-muted-foreground">
+              Pilih rentang tanggal untuk mengambil data broker summary.
+            </p>
+            <DatePickerWithRange date={refreshDateRange} setDate={setRefreshDateRange} />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRefreshDialogOpen(false)}>
+              Batal
+            </Button>
+            <Button
+              onClick={() => refreshMutation.mutate()}
+              disabled={refreshMutation.isPending || !refreshDateRange?.from || !refreshDateRange?.to}
+            >
+              {refreshMutation.isPending ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Refreshing...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Refresh
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="mb-4 flex items-center gap-2">
         <DatePickerWithRange date={date} setDate={setDate} />

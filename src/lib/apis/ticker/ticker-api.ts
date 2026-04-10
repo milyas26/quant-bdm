@@ -72,6 +72,11 @@ export const refreshAllTickers = async () => {
   return data
 }
 
+export const refreshSingleTicker = async (symbol: string, from: string, to: string) => {
+  const { data } = await api.post(`/refresh-ticker/${symbol}`, { from, to })
+  return data
+}
+
 export const getHistoricalScreenerData = async (
   symbol: string,
   months: number = 3
