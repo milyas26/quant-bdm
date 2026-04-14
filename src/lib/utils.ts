@@ -145,13 +145,13 @@ export function getBrokerCodeClass(code?: string) {
     case "ZP":
     case "BK":
     case "CP":
-      return "font-semibold text-green-800 dark:text-green-600 bg-green-50 dark:bg-muted/50"
+      return "font-semibold text-green-800 dark:text-green-600 bg-green-50 dark:bg-muted/50 px-0.5 rounded-sm"
     case "XL":
     case "XC":
     case "PD":
     case "YP":
-      return "font-semibold text-red-800 dark:text-red-600 bg-red-50 dark:bg-muted/50"
+      return "font-semibold text-red-800 dark:text-red-600 bg-red-50 dark:bg-muted/50 px-0.5 rounded-sm"
     default:
-      return "text-black/50 dark:text-white/50d"
+      return "text-black/50 dark:text-white/50 px-0.5 rounded-sm"
   }
 }

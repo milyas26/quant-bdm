@@ -1,4 +1,4 @@
-import { cn, formatNumber, getBandarBgColor, getBrokerColor } from "@/lib/utils"
+import { cn, formatNumber, getBandarBgColor, getBrokerCodeClass } from "@/lib/utils"
 import type { BrokerBuy, BrokerSell } from "@/lib/api"
 
 export interface DayData {
@@ -135,8 +135,8 @@ export function DailyBrokerSummaryGrid({
                             >
                               <span
                                 className={cn(
-                                  "cursor-pointer text-[10px] font-bold",
-                                  getBrokerColor(buy.type),
+                                  "cursor-pointer text-[10px]",
+                                  getBrokerCodeClass(buy.netbsBrokerCode),
                                   highlightedBroker === buy.netbsBrokerCode &&
                                     "rounded bg-yellow-200 p-1 dark:bg-yellow-900"
                                 )}
@@ -167,8 +167,8 @@ export function DailyBrokerSummaryGrid({
                             >
                               <span
                                 className={cn(
-                                  "cursor-pointer text-[10px] font-bold",
-                                  getBrokerColor(sell.type),
+                                  "cursor-pointer text-[10px]",
+                                  getBrokerCodeClass(sell.netbsBrokerCode),
                                   highlightedBroker === sell.netbsBrokerCode &&
                                     "rounded bg-yellow-200 p-1 dark:bg-yellow-900"
                                 )}
