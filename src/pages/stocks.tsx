@@ -643,7 +643,23 @@ export default function StocksPage() {
               </div>
             </TableHead>
             <TableHead>Remora</TableHead>
-            <TableHead>Top Brokers</TableHead>
+            <TableHead
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleSort("topBrokers")}
+            >
+              <div className="flex items-center gap-1">
+                Top Brokers
+                {sortBy === "topBrokers" ? (
+                  sortOrder === "asc" ? (
+                    <ArrowUp className="h-3 w-3" />
+                  ) : (
+                    <ArrowDown className="h-3 w-3" />
+                  )
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-30" />
+                )}
+              </div>
+            </TableHead>
             <TableHead
               className="cursor-pointer hover:bg-muted/50"
               onClick={() => handleSort("liquidityScore")}
