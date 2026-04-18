@@ -4,6 +4,7 @@ import {
   getHistoricalScreenerData,
   getScreener,
   refreshSingleTicker,
+  exportTickerData,
 } from "@/lib/api"
 import { SimulateBuyButton } from "@/components/simulate-buy-button"
 import { Button } from "@/components/ui/button"
@@ -27,7 +28,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { useParams, useNavigate } from "react-router-dom"
-import { ArrowLeftIcon, RefreshCw } from "lucide-react"
+import { ArrowLeftIcon, RefreshCw, Download } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { BrokerInventory } from "@/components/broker-inventory"
 import { HistoricalScreener } from "@/components/historical-screener"
@@ -179,14 +180,41 @@ export default function StockDetail() {
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => setRefreshDialogOpen(true)}
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Refresh Ticker
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                try {
+                  const data = await exportTickerData(
+                    selectedTicker,
+                    date?.from ? format(date.from, "yyyy-MM-dd") : undefined,
+                    date?.to ? format(date.to, "yyyy-MM-dd") : undefined,
+                  )
+                  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement("a")
+                  a.href = url
+                  a.download = `${selectedTicker}_export_${format(new Date(), "yyyyMMdd_HHmmss")}.json`
+                  a.click()
+                  URL.revokeObjectURL(url)
+                  toast.success("JSON exported successfully")
+                } catch (error) {
+                  toast.error(`Export failed: ${(error as Error).message}`)
+                }
+              }}
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setRefreshDialogOpen(true)}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh Ticker
+            </Button>
+          </div>
         </div>
       </div>
 

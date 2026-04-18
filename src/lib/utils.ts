@@ -140,11 +140,21 @@ export function getBrokerCodeClass(code?: string) {
   if (!code) return "text-black"
   const c = code.toUpperCase()
   switch (c) {
-    case "CC":
-    case "AK":
-    case "ZP":
+    case "AI":
     case "BK":
+    case "YU":
+    case "CS":
+    case "CC":
+    case "ZP":
+    case "AK":
     case "CP":
+    case "NI":
+    case "HS":
+    case "RF":
+    case "KZ":
+    case "SS":
+    case "IF":
+    case "RX":
       return "font-semibold text-green-800 dark:text-green-600 bg-green-50 dark:bg-muted/50 px-0.5 rounded-sm"
     case "XL":
     case "XC":

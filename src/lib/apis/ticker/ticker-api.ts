@@ -87,3 +87,10 @@ export const getHistoricalScreenerData = async (
   })
   return data
 }
+
+export const exportTickerData = async (symbol: string, from?: string, to?: string) => {
+  const { data } = await api.get(`/tickers/${symbol}/export`, {
+    params: { from, to },
+  })
+  return data
+}
