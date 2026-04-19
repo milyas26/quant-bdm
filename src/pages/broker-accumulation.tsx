@@ -20,9 +20,11 @@ import type { BrokerOption } from "@/components/broker-multi-select"
 import { FilterMultiSelect } from "@/components/filter-multi-select"
 import { useBrokerAccumulationStore } from "@/stores/brokerAccumulationStore"
 import { useMemo, useState, useEffect } from "react"
+import { useDebounce } from "@/hooks/use-debounce"
 import {
   SlidersHorizontal, X,
   ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight,
+  CalendarIcon, Search,
 } from "lucide-react"
 import {
   Select,
@@ -31,6 +33,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { format, parseISO, addDays, subDays } from "date-fns"
 import type { BrokerAccumulationSearchResult } from "@/lib/apis/broker-summary/broker-summary-api"
 
 const DATE_PRESETS = [
@@ -45,6 +54,7 @@ export default function BrokerAccumulationPage() {
   const {
     brokerCodes,
     preset,
+    cutoffDate,
     from,
     to,
     page,
@@ -59,6 +69,7 @@ export default function BrokerAccumulationPage() {
     liquidity,
     setBrokerCodes,
     setPreset,
+    setCutoffDate,
     setPage,
     setLimit,
     setMinPrice,
@@ -72,6 +83,8 @@ export default function BrokerAccumulationPage() {
   } = useBrokerAccumulationStore()
 
   const [pageInput, setPageInput] = useState(page.toString())
+  const [symbolSearch, setSymbolSearch] = useState("")
+  const debouncedSymbol = useDebounce(symbolSearch, 500)
 
   const [minPriceInput, setMinPriceInput] = useState(minPrice)
   const [maxPriceInput, setMaxPriceInput] = useState(maxPrice)
@@ -99,8 +112,8 @@ export default function BrokerAccumulationPage() {
   }, [brokerGroup])
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["broker-accumulation-search", brokerCodes, from, to],
-    queryFn: () => searchBrokerAccumulation(brokerCodes, from, to),
+    queryKey: ["broker-accumulation-search", brokerCodes, from, to, debouncedSymbol, cutoffDate],
+    queryFn: () => searchBrokerAccumulation(brokerCodes, from, to, debouncedSymbol || undefined, cutoffDate),
     enabled: !!from && !!to,
   })
 
@@ -146,6 +159,11 @@ export default function BrokerAccumulationPage() {
 
   const handlePriceUpdate = () => { setMinPrice(minPriceInput); setMaxPrice(maxPriceInput) }
   const handleScoreUpdate = () => { setMinScore(minScoreInput); setMaxScore(maxScoreInput) }
+  const handleStepDate = (direction: 1 | -1) => {
+    const current = parseISO(cutoffDate)
+    const next = direction === 1 ? addDays(current, 1) : subDays(current, 1)
+    setCutoffDate(format(next, "yyyy-MM-dd"))
+  }
   const handleResetFilters = () => {
     setMinPriceInput(""); setMaxPriceInput(""); setMinScoreInput(""); setMaxScoreInput("")
     setMinPrice(""); setMaxPrice(""); setMinScore(""); setMaxScore("")
@@ -166,6 +184,15 @@ export default function BrokerAccumulationPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
+            <div className="relative min-w-32 flex-1">
+              <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Cari symbol..."
+                className="h-10 pl-8 bg-background/50"
+                value={symbolSearch}
+                onChange={(e) => { setSymbolSearch(e.target.value); setPage(1) }}
+              />
+            </div>
             <div className="min-w-64 flex-1">
               <BrokerMultiSelect
                 options={brokerOptions}
@@ -175,6 +202,60 @@ export default function BrokerAccumulationPage() {
               />
             </div>
             <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-10 w-9 shrink-0"
+                onClick={() => handleStepDate(-1)}
+                title="Previous day"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn("h-10 w-32 justify-start text-left font-normal text-xs px-3", cutoffDate === format(new Date(), "yyyy-MM-dd") && "text-muted-foreground")}
+                  >
+                    <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
+                    {format(parseISO(cutoffDate), "dd MMM yy")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={parseISO(cutoffDate)}
+                    onSelect={(d) => {
+                      if (d) setCutoffDate(format(d, "yyyy-MM-dd"))
+                    }}
+                    initialFocus
+                  />
+                  {cutoffDate !== format(new Date(), "yyyy-MM-dd") && (
+                    <div className="border-t p-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full text-xs h-7"
+                        onClick={() => setCutoffDate(format(new Date(), "yyyy-MM-dd"))}
+                      >
+                        Reset to Today
+                      </Button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-10 w-9 shrink-0"
+                onClick={() => handleStepDate(1)}
+                disabled={cutoffDate >= format(new Date(), "yyyy-MM-dd")}
+                title="Next day"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Separator orientation="vertical" className="h-5 mx-1" />
               {DATE_PRESETS.map((p) => (
                 <Button
                   key={p.value}

@@ -1,10 +1,11 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import { format, subDays } from "date-fns"
+import { format, subDays, parseISO } from "date-fns"
 
 export interface BrokerAccumulationFilterState {
   brokerCodes: string[]
   preset: "3d" | "1w" | "2w" | "custom"
+  cutoffDate: string
   from: string
   to: string
 
@@ -24,6 +25,7 @@ export interface BrokerAccumulationFilterState {
 
   setBrokerCodes: (codes: string[]) => void
   setPreset: (preset: "3d" | "1w" | "2w" | "custom") => void
+  setCutoffDate: (date: string) => void
   setDateRange: (from: string, to: string) => void
   setPage: (page: number) => void
   setLimit: (limit: number) => void
@@ -40,19 +42,20 @@ export interface BrokerAccumulationFilterState {
 
 const today = () => format(new Date(), "yyyy-MM-dd")
 
-const getPresetFrom = (preset: "3d" | "1w" | "2w" | "custom") => {
-  const now = new Date()
+const getPresetFrom = (preset: "3d" | "1w" | "2w" | "custom", cutoff?: string) => {
+  const base = cutoff ? parseISO(cutoff) : new Date()
   switch (preset) {
-    case "3d": return format(subDays(now, 3), "yyyy-MM-dd")
-    case "1w": return format(subDays(now, 7), "yyyy-MM-dd")
-    case "2w": return format(subDays(now, 14), "yyyy-MM-dd")
-    default: return format(subDays(now, 7), "yyyy-MM-dd")
+    case "3d": return format(subDays(base, 3), "yyyy-MM-dd")
+    case "1w": return format(subDays(base, 7), "yyyy-MM-dd")
+    case "2w": return format(subDays(base, 14), "yyyy-MM-dd")
+    default: return format(subDays(base, 7), "yyyy-MM-dd")
   }
 }
 
 const DEFAULT_STATE = {
   brokerCodes: [] as string[],
   preset: "1w" as const,
+  cutoffDate: today(),
   from: getPresetFrom("3d"),
   to: today(),
   page: 1,
@@ -73,12 +76,18 @@ export const useBrokerAccumulationStore = create<BrokerAccumulationFilterState>(
       ...DEFAULT_STATE,
 
       setBrokerCodes: (brokerCodes) => set({ brokerCodes, page: 1 }),
-      setPreset: (preset) => set({
+      setPreset: (preset) => set((state) => ({
         preset,
-        from: getPresetFrom(preset),
-        to: today(),
+        from: getPresetFrom(preset, state.cutoffDate),
+        to: state.cutoffDate,
         page: 1,
-      }),
+      })),
+      setCutoffDate: (cutoffDate) => set((state) => ({
+        cutoffDate,
+        from: state.preset !== "custom" ? getPresetFrom(state.preset, cutoffDate) : state.from,
+        to: cutoffDate,
+        page: 1,
+      })),
       setDateRange: (from, to) => set({ from, to, preset: "custom", page: 1 }),
       setPage: (page) => set({ page }),
       setLimit: (limit) => set({ limit, page: 1 }),

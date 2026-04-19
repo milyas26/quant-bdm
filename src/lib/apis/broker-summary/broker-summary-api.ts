@@ -262,10 +262,18 @@ export const searchBrokerAccumulation = async (
   brokers: string[],
   from?: string,
   to?: string,
+  symbol?: string,
+  cutoffDate?: string,
 ) => {
   const params: Record<string, string | undefined> = { from, to }
   if (brokers.length > 0) {
     params.brokers = brokers.join(",")
+  }
+  if (symbol) {
+    params.symbol = symbol
+  }
+  if (cutoffDate) {
+    params.cutoffDate = cutoffDate
   }
   const { data } = await api.get<BrokerAccumulationSearchResponse>("/broker-accumulation-search", {
     params,
