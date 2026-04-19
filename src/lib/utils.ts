@@ -158,6 +158,7 @@ export function getBrokerCodeClass(code?: string) {
     case "SS":
     case "HP":
     case "EP":
+    case "MG":
       return "font-semibold text-blue-800 dark:text-blue-600 bg-blue-50 dark:bg-muted/50 px-0.5 rounded-sm"
     case "XL":
     case "XC":
