@@ -179,7 +179,7 @@ export default function BrokerAccumulationPage() {
       </p>
 
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-0">
           <CardTitle className="text-base">Filter</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
