@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { Link, Outlet, useLocation } from "react-router-dom"
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
@@ -20,15 +20,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Settings, Info } from "lucide-react"
+import { Settings, Info, BookCheck } from "lucide-react"
 import { useTheme } from "@/components/theme-provider"
 
 const navItems = [
   { title: "Screener", url: "/" },
   { title: "History", url: "/history" },
   { title: "Watchlist", url: "/watchlist" },
+  { title: "Acc", url: "/broker-accumulation" },
   { title: "Portfolio", url: "/portfolio" },
-  { title: "Guide", url: "/guide" },
 ]
 
 import { AddTickerDialog } from "@/components/add-ticker-dialog"
@@ -49,7 +49,10 @@ function SettingsMenu() {
       <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuLabel>Appearance</DropdownMenuLabel>
         <div className="px-2 pb-1">
-          <Select value={theme} onValueChange={(v) => setTheme(v as "light" | "dark" | "system")}>
+          <Select
+            value={theme}
+            onValueChange={(v) => setTheme(v as "light" | "dark" | "system")}
+          >
             <SelectTrigger className="h-8 w-full">
               <SelectValue placeholder="Theme" />
             </SelectTrigger>
@@ -75,6 +78,7 @@ function SettingsMenu() {
 
 export default function Layout() {
   const location = useLocation()
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [inputValue, setInputValue] = useState(() => {
     if (location.pathname.startsWith("/stock/")) {
@@ -127,7 +131,11 @@ export default function Layout() {
                   to={item.url}
                   className={cn(
                     "cursor-pointer border-l px-4 py-4 text-sm transition-colors hover:bg-muted/80",
-                    (item.url === "/" ? location.pathname === "/" : location.pathname.startsWith(item.url))
+                    (
+                      item.url === "/"
+                        ? location.pathname === "/"
+                        : location.pathname.startsWith(item.url)
+                    )
                       ? "font-semibold"
                       : "font-medium text-muted-foreground"
                   )}
@@ -147,6 +155,11 @@ export default function Layout() {
                   placeholder="Search... (/)"
                 />
               </div>
+              <Button variant="outline" size="sm" className="h-8 gap-1.5"
+                onClick={() => navigate("/guide")}
+              >
+                <BookCheck className="h-4 w-4 text-muted-foreground" />
+              </Button>
               <AddTickerDialog />
               <BrokersSheet />
               <RunnerCalculator />

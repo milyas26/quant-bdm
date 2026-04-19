@@ -215,3 +215,60 @@ export const getCohesionAnalysis = async (
     throw error
   }
 }
+
+export interface BrokerAccumulationSearchResult {
+  symbol: string
+  totalNetVal: number
+  totalNetLot: number
+  name: string | null
+  logo: string | null
+  sector: string | null
+  subSector: string | null
+  screener: {
+    price: number
+    change: number
+    changePercentage: number
+    volume: number
+    value: number
+    isVolumeSpike: boolean
+    netBrokerFlow: number
+    bandarStatus: string
+    smartMoneyScore: number
+    momentum: string
+    isBreakout: boolean
+    liquidityScore: string
+    pvaTrend: string | null
+  } | null
+  brokers: Array<{
+    brokerCode: string
+    netVal: number
+    netLot: number
+    freq: number
+    daysActive: number
+  }>
+}
+
+export interface BrokerAccumulationSearchResponse {
+  data: BrokerAccumulationSearchResult[]
+  meta: {
+    brokers: string[]
+    from: string
+    to: string
+    totalStocks: number
+  }
+}
+
+export const searchBrokerAccumulation = async (
+  brokers: string[],
+  from?: string,
+  to?: string,
+) => {
+  const { data } = await api.get<BrokerAccumulationSearchResponse>("/broker-accumulation-search", {
+    params: {
+      brokers: brokers.join(","),
+      from,
+      to,
+    },
+  })
+  return data
+}

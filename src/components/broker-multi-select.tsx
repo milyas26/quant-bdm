@@ -49,27 +49,12 @@ export function BrokerMultiSelect({
   const [collapsedGroups, setCollapsedGroups] = React.useState<
     Record<string, boolean>
   >({
-    LOKAL: true,
-    ASING: true,
-    PEMERINTAH: true,
-    RITEL: true,
-    SMART_MONEY: true,
+    LOKAL: false,
+    ASING: false,
+    PEMERINTAH: false,
+    RITEL: false,
+    SMART_MONEY: false,
   })
-
-  const isInitialized = React.useRef(false)
-
-  // Default to RETAIL if nothing is selected
-  React.useEffect(() => {
-    if (!isInitialized.current && Object.keys(options).length > 0) {
-      if (selected.length === 0) {
-        const retailGroup = options["RITEL"]
-        if (retailGroup && retailGroup.length > 0) {
-          onChange(retailGroup.map((item) => item.value))
-        }
-      }
-      isInitialized.current = true
-    }
-  }, [options, selected, onChange])
 
   const handleSelect = (value: string) => {
     if (selected.includes(value)) {
