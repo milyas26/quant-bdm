@@ -28,7 +28,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { useParams, useNavigate } from "react-router-dom"
-import { ArrowLeftIcon, RefreshCw, Download } from "lucide-react"
+import { ArrowLeftIcon, RefreshCw, Download, Bookmark } from "lucide-react"
+import { AddToWatchlistDialog } from "@/components/add-to-watchlist-dialog"
 import { Badge } from "@/components/ui/badge"
 import { BrokerInventory } from "@/components/broker-inventory"
 import { HistoricalScreener } from "@/components/historical-screener"
@@ -48,6 +49,7 @@ export default function StockDetail() {
   const selectedTicker = ticker?.toUpperCase() || ""
   const [brokerCode, setBrokerCode] = useState("")
   const [refreshDialogOpen, setRefreshDialogOpen] = useState(false)
+  const [watchlistDialogOpen, setWatchlistDialogOpen] = useState(false)
   const [refreshDateRange, setRefreshDateRange] = useState<DateRange | undefined>({
     from: startOfMonth(subMonths(new Date(), 1)),
     to: new Date(),
@@ -106,6 +108,10 @@ export default function StockDetail() {
 
   return (
     <div className="space-y-4">
+      <AddToWatchlistDialog
+        symbol={watchlistDialogOpen ? selectedTicker : null}
+        onClose={() => setWatchlistDialogOpen(false)}
+      />
       <div className="flex items-baseline justify-between">
         <div>
           <div className="mb-2 flex items-center gap-2">
@@ -181,6 +187,13 @@ export default function StockDetail() {
         </div>
         <div className="flex flex-col items-end gap-2">
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setWatchlistDialogOpen(true)}
+            >
+              <Bookmark className={cn("h-4 w-4", tickerInfo?.isOnWatchlist && "fill-blue-500 text-blue-500")} />
+            </Button>
             <Button
               variant="outline"
               size="sm"
