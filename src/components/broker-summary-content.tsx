@@ -11,6 +11,7 @@ import {
   formatNumber,
   getBandarColor,
   getBandarStatus,
+  getBrokerCodeClass,
   getBrokerColor,
 } from "@/lib/utils"
 
@@ -305,7 +306,7 @@ export function BrokerSummaryContent({
                   {/* Buy Side */}
                   <td className="p-1 font-bold">
                     {row.buy && (
-                      <span className={getBrokerColor(row.buy.type)}>
+                      <span className={getBrokerCodeClass(row.buy.netbsBrokerCode)}>
                         {row.buy.netbsBrokerCode}
                       </span>
                     )}
@@ -324,7 +325,7 @@ export function BrokerSummaryContent({
                   {/* Sell Side */}
                   <td className="p-1 font-bold">
                     {row.sell && (
-                      <span className={getBrokerColor(row.sell.type)}>
+                      <span className={getBrokerCodeClass(row.sell.netbsBrokerCode)}>
                         {row.sell.netbsBrokerCode}
                       </span>
                     )}

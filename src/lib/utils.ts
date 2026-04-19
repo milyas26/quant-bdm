@@ -144,24 +144,27 @@ export function getBrokerCodeClass(code?: string) {
     case "BK":
     case "YU":
     case "CS":
-    case "CC":
     case "ZP":
     case "AK":
-    case "CP":
     case "NI":
     case "HS":
-    case "RF":
     case "KZ":
-    case "SS":
     case "IF":
     case "RX":
       return "font-semibold text-green-800 dark:text-green-600 bg-green-50 dark:bg-muted/50 px-0.5 rounded-sm"
+    case "CC":
+    case "CP":
+    case "RF":
+    case "SS":
+    case "HP":
+    case "EP":
+      return "font-semibold text-blue-800 dark:text-blue-600 bg-blue-50 dark:bg-muted/50 px-0.5 rounded-sm"
     case "XL":
     case "XC":
     case "PD":
     case "YP":
       return "font-semibold text-red-800 dark:text-red-600 bg-red-50 dark:bg-muted/50 px-0.5 rounded-sm"
     default:
-      return "text-black/50 dark:text-white/50 px-0.5 rounded-sm"
+      return "text-black/50 dark:text-white/50 px-0.5 rounded-sm font-normal"
   }
 }
