@@ -263,12 +263,12 @@ export const searchBrokerAccumulation = async (
   from?: string,
   to?: string,
 ) => {
+  const params: Record<string, string | undefined> = { from, to }
+  if (brokers.length > 0) {
+    params.brokers = brokers.join(",")
+  }
   const { data } = await api.get<BrokerAccumulationSearchResponse>("/broker-accumulation-search", {
-    params: {
-      brokers: brokers.join(","),
-      from,
-      to,
-    },
+    params,
   })
   return data
 }

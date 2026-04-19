@@ -8,6 +8,10 @@ export interface BrokerAccumulationFilterState {
   from: string
   to: string
 
+  // Pagination
+  page: number
+  limit: number
+
   // Screener filters
   minPrice: string
   maxPrice: string
@@ -21,6 +25,8 @@ export interface BrokerAccumulationFilterState {
   setBrokerCodes: (codes: string[]) => void
   setPreset: (preset: "3d" | "1w" | "2w" | "custom") => void
   setDateRange: (from: string, to: string) => void
+  setPage: (page: number) => void
+  setLimit: (limit: number) => void
   setMinPrice: (v: string) => void
   setMaxPrice: (v: string) => void
   setMinScore: (v: string) => void
@@ -49,6 +55,8 @@ const DEFAULT_STATE = {
   preset: "1w" as const,
   from: getPresetFrom("3d"),
   to: today(),
+  page: 1,
+  limit: 10,
   minPrice: "",
   maxPrice: "",
   minScore: "",
@@ -64,13 +72,16 @@ export const useBrokerAccumulationStore = create<BrokerAccumulationFilterState>(
     (set) => ({
       ...DEFAULT_STATE,
 
-      setBrokerCodes: (brokerCodes) => set({ brokerCodes }),
+      setBrokerCodes: (brokerCodes) => set({ brokerCodes, page: 1 }),
       setPreset: (preset) => set({
         preset,
         from: getPresetFrom(preset),
         to: today(),
+        page: 1,
       }),
-      setDateRange: (from, to) => set({ from, to, preset: "custom" }),
+      setDateRange: (from, to) => set({ from, to, preset: "custom", page: 1 }),
+      setPage: (page) => set({ page }),
+      setLimit: (limit) => set({ limit, page: 1 }),
       setMinPrice: (minPrice) => set({ minPrice }),
       setMaxPrice: (maxPrice) => set({ maxPrice }),
       setMinScore: (minScore) => set({ minScore }),

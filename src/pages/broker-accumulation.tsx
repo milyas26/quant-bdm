@@ -12,14 +12,25 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { cn, formatNumber, getBrokerCodeClass } from "@/lib/utils"
 import { BrokerMultiSelect } from "@/components/broker-multi-select"
 import type { BrokerOption } from "@/components/broker-multi-select"
 import { FilterMultiSelect } from "@/components/filter-multi-select"
 import { useBrokerAccumulationStore } from "@/stores/brokerAccumulationStore"
-import { useMemo, useState } from "react"
-import { SlidersHorizontal, X } from "lucide-react"
+import { useMemo, useState, useEffect } from "react"
+import {
+  SlidersHorizontal, X,
+  ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight,
+} from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type { BrokerAccumulationSearchResult } from "@/lib/apis/broker-summary/broker-summary-api"
 
 const DATE_PRESETS = [
@@ -36,6 +47,8 @@ export default function BrokerAccumulationPage() {
     preset,
     from,
     to,
+    page,
+    limit,
     minPrice,
     maxPrice,
     minScore,
@@ -46,6 +59,8 @@ export default function BrokerAccumulationPage() {
     liquidity,
     setBrokerCodes,
     setPreset,
+    setPage,
+    setLimit,
     setMinPrice,
     setMaxPrice,
     setMinScore,
@@ -55,6 +70,8 @@ export default function BrokerAccumulationPage() {
     setMomentum,
     setLiquidity,
   } = useBrokerAccumulationStore()
+
+  const [pageInput, setPageInput] = useState(page.toString())
 
   const [minPriceInput, setMinPriceInput] = useState(minPrice)
   const [maxPriceInput, setMaxPriceInput] = useState(maxPrice)
@@ -84,7 +101,7 @@ export default function BrokerAccumulationPage() {
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ["broker-accumulation-search", brokerCodes, from, to],
     queryFn: () => searchBrokerAccumulation(brokerCodes, from, to),
-    enabled: brokerCodes.length > 0 && !!from && !!to,
+    enabled: !!from && !!to,
   })
 
   const filteredData = useMemo(() => {
@@ -110,6 +127,23 @@ export default function BrokerAccumulationPage() {
 
   const hasActiveFilters = !!(minPrice || maxPrice || minScore || maxScore || signals.length || bandarStatus.length || momentum.length || liquidity.length)
 
+  // Pagination
+  const totalItems = filteredData.length
+  const totalPages = Math.max(1, Math.ceil(totalItems / limit))
+  const paginatedData = useMemo(() => {
+    const start = (page - 1) * limit
+    return filteredData.slice(start, start + limit)
+  }, [filteredData, page, limit])
+
+  // Reset page when filters change
+  useEffect(() => {
+    if (page > totalPages) setPage(1)
+  }, [totalPages])
+
+  useEffect(() => {
+    setPageInput(page.toString())
+  }, [page])
+
   const handlePriceUpdate = () => { setMinPrice(minPriceInput); setMaxPrice(maxPriceInput) }
   const handleScoreUpdate = () => { setMinScore(minScoreInput); setMaxScore(maxScoreInput) }
   const handleResetFilters = () => {
@@ -123,6 +157,7 @@ export default function BrokerAccumulationPage() {
       <h1 className="text-2xl font-bold">Broker Accumulation Search</h1>
       <p className="text-sm text-muted-foreground">
         Cari saham yang sedang diakumulasi oleh broker tertentu dalam rentang waktu yang dipilih.
+        Jika tidak memilih broker, akan menampilkan saham yang diakumulasi oleh broker yang sama secara berturut-turut.
       </p>
 
       <Card>
@@ -213,14 +248,7 @@ export default function BrokerAccumulationPage() {
         </CardContent>
       </Card>
 
-      {brokerCodes.length === 0 && (
-        <div className="py-12 text-center text-muted-foreground text-sm">
-          Pilih kode broker untuk mulai mencari saham yang diakumulasi.
-        </div>
-      )}
-
-      {brokerCodes.length > 0 && (
-        <Card>
+      <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               Hasil
@@ -237,7 +265,7 @@ export default function BrokerAccumulationPage() {
               )}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -251,14 +279,14 @@ export default function BrokerAccumulationPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {!filteredData.length ? (
+                {!paginatedData.length ? (
                   <TableRow>
                     <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
                       {isLoading ? "Loading..." : "Tidak ada saham yang diakumulasi broker tersebut."}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredData.map((item) => (
+                  paginatedData.map((item) => (
                     <TableRow
                       key={item.symbol}
                       className="cursor-pointer hover:bg-muted/50"
@@ -390,9 +418,95 @@ export default function BrokerAccumulationPage() {
                 )}
               </TableBody>
             </Table>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>
+                  Showing {paginatedData.length} of {totalItems} results
+                </span>
+                <Select
+                  value={String(limit)}
+                  onValueChange={(val) => setLimit(Number(val))}
+                >
+                  <SelectTrigger className="h-8 w-16">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[10, 25, 50, 100].map((n) => (
+                      <SelectItem key={n} value={String(n)}>
+                        {n}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setPage(1)}
+                  disabled={page <= 1}
+                  title="First Page"
+                >
+                  <ChevronsLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(Math.max(1, page - 1))}
+                  disabled={page <= 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+
+                <div className="mx-2 flex items-center gap-2">
+                  <span className="text-sm font-medium">Page</span>
+                  <Input
+                    className="h-8 w-16 px-1 text-center"
+                    value={pageInput}
+                    type="number"
+                    onChange={(e) => setPageInput(e.target.value)}
+                    onBlur={() => {
+                      const p = parseInt(pageInput)
+                      if (!isNaN(p) && p > 0 && p <= totalPages) setPage(p)
+                      else setPageInput(page.toString())
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        const p = parseInt(pageInput)
+                        if (!isNaN(p) && p > 0 && p <= totalPages) setPage(p)
+                      }
+                    }}
+                  />
+                  <span className="text-sm font-medium">
+                    of {totalPages}
+                  </span>
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(page + 1)}
+                  disabled={page >= totalPages}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setPage(totalPages)}
+                  disabled={page >= totalPages}
+                  title="Last Page"
+                >
+                  <ChevronsRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
-      )}
     </div>
   )
 }
