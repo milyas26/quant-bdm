@@ -27,7 +27,7 @@ const navItems = [
   { title: "Screener", url: "/" },
   { title: "History", url: "/history" },
   { title: "Watchlist", url: "/watchlist" },
-  { title: "Acc", url: "/broker-accumulation" },
+  { title: "Streak", url: "/broker-accumulation" },
   { title: "Portfolio", url: "/portfolio" },
 ]
 
