@@ -721,7 +721,13 @@ export default function StocksPage() {
               <TableRow
                 key={ticker.symbol}
                 className="cursor-pointer"
-                onClick={() => navigate(`/stock/${ticker.symbol}`)}
+                onClick={(e) => {
+                  if (e.ctrlKey || e.metaKey) {
+                    window.open(`/stock/${ticker.symbol}`, "_blank")
+                  } else {
+                    navigate(`/stock/${ticker.symbol}`)
+                  }
+                }}
               >
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
