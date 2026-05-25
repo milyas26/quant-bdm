@@ -156,6 +156,7 @@ export function getBrokerCodeClass(code?: string) {
     case "CP":
     case "RF":
     case "SS":
+    case "ES":
     case "HP":
     case "EP":
     case "MG":
