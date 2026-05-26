@@ -254,6 +254,7 @@ export interface BrokerAccumulationSearchResponse {
     brokers: string[]
     from: string
     to: string
+    watchlistIds: number[]
     totalStocks: number
   }
 }
@@ -264,6 +265,7 @@ export const searchBrokerAccumulation = async (
   to?: string,
   symbol?: string,
   cutoffDate?: string,
+  watchlistIds?: number[],
 ) => {
   const params: Record<string, string | undefined> = { from, to }
   if (brokers.length > 0) {
@@ -274,6 +276,9 @@ export const searchBrokerAccumulation = async (
   }
   if (cutoffDate) {
     params.cutoffDate = cutoffDate
+  }
+  if (watchlistIds && watchlistIds.length > 0) {
+    params.watchlistIds = watchlistIds.join(",")
   }
   const { data } = await api.get<BrokerAccumulationSearchResponse>("/broker-accumulation-search", {
     params,

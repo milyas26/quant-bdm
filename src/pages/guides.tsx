@@ -1,5 +1,15 @@
+/** biome-ignore-all lint/a11y/useButtonType: <explanation> */
 import { useState } from "react"
-import { BookOpen, Activity, BarChart2, Target, LogOut, Zap, ListChecks, Radar } from "lucide-react"
+import {
+  BookOpen,
+  Activity,
+  BarChart2,
+  Target,
+  LogOut,
+  Zap,
+  ListChecks,
+  Radar,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 
 import GuideOverview from "@/components/guides/guide-overview"
@@ -12,14 +22,62 @@ import GuidePracticalWorkflow from "@/components/guides/guide-practical-workflow
 import GuideRemora from "@/components/guides/guide-remora"
 
 const pages = [
-  { id: "overview", label: "Overview", shortLabel: "Overview", icon: BookOpen, component: GuideOverview },
-  { id: "lifecycle", label: "Runner Lifecycle", shortLabel: "Lifecycle", icon: Activity, component: GuideRunnerLifecycle },
-  { id: "reading", label: "Reading the Screener", shortLabel: "Reading", icon: BarChart2, component: GuideReadingScreener },
-  { id: "entry", label: "Entry Strategy", shortLabel: "Entry", icon: Target, component: GuideEntryStrategy },
-  { id: "exit", label: "Exit Strategy", shortLabel: "Exit", icon: LogOut, component: GuideExitStrategy },
-  { id: "score", label: "Runner Score", shortLabel: "Score", icon: Zap, component: GuideRunnerScore },
-  { id: "workflow", label: "Practical Workflow", shortLabel: "Workflow", icon: ListChecks, component: GuidePracticalWorkflow },
-  { id: "remora", label: "Remora Indicators", shortLabel: "Remora", icon: Radar, component: GuideRemora },
+  {
+    id: "overview",
+    label: "Overview",
+    shortLabel: "Overview",
+    icon: BookOpen,
+    component: GuideOverview,
+  },
+  {
+    id: "lifecycle",
+    label: "Runner Lifecycle",
+    shortLabel: "Lifecycle",
+    icon: Activity,
+    component: GuideRunnerLifecycle,
+  },
+  {
+    id: "reading",
+    label: "Reading the Screener",
+    shortLabel: "Reading",
+    icon: BarChart2,
+    component: GuideReadingScreener,
+  },
+  {
+    id: "entry",
+    label: "Entry Strategy",
+    shortLabel: "Entry",
+    icon: Target,
+    component: GuideEntryStrategy,
+  },
+  {
+    id: "exit",
+    label: "Exit Strategy",
+    shortLabel: "Exit",
+    icon: LogOut,
+    component: GuideExitStrategy,
+  },
+  {
+    id: "score",
+    label: "Runner Score",
+    shortLabel: "Score",
+    icon: Zap,
+    component: GuideRunnerScore,
+  },
+  {
+    id: "workflow",
+    label: "Practical Workflow",
+    shortLabel: "Workflow",
+    icon: ListChecks,
+    component: GuidePracticalWorkflow,
+  },
+  {
+    id: "remora",
+    label: "Remora Indicators",
+    shortLabel: "Remora",
+    icon: Radar,
+    component: GuideRemora,
+  },
 ]
 
 export default function Guides() {
@@ -35,21 +93,22 @@ export default function Guides() {
             📘 Screener User Guide
           </h1>
           <p className="mx-auto max-w-2xl text-sm text-muted-foreground">
-            Panduan lengkap cara menggunakan screener untuk mendeteksi potensi runner saham lebih awal.
+            Panduan lengkap cara menggunakan screener untuk mendeteksi potensi
+            runner saham lebih awal.
           </p>
         </div>
 
         <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
           {/* Sidebar */}
-          <nav className="flex shrink-0 flex-row flex-wrap gap-1 lg:w-52 lg:flex-col lg:flex-nowrap lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto">
+          <nav className="flex shrink-0 flex-row flex-wrap gap-1 lg:sticky lg:top-20 lg:max-h-[calc(100vh-5rem)] lg:w-52 lg:flex-col lg:flex-nowrap lg:self-start lg:overflow-y-auto">
             {pages.map(({ id, label, shortLabel, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => setActivePage(id)}
                 className={cn(
-                  "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors text-left",
+                  "flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors",
                   activePage === id
-                    ? "bg-slate-800 text-white font-medium"
+                    ? "bg-slate-800 font-medium text-white"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >

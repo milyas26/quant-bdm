@@ -4,6 +4,7 @@ import { format, subDays, parseISO } from "date-fns"
 
 export interface BrokerAccumulationFilterState {
   brokerCodes: string[]
+  watchlistIds: number[]
   preset: "3d" | "1w" | "2w" | "custom"
   cutoffDate: string
   from: string
@@ -24,6 +25,7 @@ export interface BrokerAccumulationFilterState {
   liquidity: string[]
 
   setBrokerCodes: (codes: string[]) => void
+  setWatchlistIds: (ids: number[]) => void
   setPreset: (preset: "3d" | "1w" | "2w" | "custom") => void
   setCutoffDate: (date: string) => void
   setDateRange: (from: string, to: string) => void
@@ -54,6 +56,7 @@ const getPresetFrom = (preset: "3d" | "1w" | "2w" | "custom", cutoff?: string) =
 
 const DEFAULT_STATE = {
   brokerCodes: [] as string[],
+  watchlistIds: [] as number[],
   preset: "1w" as const,
   cutoffDate: today(),
   from: getPresetFrom("3d"),
@@ -76,6 +79,7 @@ export const useBrokerAccumulationStore = create<BrokerAccumulationFilterState>(
       ...DEFAULT_STATE,
 
       setBrokerCodes: (brokerCodes) => set({ brokerCodes, page: 1 }),
+      setWatchlistIds: (watchlistIds) => set({ watchlistIds, page: 1 }),
       setPreset: (preset) => set((state) => ({
         preset,
         from: getPresetFrom(preset, state.cutoffDate),

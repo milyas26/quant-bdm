@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: <explanation> */
 import { useQuery } from '@tanstack/react-query'
 import { getBrokers } from '@/lib/apis/broker/broker-api'
 import { Card, CardContent } from '@/components/ui/card'

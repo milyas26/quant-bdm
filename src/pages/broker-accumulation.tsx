@@ -1,6 +1,7 @@
+/** biome-ignore-all lint/correctness/useExhaustiveDependencies: <explanation> */
 import { useQuery } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
-import { searchBrokerAccumulation, getBrokers } from "@/lib/api"
+import { searchBrokerAccumulation, getBrokers, getWatchlists } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -17,6 +18,8 @@ import { Separator } from "@/components/ui/separator"
 import { cn, formatNumber, getBrokerCodeClass } from "@/lib/utils"
 import { BrokerMultiSelect } from "@/components/broker-multi-select"
 import type { BrokerOption } from "@/components/broker-multi-select"
+import { MultiSelect } from "@/components/multi-select"
+import type { MultiSelectOption } from "@/components/multi-select"
 import { FilterMultiSelect } from "@/components/filter-multi-select"
 import { useBrokerAccumulationStore } from "@/stores/brokerAccumulationStore"
 import { useMemo, useState, useEffect } from "react"
@@ -53,6 +56,7 @@ export default function BrokerAccumulationPage() {
   const [showFilters, setShowFilters] = useState(false)
   const {
     brokerCodes,
+    watchlistIds,
     preset,
     cutoffDate,
     from,
@@ -68,6 +72,7 @@ export default function BrokerAccumulationPage() {
     momentum,
     liquidity,
     setBrokerCodes,
+    setWatchlistIds,
     setPreset,
     setCutoffDate,
     setPage,
@@ -97,6 +102,12 @@ export default function BrokerAccumulationPage() {
     staleTime: 10 * 60 * 1000,
   })
 
+  const { data: watchlists } = useQuery({
+    queryKey: ["watchlists"],
+    queryFn: getWatchlists,
+    staleTime: 10 * 60 * 1000,
+  })
+
   const brokerOptions = useMemo((): Record<string, BrokerOption[]> => {
     if (!brokerGroup) return {}
     const result: Record<string, BrokerOption[]> = {}
@@ -111,9 +122,31 @@ export default function BrokerAccumulationPage() {
     return result
   }, [brokerGroup])
 
+  const watchlistOptions = useMemo((): MultiSelectOption[] => {
+    if (!watchlists) return []
+    return watchlists.map((w) => ({
+      value: String(w.id),
+      label: w.name,
+      description: `${w._count.tickers} saham`,
+    }))
+  }, [watchlists])
+
+  const selectedWatchlistIds = useMemo(
+    () => watchlistIds.map(String),
+    [watchlistIds],
+  )
+
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["broker-accumulation-search", brokerCodes, from, to, debouncedSymbol, cutoffDate],
-    queryFn: () => searchBrokerAccumulation(brokerCodes, from, to, debouncedSymbol || undefined, cutoffDate),
+    queryKey: ["broker-accumulation-search", brokerCodes, from, to, debouncedSymbol, cutoffDate, watchlistIds],
+    queryFn: () =>
+      searchBrokerAccumulation(
+        brokerCodes,
+        from,
+        to,
+        debouncedSymbol || undefined,
+        cutoffDate,
+        watchlistIds.length > 0 ? watchlistIds : undefined,
+      ),
     enabled: !!from && !!to,
   })
 
@@ -191,6 +224,15 @@ export default function BrokerAccumulationPage() {
                 className="h-10 pl-8 bg-background/50"
                 value={symbolSearch}
                 onChange={(e) => { setSymbolSearch(e.target.value); setPage(1) }}
+              />
+            </div>
+            <div className="min-w-48 flex-1">
+              <MultiSelect
+                options={watchlistOptions}
+                selected={selectedWatchlistIds}
+                onChange={(ids) => setWatchlistIds(ids.map((id) => parseInt(id, 10)))}
+                placeholder="Pilih watchlist..."
+                searchPlaceholder="Cari watchlist..."
               />
             </div>
             <div className="min-w-64 flex-1">
