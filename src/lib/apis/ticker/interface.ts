@@ -68,6 +68,7 @@ export interface GetTickersParams {
   page?: number
   limit?: number
   search?: string
+  watchlistId?: number
   minPrice?: number
   maxPrice?: number
   sortBy?: string

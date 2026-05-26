@@ -6,6 +6,7 @@ export interface GetScreenerAnalysisParams {
   page?: number;
   sortBy?: string;
   search?: string;
+  watchlistId?: number;
   minPrice?: number;
   maxPrice?: number;
   signals?: string[];

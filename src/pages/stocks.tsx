@@ -5,6 +5,7 @@ import {
   getScreener,
   getScreenerDates,
   refreshAllTickers,
+  getWatchlists,
 } from "@/lib/api"
 import { AddToWatchlistDialog } from "@/components/add-to-watchlist-dialog"
 import { useStocksFilterStore } from "@/stores/stocksFilterStore"
@@ -36,6 +37,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn, getBrokerCodeClass } from "@/lib/utils"
 import { toast } from "sonner"
 import { FilterMultiSelect } from "@/components/filter-multi-select"
+import { MultiSelect } from "@/components/multi-select"
 import { Separator } from "@/components/ui/separator"
 import {
   Select,
@@ -77,6 +79,7 @@ export default function StocksPage() {
     page,
     limit,
     search,
+    watchlistId,
     minPrice: minPriceStr,
     maxPrice: maxPriceStr,
     sortBy,
@@ -96,6 +99,7 @@ export default function StocksPage() {
     setPage,
     setLimit,
     setSearch,
+    setWatchlistId,
     setMinPrice,
     setMaxPrice,
     setSort,
@@ -182,6 +186,7 @@ export default function StocksPage() {
     setAccDist1W("-1")
     setAccDist1M("-1")
     setBandarStatus(["Accumulation"])
+    setWatchlistId(watchlistId)
     if (withBreakout) {
       setSignals(["Breakout"])
     }
@@ -193,12 +198,19 @@ export default function StocksPage() {
     staleTime: 5 * 60 * 1000,
   })
 
+  const { data: watchlists } = useQuery({
+    queryKey: ["watchlists"],
+    queryFn: getWatchlists,
+    staleTime: 10 * 60 * 1000,
+  })
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [
       "tickers",
       page,
       limit,
       debouncedSearch,
+      watchlistId,
       minPrice,
       maxPrice,
       sortBy,
@@ -222,6 +234,7 @@ export default function StocksPage() {
         page,
         limit,
         search: debouncedSearch,
+        watchlistId: watchlistId ?? undefined,
         minPrice,
         maxPrice,
         sortBy: sortBy || undefined,
@@ -273,6 +286,23 @@ export default function StocksPage() {
                   className="h-9 py-2 pl-9 bg-background/50"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+
+              <div className="min-w-48 flex-1 max-w-xs">
+                <MultiSelect
+                  options={(watchlists ?? []).map((w) => ({
+                    value: String(w.id),
+                    label: w.name,
+                    description: `${w._count.tickers} saham`,
+                  }))}
+                  selected={watchlistId != null ? [String(watchlistId)] : []}
+                  onChange={(ids) => {
+                    const last = ids[ids.length - 1]
+                    setWatchlistId(last ? parseInt(last, 10) : null)
+                  }}
+                  placeholder="Pilih watchlist..."
+                  searchPlaceholder="Cari watchlist..."
                 />
               </div>
 

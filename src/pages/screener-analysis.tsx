@@ -7,6 +7,7 @@ import {
   getScreenerAnalysis,
   generateScreenerAnalysis,
   exportScreenerAnalysis,
+  getWatchlists,
 } from "@/lib/api"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useScreenerAnalysisFilterStore } from "@/stores/screenerAnalysisFilterStore"
@@ -49,6 +50,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { FilterMultiSelect } from "@/components/filter-multi-select"
+import { MultiSelect } from "@/components/multi-select"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
@@ -64,6 +66,7 @@ export default function ScreenerAnalysis() {
     page,
     limit,
     search,
+    watchlistId,
     minPrice: minPriceStr,
     maxPrice: maxPriceStr,
     sortBy,
@@ -82,6 +85,7 @@ export default function ScreenerAnalysis() {
     setPage,
     setLimit,
     setSearch,
+    setWatchlistId,
     setMinPrice,
     setMaxPrice,
     setSignals,
@@ -174,6 +178,7 @@ export default function ScreenerAnalysis() {
     setAccDist1W("-1")
     setAccDist1M("-1")
     setBandarStatus(["Accumulation"])
+    setWatchlistId(watchlistId)
     if (withBreakout) {
       setSignals(["Breakout"])
     }
@@ -185,6 +190,7 @@ export default function ScreenerAnalysis() {
       page,
       limit,
       debouncedSearch,
+      watchlistId,
       minPrice,
       maxPrice,
       sortBy,
@@ -210,6 +216,7 @@ export default function ScreenerAnalysis() {
         page,
         limit,
         search: debouncedSearch,
+        watchlistId: watchlistId ?? undefined,
         minPrice,
         maxPrice,
         sortBy,
@@ -234,6 +241,12 @@ export default function ScreenerAnalysis() {
       }),
   })
 
+  const { data: watchlists } = useQuery({
+    queryKey: ["watchlists"],
+    queryFn: getWatchlists,
+    staleTime: 10 * 60 * 1000,
+  })
+
   const generateMutation = useMutation({
     mutationFn: () => generateScreenerAnalysis({ skipExisting: true }),
     onSuccess: (data: any) => {
@@ -249,6 +262,7 @@ export default function ScreenerAnalysis() {
     mutationFn: async () => {
       const blob = await exportScreenerAnalysis({
         search: debouncedSearch,
+        watchlistId: watchlistId ?? undefined,
         minPrice,
         maxPrice,
         sortBy,
@@ -329,6 +343,23 @@ export default function ScreenerAnalysis() {
                   className="h-9 py-2 pl-9 bg-background/50"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+
+              <div className="min-w-48 flex-1 max-w-xs">
+                <MultiSelect
+                  options={(watchlists ?? []).map((w) => ({
+                    value: String(w.id),
+                    label: w.name,
+                    description: `${w._count.tickers} saham`,
+                  }))}
+                  selected={watchlistId != null ? [String(watchlistId)] : []}
+                  onChange={(ids) => {
+                    const last = ids[ids.length - 1]
+                    setWatchlistId(last ? parseInt(last, 10) : null)
+                  }}
+                  placeholder="Pilih watchlist..."
+                  searchPlaceholder="Cari watchlist..."
                 />
               </div>
 

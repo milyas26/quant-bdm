@@ -8,6 +8,7 @@ export const getScreenerAnalysis = async (
   
   if (params?.symbol) queryParams.append("symbol", params.symbol)
   if (params?.search) queryParams.append("search", params.search)
+  if (params?.watchlistId != null) queryParams.append("watchlistId", params.watchlistId.toString())
   if (params?.signalType && params.signalType !== "ALL") queryParams.append("signalType", params.signalType)
   if (params?.signalValue) queryParams.append("signalValue", params.signalValue)
   if (params?.limit) queryParams.append("limit", params.limit.toString())
@@ -59,6 +60,7 @@ export const exportScreenerAnalysis = async (
   
   if (params?.symbol) queryParams.append("symbol", params.symbol)
   if (params?.search) queryParams.append("search", params.search)
+  if (params?.watchlistId != null) queryParams.append("watchlistId", params.watchlistId.toString())
   if (params?.signalType && params.signalType !== "ALL") queryParams.append("signalType", params.signalType)
   if (params?.signalValue) queryParams.append("signalValue", params.signalValue)
   if (params?.sortBy) queryParams.append("sortBy", params.sortBy)

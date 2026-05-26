@@ -5,6 +5,7 @@ export interface StocksFilterState {
   page: number
   limit: number
   search: string
+  watchlistId: number | null
   minPrice: string
   maxPrice: string
   sortBy: string
@@ -27,6 +28,7 @@ export interface StocksFilterState {
   setPage: (page: number) => void
   setLimit: (limit: number) => void
   setSearch: (search: string) => void
+  setWatchlistId: (watchlistId: number | null) => void
   setMinPrice: (minPrice: string) => void
   setMaxPrice: (maxPrice: string) => void
   setSortBy: (sortBy: string) => void
@@ -52,6 +54,7 @@ const DEFAULT_STATE = {
   page: 1,
   limit: 10,
   search: "",
+  watchlistId: null as number | null,
   minPrice: "",
   maxPrice: "",
   sortBy: "smartMoneyScore",
@@ -79,6 +82,7 @@ export const useStocksFilterStore = create<StocksFilterState>()(
       setPage: (page) => set({ page }),
       setLimit: (limit) => set({ limit }),
       setSearch: (search) => set({ search, page: 1 }),
+      setWatchlistId: (watchlistId) => set({ watchlistId, page: 1 }),
       setMinPrice: (minPrice) => set({ minPrice }),
       setMaxPrice: (maxPrice) => set({ maxPrice }),
       setSortBy: (sortBy) => set({ sortBy }),

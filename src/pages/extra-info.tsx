@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/correctness/useExhaustiveDependencies: <explanation> */
 import { useEffect, useState } from "react";
 import {
   Table,
