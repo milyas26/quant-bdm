@@ -56,7 +56,7 @@ export interface ScreenerAnalysisFilterState {
 
 const DEFAULT_STATE = {
   page: 1,
-  limit: 12,
+  limit: 10,
   search: "",
   watchlistId: null as number | null,
   minPrice: "",

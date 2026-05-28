@@ -62,7 +62,7 @@ const DEFAULT_STATE = {
   from: getPresetFrom("3d"),
   to: today(),
   page: 1,
-  limit: 15,
+  limit: 10,
   minPrice: "",
   maxPrice: "",
   minScore: "",

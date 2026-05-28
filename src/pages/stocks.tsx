@@ -21,10 +21,6 @@ import {
 } from "@/components/ui/table"
 import { Card, CardContent } from "@/components/ui/card"
 import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
   Search,
   RefreshCw,
   ArrowUp,
@@ -55,6 +51,7 @@ import {
 import { format, parseISO } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import { SimulateBuyButton } from "@/components/simulate-buy-button"
+import { Pagination } from "@/components/pagination"
 import {
   Bookmark,
   Activity,
@@ -148,14 +145,12 @@ export default function StocksPage() {
   const [maxPriceInput, setMaxPriceInput] = useState(maxPriceStr)
   const [minScoreInput, setMinScoreInput] = useState(minScore)
   const [maxScoreInput, setMaxScoreInput] = useState(maxScore)
-  const [pageInput, setPageInput] = useState(page.toString())
   const [showFilters, setShowFilters] = useState(false)
 
   const debouncedSearch = useDebounce(searchTerm, 500)
   const minPrice = minPriceStr ? parseInt(minPriceStr) : undefined
   const maxPrice = maxPriceStr ? parseInt(maxPriceStr) : undefined
 
-  useEffect(() => setPageInput(page.toString()), [page])
   useEffect(() => {
     if (debouncedSearch !== search) setSearch(debouncedSearch)
   }, [debouncedSearch])
@@ -1076,89 +1071,19 @@ export default function StocksPage() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
-          <span>
-            {data?.data.length || 0} of {data?.meta.total || 0}
-          </span>
-          <Select
-            value={String(limit)}
-            onValueChange={(val) => {
-              setLimit(Number(val))
-              setPage(1)
-            }}
-          >
-            <SelectTrigger className="h-7 w-14 rounded-sm border-border text-[11px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[10, 15, 25, 50, 100].map((n) => (
-                <SelectItem key={n} value={String(n)}>
-                  {n}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-7 w-7 rounded-sm"
-            onClick={() => setPage(1)}
-            disabled={page <= 1 || isLoading}
-          >
-            <ChevronsLeft className="h-3 w-3" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 rounded-sm font-mono text-[11px]"
-            onClick={() => setPage(Math.max(1, page - 1))}
-            disabled={page <= 1 || isLoading}
-          >
-            <ChevronLeft className="h-3 w-3" /> Prev
-          </Button>
-          <Input
-            className="h-7 w-14 rounded-sm text-center font-mono text-[11px]"
-            value={pageInput}
-            type="number"
-            onChange={(e) => setPageInput(e.target.value)}
-            onBlur={() => {
-              const p = parseInt(pageInput)
-              if (!isNaN(p) && p > 0) setPage(p)
-              else setPageInput(page.toString())
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                const p = parseInt(pageInput)
-                if (!isNaN(p) && p > 0) setPage(p)
-              }
-            }}
-          />
-          <span className="font-mono text-[11px] text-muted-foreground">
-            / {data?.meta.totalPages || 1}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 rounded-sm font-mono text-[11px]"
-            onClick={() => setPage(page + 1)}
-            disabled={!data || page >= data.meta.totalPages || isLoading}
-          >
-            Next <ChevronRight className="h-3 w-3" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-7 w-7 rounded-sm"
-            onClick={() => setPage(data?.meta.totalPages || 1)}
-            disabled={!data || page >= data.meta.totalPages || isLoading}
-          >
-            <ChevronsRight className="h-3 w-3" />
-          </Button>
-        </div>
-      </div>
+      <Pagination
+        page={page}
+        totalPages={data?.meta.totalPages || 1}
+        limit={limit}
+        totalItems={data?.meta.total || 0}
+        currentItems={data?.data.length || 0}
+        isLoading={isLoading}
+        onPageChange={setPage}
+        onLimitChange={(val) => {
+          setLimit(val)
+          setPage(1)
+        }}
+      />
     </div>
   )
 }

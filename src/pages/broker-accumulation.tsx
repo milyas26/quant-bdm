@@ -29,18 +29,10 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
   CalendarIcon,
   Search,
 } from "lucide-react"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Pagination } from "@/components/pagination"
 import { Calendar } from "@/components/ui/calendar"
 import {
   Popover,
@@ -95,7 +87,6 @@ export default function BrokerAccumulationPage() {
     setLiquidity,
   } = useBrokerAccumulationStore()
 
-  const [pageInput, setPageInput] = useState(page.toString())
   const [symbolSearch, setSymbolSearch] = useState("")
   const debouncedSymbol = useDebounce(symbolSearch, 500)
   const [minPriceInput, setMinPriceInput] = useState(minPrice)
@@ -217,7 +208,6 @@ export default function BrokerAccumulationPage() {
   useEffect(() => {
     if (page > totalPages) setPage(1)
   }, [totalPages])
-  useEffect(() => setPageInput(page.toString()), [page])
 
   const handlePriceUpdate = () => {
     setMinPrice(minPriceInput)
@@ -678,86 +668,16 @@ export default function BrokerAccumulationPage() {
         </Table>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
-          <span>
-            {paginatedData.length} of {totalItems}
-          </span>
-          <Select
-            value={String(limit)}
-            onValueChange={(val) => setLimit(Number(val))}
-          >
-            <SelectTrigger className="h-7 w-14 rounded-sm border-border text-[11px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[10, 15, 25, 50, 100].map((n) => (
-                <SelectItem key={n} value={String(n)}>
-                  {n}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-7 w-7 rounded-sm"
-            onClick={() => setPage(1)}
-            disabled={page <= 1}
-          >
-            <ChevronsLeft className="h-3 w-3" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 rounded-sm font-mono text-[11px]"
-            onClick={() => setPage(Math.max(1, page - 1))}
-            disabled={page <= 1}
-          >
-            <ChevronLeft className="h-3 w-3" /> Prev
-          </Button>
-          <Input
-            className="h-7 w-14 rounded-sm text-center font-mono text-[11px]"
-            value={pageInput}
-            type="number"
-            onChange={(e) => setPageInput(e.target.value)}
-            onBlur={() => {
-              const p = parseInt(pageInput)
-              if (!isNaN(p) && p > 0 && p <= totalPages) setPage(p)
-              else setPageInput(page.toString())
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                const p = parseInt(pageInput)
-                if (!isNaN(p) && p > 0 && p <= totalPages) setPage(p)
-              }
-            }}
-          />
-          <span className="font-mono text-[11px] text-muted-foreground">
-            / {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 rounded-sm font-mono text-[11px]"
-            onClick={() => setPage(page + 1)}
-            disabled={page >= totalPages}
-          >
-            Next <ChevronRight className="h-3 w-3" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-7 w-7 rounded-sm"
-            onClick={() => setPage(totalPages)}
-            disabled={page >= totalPages}
-          >
-            <ChevronsRight className="h-3 w-3" />
-          </Button>
-        </div>
-      </div>
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        limit={limit}
+        totalItems={totalItems}
+        currentItems={paginatedData.length}
+        isLoading={isLoading}
+        onPageChange={setPage}
+        onLimitChange={setLimit}
+      />
     </div>
   )
 }

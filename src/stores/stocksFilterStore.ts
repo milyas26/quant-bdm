@@ -52,7 +52,7 @@ export interface StocksFilterState {
 
 const DEFAULT_STATE = {
   page: 1,
-  limit: 15,
+  limit: 10,
   search: "",
   watchlistId: null as number | null,
   minPrice: "",
@@ -60,7 +60,7 @@ const DEFAULT_STATE = {
   sortBy: "smartMoneyScore",
   sortOrder: "desc" as const,
   signals: [],
-  bandarStatus: ["Accumulation"],
+  bandarStatus: [],
   momentum: ["Uptrend", "Sideways", "Downtrend"],
   date: null,
   accDistOperator: "gt" as const,

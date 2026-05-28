@@ -26,10 +26,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
   Play,
   Search,
   Download,
@@ -54,6 +50,7 @@ import { MultiSelect } from "@/components/multi-select"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import { Pagination } from "@/components/pagination"
 
 export default function ScreenerAnalysis() {
   const queryClient = useQueryClient()
@@ -114,7 +111,6 @@ export default function ScreenerAnalysis() {
   const [maxPriceInput, setMaxPriceInput] = useState(maxPriceStr)
   const [minScoreInput, setMinScoreInput] = useState(minScoreStr)
   const [maxScoreInput, setMaxScoreInput] = useState(maxScoreStr)
-  const [pageInput, setPageInput] = useState(page.toString())
   const [showFilters, setShowFilters] = useState(false)
 
   const dateRange: DateRange | undefined =
@@ -136,10 +132,6 @@ export default function ScreenerAnalysis() {
   const maxPrice = maxPriceStr ? parseInt(maxPriceStr) : undefined
   const minScore = minScoreStr ? parseInt(minScoreStr) : undefined
   const maxScore = maxScoreStr ? parseInt(maxScoreStr) : undefined
-
-  useEffect(() => {
-    setPageInput(page.toString())
-  }, [page])
 
   // Sync debounced search to store
   useEffect(() => {
@@ -1181,94 +1173,19 @@ export default function ScreenerAnalysis() {
         </TableBody>
       </Table>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>
-            Showing {data?.data.length || 0} of {data?.meta.total || 0} results
-          </span>
-          <Select
-            value={String(limit)}
-            onValueChange={(val) => {
-              setLimit(Number(val))
-              setPage(1)
-            }}
-          >
-            <SelectTrigger className="h-8 w-16">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[10, 12, 25, 50, 100].map((n) => (
-                <SelectItem key={n} value={String(n)}>
-                  {n}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setPage(1)}
-            disabled={page <= 1 || isLoading}
-            title="First Page"
-          >
-            <ChevronsLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(Math.max(1, page - 1))}
-            disabled={page <= 1 || isLoading}
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Previous
-          </Button>
-
-          <div className="mx-2 flex items-center gap-2">
-            <span className="font-mono text-sm font-medium">Page</span>
-            <Input
-              className="h-8 w-16 px-1 text-center"
-              value={pageInput}
-              type="number"
-              onChange={(e) => setPageInput(e.target.value)}
-              onBlur={() => {
-                const p = parseInt(pageInput)
-                if (!isNaN(p) && p > 0) setPage(p)
-                else setPageInput(page.toString())
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  const p = parseInt(pageInput)
-                  if (!isNaN(p) && p > 0) setPage(p)
-                }
-              }}
-            />
-            <span className="font-mono text-sm font-medium">
-              of {data?.meta.totalPages || 1}
-            </span>
-          </div>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(page + 1)}
-            disabled={!data || page >= data.meta.totalPages || isLoading}
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setPage(data?.meta.totalPages || 1)}
-            disabled={!data || page >= data.meta.totalPages || isLoading}
-            title="Last Page"
-          >
-            <ChevronsRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+      <Pagination
+        page={page}
+        totalPages={data?.meta.totalPages || 1}
+        limit={limit}
+        totalItems={data?.meta.total || 0}
+        currentItems={data?.data.length || 0}
+        isLoading={isLoading}
+        onPageChange={setPage}
+        onLimitChange={(val) => {
+          setLimit(val)
+          setPage(1)
+        }}
+      />
     </div>
   )
 }
