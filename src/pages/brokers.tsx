@@ -50,7 +50,7 @@ const Brokers = ({ search = "" }: BrokersProps) => {
               <Skeleton className="h-5 w-32" />
               <div className="grid grid-cols-4 gap-3">
                 {Array.from({ length: 8 }).map((_, j) => (
-                  <Skeleton key={j} className="h-16 rounded-lg" />
+                  <Skeleton key={j} className="h-16 rounded-sm" />
                 ))}
               </div>
             </div>
@@ -86,7 +86,7 @@ const Brokers = ({ search = "" }: BrokersProps) => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               {brokers.map((broker) => (
-                <Card key={broker.code} className="hover:bg-muted/50 rounded-sm transition-colors cursor-default py-0 shadow-sm border-muted">
+                <Card key={broker.code} className="hover:bg-muted/50 rounded-sm transition-colors cursor-default py-0  border-muted">
                   <CardContent className="p-2 space-y-0.5">
                     <p className={cn("text-xs font-bold leading-none", getBrokerColor(broker.type))}>{broker.code}</p>
                     <p className="text-[10px] text-muted-foreground truncate max-w-full" title={broker.name}>{broker.name}</p>

@@ -15,7 +15,7 @@ import { DatePickerWithRange } from "@/components/date-range-picker"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { StatusBadge, ScoreBadge } from "@/components/indicators"
 import { cn, getBrokerCodeClass } from "@/lib/utils"
 import {
   Table,
@@ -367,18 +367,18 @@ export default function ScreenerAnalysis() {
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="h-9 cursor-pointer text-[13px] font-medium"
+                  className="h-9 cursor-pointer text-[12px] font-mono font-medium"
                   onClick={() => handleApplyPerfectSetup(false)}
                 >
-                  ⭐ Perfect Setup
+                  Perfect Setup
                 </Button>
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="h-9 cursor-pointer text-[13px] font-medium whitespace-nowrap"
+                  className="h-9 cursor-pointer text-[12px] font-mono font-medium whitespace-nowrap"
                   onClick={() => handleApplyPerfectSetup(true)}
                 >
-                  ⚡ + Breakout
+                  + Breakout
                 </Button>
                 <Separator orientation="vertical" className="h-5 mx-1" />
                 <Button
@@ -420,7 +420,7 @@ export default function ScreenerAnalysis() {
               <div className="pt-3 border-t grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="flex flex-col gap-1.5">
                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Price & Score</span>
-                  <div className="flex h-9 items-center rounded-md border bg-background px-2.5 text-xs">
+                  <div className="flex h-9 items-center rounded-sm border bg-background px-2.5 text-xs">
                     <span className="font-medium text-muted-foreground">Price</span>
                     <Separator orientation="vertical" className="mx-2 h-4" />
                     <input
@@ -443,7 +443,7 @@ export default function ScreenerAnalysis() {
                       onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
                     />
                   </div>
-                  <div className="flex h-9 items-center rounded-md border bg-background px-2.5 text-xs">
+                  <div className="flex h-9 items-center rounded-sm border bg-background px-2.5 text-xs">
                     <span className="font-medium text-muted-foreground">Score</span>
                     <Separator orientation="vertical" className="mx-2 h-4" />
                     <input
@@ -522,7 +522,7 @@ export default function ScreenerAnalysis() {
                 <div className="flex flex-col gap-1.5">
                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Returns & Cutoff</span>
 
-                  <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs">
+                  <div className="flex h-9 items-center gap-1 rounded-sm border bg-background px-2.5 text-xs">
                     <Select value={accDistOperator} onValueChange={(val) => setAccDistOperator(val as "gt" | "lt")}>
                       <SelectTrigger className="w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
                         <SelectValue />
@@ -539,7 +539,7 @@ export default function ScreenerAnalysis() {
                     <input className="w-12 bg-transparent text-center outline-none" placeholder="1M" type="number" value={accDist1M} onChange={(e) => setAccDist1M(e.target.value)} />
                   </div>
 
-                  <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs">
+                  <div className="flex h-9 items-center gap-1 rounded-sm border bg-background px-2.5 text-xs">
                     <Select value={peakReturnOperator} onValueChange={(val) => setPeakReturnOperator(val as "gt" | "lt")}>
                       <SelectTrigger className="w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
                         <SelectValue />
@@ -651,7 +651,7 @@ export default function ScreenerAnalysis() {
             </TableRow>
           ) : isError ? (
             <TableRow>
-              <TableCell colSpan={12} className="h-24 text-center text-red-500">Error: {(error as Error).message}</TableCell>
+              <TableCell colSpan={12} className="h-24 text-center text-negative">Error: {(error as Error).message}</TableCell>
             </TableRow>
           ) : !data || data.data.length === 0 ? (
             <TableRow>
@@ -664,7 +664,7 @@ export default function ScreenerAnalysis() {
                 className="cursor-pointer"
                 onClick={() => navigate(`/stock/${row.symbol}`)}
               >
-                <TableCell className="font-medium">
+                <TableCell className="font-mono">
                   <div className="flex items-center gap-2">
                     {row.ticker?.logo ? (
                       <img
@@ -673,15 +673,15 @@ export default function ScreenerAnalysis() {
                         className="h-8 w-8 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-muted text-[10px] font-mono font-bold text-muted-foreground">
                         {row.symbol?.substring(0, 2)}
                       </div>
                     )}
                     <div className="flex flex-col">
-                      <span className="flex items-center gap-1 text-sm font-bold">
+                      <span className="flex items-center gap-1 font-mono text-[13px] font-bold">
                         {row.symbol}
                         {row.screener?.isBreakout && (
-                          <span className="text-[11px] text-orange-500" title="Breakout">⚡Breakout</span>
+                          <span className="text-[11px] text-warning" title="Breakout">BO</span>
                         )}
                       </span>
                       <span className="text-[11px] text-muted-foreground max-w-40 truncate" title={row.ticker?.name || "-"}>
@@ -696,18 +696,18 @@ export default function ScreenerAnalysis() {
                   </span>
                 </TableCell>
                 <TableCell>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold">
+                  <div>
+                    <span className="font-mono text-[13px] font-bold">
                       {Number(row.screener?.price || 0).toLocaleString()}
                     </span>
                     <span
                       className={cn(
-                        "text-xs font-medium",
+                        "ml-1.5 font-mono text-[11px] font-medium",
                         Number(row.screener?.changePercentage || 0) > 0
-                          ? "text-green-600"
+                          ? "text-positive"
                           : Number(row.screener?.changePercentage || 0) < 0
-                            ? "text-red-600"
-                            : "text-gray-600"
+                            ? "text-negative"
+                            : "text-muted-foreground"
                       )}
                     >
                       {Number(row.screener?.changePercentage || 0) > 0 ? "+" : ""}
@@ -717,14 +717,14 @@ export default function ScreenerAnalysis() {
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
-                    <span className="text-sm font-medium">
+                    <span className="font-mono text-sm font-medium">
                       {formatNumber(Number(row.screener?.volume || 0))}
                     </span>
-                    <span className="text-[11px] text-muted-foreground font-medium mt-0.5">
+                    <span className="font-mono text-[11px] text-muted-foreground font-medium mt-0.5">
                       Rp {formatNumber(Number(row.transactionValue || 0))}
                     </span>
                     {row.screener?.isVolumeSpike && (
-                      <span className="text-[10px] font-bold text-orange-500 mt-0.5">🔥 Spike</span>
+                      <span className="font-mono text-[10px] font-bold text-warning mt-0.5">Spike</span>
                     )}
                   </div>
                 </TableCell>
@@ -732,12 +732,12 @@ export default function ScreenerAnalysis() {
                   <div className="flex flex-col">
                     <span
                       className={cn(
-                        "font-medium tracking-tight",
+                        "font-mono font-medium tracking-tight",
                         Number(row.screener?.netBrokerFlow || 0) > 0
-                          ? "text-green-600"
+                          ? "text-positive"
                           : Number(row.screener?.netBrokerFlow || 0) < 0
-                            ? "text-red-600"
-                            : "text-gray-600"
+                            ? "text-negative"
+                            : "text-muted-foreground"
                       )}
                     >
                       {Number(row.screener?.netBrokerFlow || 0) > 0 ? "+" : ""}
@@ -746,12 +746,12 @@ export default function ScreenerAnalysis() {
                     {row.netForeign !== undefined && (
                       <span
                         className={cn(
-                          "text-[10px] font-medium tracking-tight mt-0.5",
+                          "font-mono text-[10px] font-medium tracking-tight mt-0.5",
                           Number(row.netForeign) > 0
-                            ? "text-green-600"
+                            ? "text-positive"
                             : Number(row.netForeign) < 0
-                              ? "text-red-600"
-                              : "text-gray-500"
+                              ? "text-negative"
+                              : "text-muted-foreground"
                         )}
                         title="Net Foreign"
                       >
@@ -765,54 +765,42 @@ export default function ScreenerAnalysis() {
                   <div className="flex flex-col gap-1 text-[11px] whitespace-nowrap">
                     <div className="flex items-center gap-1.5 justify-between">
                       <span className="text-muted-foreground/70">1D</span>
-                      <span className={cn("font-medium", Number(row.screener?.accumulationDistribution1D || 0) > 0 ? "text-green-600" : Number(row.screener?.accumulationDistribution1D || 0) < 0 ? "text-red-600" : "text-gray-600")}>
+                      <span className={cn("font-medium", Number(row.screener?.accumulationDistribution1D || 0) > 0 ? "text-positive" : Number(row.screener?.accumulationDistribution1D || 0) < 0 ? "text-negative" : "text-muted-foreground")}>
                         {Number(row.screener?.accumulationDistribution1D || 0) > 0 ? "+" : ""}{Number(row.screener?.accumulationDistribution1D || 0).toFixed(0)}%
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 justify-between">
                       <span className="text-muted-foreground/70">1W</span>
-                      <span className={cn("font-medium", Number(row.screener?.accumulationDistribution1W || 0) > 0 ? "text-green-600" : Number(row.screener?.accumulationDistribution1W || 0) < 0 ? "text-red-600" : "text-gray-600")}>
+                      <span className={cn("font-medium", Number(row.screener?.accumulationDistribution1W || 0) > 0 ? "text-positive" : Number(row.screener?.accumulationDistribution1W || 0) < 0 ? "text-negative" : "text-muted-foreground")}>
                         {Number(row.screener?.accumulationDistribution1W || 0) > 0 ? "+" : ""}{Number(row.screener?.accumulationDistribution1W || 0).toFixed(0)}%
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 justify-between">
                       <span className="text-muted-foreground/70">1M</span>
-                      <span className={cn("font-medium", Number(row.screener?.accumulationDistribution1M || 0) > 0 ? "text-green-600" : Number(row.screener?.accumulationDistribution1M || 0) < 0 ? "text-red-600" : "text-gray-600")}>
+                      <span className={cn("font-medium", Number(row.screener?.accumulationDistribution1M || 0) > 0 ? "text-positive" : Number(row.screener?.accumulationDistribution1M || 0) < 0 ? "text-negative" : "text-muted-foreground")}>
                         {Number(row.screener?.accumulationDistribution1M || 0) > 0 ? "+" : ""}{Number(row.screener?.accumulationDistribution1M || 0).toFixed(0)}%
                       </span>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      "font-medium tracking-tight",
-                      row.screener?.bandarStatus === "Accumulation" && "border-green-200 bg-green-50 text-green-700",
-                      row.screener?.bandarStatus === "Distribution" && "border-red-200 bg-red-50 text-red-700",
-                      row.screener?.bandarStatus === "Neutral" && "border-gray-200 bg-gray-50 text-gray-700"
-                    )}
-                  >
-                    {row.screener?.bandarStatus || "-"}
-                  </Badge>
+                  <StatusBadge status={row.screener?.bandarStatus || "Neutral"} />
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-1 text-[11px] whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
                       <span className="text-muted-foreground/70 w-6">Scr:</span>
-                      <span className={cn("font-bold", Number(row.screener?.smartMoneyScore || 0) >= 70 ? "text-green-600" : Number(row.screener?.smartMoneyScore || 0) <= 30 ? "text-red-600" : "text-yellow-600")}>
-                        {row.screener?.smartMoneyScore || 0}
-                      </span>
+                      <ScoreBadge score={Number(row.screener?.smartMoneyScore || 0)} className="text-[11px]" />
                     </div>
                     <div className="flex items-center gap-1.5">
                       <span className="text-muted-foreground/70 w-6">Mom:</span>
-                      <span className={cn("font-medium", row.screener?.momentum === "Uptrend" ? "text-green-600" : row.screener?.momentum === "Downtrend" ? "text-red-600" : "text-gray-600")}>
+                      <span className={cn("font-mono font-medium", row.screener?.momentum === "Uptrend" ? "text-positive" : row.screener?.momentum === "Downtrend" ? "text-negative" : "text-muted-foreground")}>
                         {row.screener?.momentum || "-"}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <span className="text-muted-foreground/70 w-6">Liq:</span>
-                      <span className={cn("font-medium", row.screener?.liquidityScore === "High" ? "text-blue-600" : row.screener?.liquidityScore === "Medium" ? "text-yellow-600" : "text-gray-600")}>
+                      <span className={cn("font-mono font-medium", row.screener?.liquidityScore === "High" ? "text-blue-400" : row.screener?.liquidityScore === "Medium" ? "text-warning" : "text-muted-foreground")}>
                         {row.screener?.liquidityScore || "-"}
                       </span>
                     </div>
@@ -821,38 +809,38 @@ export default function ScreenerAnalysis() {
                 <TableCell>
                   <div className="flex flex-col gap-0.5 text-[11px] whitespace-nowrap">
                     <div title="Price Volume Analysis" className={cn(
-                      "flex items-center gap-1 font-medium",
-                      row.screener?.pvaTrend === "UPTREND" ? "text-green-600" :
-                      row.screener?.pvaTrend === "DOWNTREND" ? "text-red-600" :
-                      row.screener?.pvaTrend === "MIXED" ? "text-orange-500" : "text-muted-foreground"
+                      "flex items-center gap-1 font-mono font-medium",
+                      row.screener?.pvaTrend === "UPTREND" ? "text-positive" :
+                      row.screener?.pvaTrend === "DOWNTREND" ? "text-negative" :
+                      row.screener?.pvaTrend === "MIXED" ? "text-warning" : "text-muted-foreground"
                     )}>
                       <Activity className="h-3 w-3 shrink-0" />
                       <span>{row.screener?.pvaTrend ?? "-"}</span>
                     </div>
                     {row.screener?.volumeAnomaly && row.screener.volumeAnomaly !== "NONE" && (
                       <div title="Volume Anomaly" className={cn(
-                        "flex items-center gap-1 font-medium",
-                        row.screener.volumeAnomaly === "EXTREME" ? "text-red-600" :
-                        row.screener.volumeAnomaly === "STRONG" ? "text-orange-500" : "text-yellow-600"
+                        "flex items-center gap-1 font-mono font-medium",
+                        row.screener.volumeAnomaly === "EXTREME" ? "text-negative" :
+                        row.screener.volumeAnomaly === "STRONG" ? "text-warning" : "text-warning"
                       )}>
                         <BarChart2 className="h-3 w-3 shrink-0" />
                         <span>{row.screener.volumeAnomaly}</span>
                       </div>
                     )}
                     {row.screener?.washTradingRisk && row.screener.washTradingRisk !== "LOW" && (
-                      <div title="Wash Trading Risk" className={cn("flex items-center gap-1 font-medium", row.screener.washTradingRisk === "HIGH" ? "text-red-600" : "text-orange-500")}>
+                      <div title="Wash Trading Risk" className={cn("flex items-center gap-1 font-mono font-medium", row.screener.washTradingRisk === "HIGH" ? "text-negative" : "text-warning")}>
                         <Shuffle className="h-3 w-3 shrink-0" />
                         <span>{row.screener.washTradingRisk}</span>
                       </div>
                     )}
                     {row.screener?.distributionRisk != null && Number(row.screener.distributionRisk) > 30 && (
-                      <div title="Distribution Risk" className={cn("flex items-center gap-1 font-medium", Number(row.screener.distributionRisk) > 60 ? "text-red-600" : "text-orange-500")}>
+                      <div title="Distribution Risk" className={cn("flex items-center gap-1 font-mono font-medium", Number(row.screener.distributionRisk) > 60 ? "text-negative" : "text-warning")}>
                         <ArrowDownRight className="h-3 w-3 shrink-0" />
                         <span>{Number(row.screener.distributionRisk).toFixed(0)}%</span>
                       </div>
                     )}
                     {row.screener?.repoPatternDetected && (
-                      <div title="Repo Pattern Detected" className="flex items-center gap-1 font-medium text-red-600">
+                      <div title="Repo Pattern Detected" className="flex items-center gap-1 font-medium text-negative">
                         <AlertTriangle className="h-3 w-3 shrink-0" />
                         <span>Repo</span>
                       </div>
@@ -906,11 +894,11 @@ export default function ScreenerAnalysis() {
                           <div
                             key={label}
                             className={cn(
-                              "w-9 rounded p-1 text-[10px] font-medium tracking-tighter truncate",
+                              "w-9 rounded p-1 font-mono text-[10px] font-medium tracking-tighter truncate",
                               Number(val) > 0
-                                ? "bg-green-50 text-green-700"
+                                ? "bg-emerald-400/10 text-positive"
                                 : Number(val) < 0
-                                  ? "bg-red-50 text-red-700"
+                                  ? "bg-red-400/10 text-negative"
                                   : "bg-muted/50 text-muted-foreground"
                             )}
                           >
@@ -925,11 +913,11 @@ export default function ScreenerAnalysis() {
                   <div className="flex flex-col items-end">
                     <span
                       className={cn(
-                        "text-sm font-bold",
+                        "font-mono text-[13px] font-bold",
                         Number(row.peakReturn) > 0
-                          ? "text-green-600"
+                          ? "text-positive"
                           : Number(row.peakReturn) < 0
-                            ? "text-red-600"
+                            ? "text-negative"
                             : ""
                       )}
                     >
@@ -986,7 +974,7 @@ export default function ScreenerAnalysis() {
           </Button>
 
           <div className="mx-2 flex items-center gap-2">
-            <span className="text-sm font-medium">Page</span>
+            <span className="font-mono text-sm font-medium">Page</span>
             <Input
               className="h-8 w-16 px-1 text-center"
               value={pageInput}
@@ -1004,7 +992,7 @@ export default function ScreenerAnalysis() {
                 }
               }}
             />
-            <span className="text-sm font-medium">
+            <span className="font-mono text-sm font-medium">
               of {data?.meta.totalPages || 1}
             </span>
           </div>

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sheet"
 import Brokers from "@/pages/brokers"
 
-export function BrokersSheet() {
+export function BrokersSheet({ collapsed: _collapsed }: { collapsed?: boolean }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
 
@@ -37,12 +37,12 @@ export function BrokersSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 w-8 p-0" title="Brokers (B)">
+        <Button variant="ghost" size="icon" className="shrink-0 h-7 w-7 text-muted-foreground hover:text-foreground" title="Brokers (B)">
           <Building2 className="h-3.5 w-3.5" />
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto px-0 pb-0 gap-0">
-        <SheetHeader className="sticky top-0 z-10 bg-background px-4 pt-6 pb-4 border-b shadow-sm">
+        <SheetHeader className="sticky top-0 z-10 bg-background px-4 pt-6 pb-4 border-b ">
           <SheetTitle className="flex items-center gap-2">
             <Building2 className="h-4 w-4 text-primary" />
             Daftar Broker

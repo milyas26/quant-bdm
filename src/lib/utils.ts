@@ -33,18 +33,18 @@ export const formatNumber = (num: number) => {
 export function getBrokerColor(type: string) {
   switch (type?.toUpperCase()) {
     case "SMART_MONEY":
-      return "text-blue-600 dark:text-blue-400"
+      return "text-blue-400"
     case "RITEL":
     case "RETAIL":
-      return "text-yellow-600 dark:text-yellow-400"
+      return "text-amber-400"
     case "LOKAL":
-      return "text-purple-600 dark:text-purple-400"
+      return "text-purple-400"
     case "PEMERINTAH":
-      return "text-green-600 dark:text-green-400"
+      return "text-emerald-400"
     case "ASING":
-      return "text-red-600 dark:text-red-400"
+      return "text-red-400"
     default:
-      return "text-gray-600 dark:text-gray-400"
+      return "text-zinc-400"
   }
 }
 
@@ -137,7 +137,7 @@ export const calculateBandarStatus = (
 
 // Return Tailwind class for specific broker code (used to color broker code labels)
 export function getBrokerCodeClass(code?: string) {
-  if (!code) return "text-black"
+  if (!code) return "text-muted-foreground"
   const c = code.toUpperCase()
   switch (c) {
     case "AI":
@@ -151,7 +151,7 @@ export function getBrokerCodeClass(code?: string) {
     case "KZ":
     case "IF":
     case "RX":
-      return "font-semibold text-green-800 dark:text-green-600 bg-green-50 dark:bg-muted/50 px-0.5 rounded-sm"
+      return "font-semibold text-emerald-400 bg-emerald-400/10 px-0.5 rounded-sm"
     case "CC":
     case "CP":
     case "RF":
@@ -160,13 +160,13 @@ export function getBrokerCodeClass(code?: string) {
     case "HP":
     case "EP":
     case "MG":
-      return "font-semibold text-blue-800 dark:text-blue-600 bg-blue-50 dark:bg-muted/50 px-0.5 rounded-sm"
+      return "font-semibold text-blue-400 bg-blue-400/10 px-0.5 rounded-sm"
     case "XL":
     case "XC":
     case "PD":
     case "YP":
-      return "font-semibold text-red-800 dark:text-red-600 bg-red-50 dark:bg-muted/50 px-0.5 rounded-sm"
+      return "font-semibold text-red-400 bg-red-400/10 px-0.5 rounded-sm"
     default:
-      return "text-black/50 dark:text-white/50 px-0.5 rounded-sm font-normal"
+      return "text-zinc-500 px-0.5 rounded-sm font-normal"
   }
 }

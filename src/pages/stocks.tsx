@@ -25,20 +25,20 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  Search, RefreshCw,
+  Search,
+  RefreshCw,
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
-  X,
-  SlidersHorizontal
+  SlidersHorizontal,
 } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
 import { Badge } from "@/components/ui/badge"
 import { cn, getBrokerCodeClass } from "@/lib/utils"
+import { StatusBadge } from "@/components/indicators"
 import { toast } from "sonner"
 import { FilterMultiSelect } from "@/components/filter-multi-select"
 import { MultiSelect } from "@/components/multi-select"
-import { Separator } from "@/components/ui/separator"
 import {
   Select,
   SelectContent,
@@ -58,16 +58,17 @@ import { SimulateBuyButton } from "@/components/simulate-buy-button"
 import { Bookmark, Activity, BarChart2, Shuffle, ArrowDownRight, AlertTriangle } from "lucide-react"
 
 const formatNumber = (num: number) => {
-  if (Math.abs(num) >= 1_000_000_000) {
-    return (num / 1_000_000_000).toFixed(1) + "B"
-  }
-  if (Math.abs(num) >= 1_000_000) {
-    return (num / 1_000_000).toFixed(1) + "M"
-  }
-  if (Math.abs(num) >= 1_000) {
-    return (num / 1_000).toFixed(1) + "K"
-  }
+  if (Math.abs(num) >= 1_000_000_000) return (num / 1_000_000_000).toFixed(1) + "B"
+  if (Math.abs(num) >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M"
+  if (Math.abs(num) >= 1_000) return (num / 1_000).toFixed(1) + "K"
   return num.toString()
+}
+
+function SortIcon({ column, sortBy, sortOrder }: { column: string; sortBy: string; sortOrder: string }) {
+  if (sortBy === column) {
+    return sortOrder === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+  }
+  return <ArrowUpDown className="h-3 w-3 opacity-20" />
 }
 
 export default function StocksPage() {
@@ -76,51 +77,17 @@ export default function StocksPage() {
   const [watchlistDialogSymbol, setWatchlistDialogSymbol] = useState<string | null>(null)
 
   const {
-    page,
-    limit,
-    search,
-    watchlistId,
-    minPrice: minPriceStr,
-    maxPrice: maxPriceStr,
-    sortBy,
-    sortOrder,
-    signals,
-    bandarStatus,
-    momentum,
-    date,
-    accDistOperator,
-    accDist1D,
-    accDist1W,
-    accDist1M,
-    minScore,
-    maxScore,
-    netBrokerFlowOperator,
-    netBrokerFlowValue,
-    setPage,
-    setLimit,
-    setSearch,
-    setWatchlistId,
-    setMinPrice,
-    setMaxPrice,
-    setSort,
-    setSignals,
-    setBandarStatus,
-    setMomentum,
-    setDate,
-    setAccDistOperator,
-    setAccDist1D,
-    setAccDist1W,
-    setAccDist1M,
-    setMinScore,
-    setMaxScore,
-    setNetBrokerFlowOperator,
-    setNetBrokerFlowValue,
-    liquidity,
-    setLiquidity,
-    reset,
+    page, limit, search, watchlistId, minPrice: minPriceStr, maxPrice: maxPriceStr,
+    sortBy, sortOrder, signals, bandarStatus, momentum, date,
+    accDistOperator, accDist1D, accDist1W, accDist1M, minScore, maxScore,
+    netBrokerFlowOperator, netBrokerFlowValue,
+    setPage, setLimit, setSearch, setWatchlistId, setMinPrice, setMaxPrice,
+    setSort, setSignals, setBandarStatus, setMomentum, setDate,
+    setAccDistOperator, setAccDist1D, setAccDist1W, setAccDist1M,
+    setMinScore, setMaxScore, setNetBrokerFlowOperator, setNetBrokerFlowValue,
+    liquidity, setLiquidity, reset,
   } = useStocksFilterStore()
 
-  // Local input states for controlled inputs
   const [searchTerm, setSearchTerm] = useState(search)
   const [minPriceInput, setMinPriceInput] = useState(minPriceStr)
   const [maxPriceInput, setMaxPriceInput] = useState(maxPriceStr)
@@ -130,985 +97,404 @@ export default function StocksPage() {
   const [showFilters, setShowFilters] = useState(false)
 
   const debouncedSearch = useDebounce(searchTerm, 500)
-
   const minPrice = minPriceStr ? parseInt(minPriceStr) : undefined
   const maxPrice = maxPriceStr ? parseInt(maxPriceStr) : undefined
 
+  useEffect(() => setPageInput(page.toString()), [page])
   useEffect(() => {
-    setPageInput(page.toString())
-  }, [page])
-
-  // Sync debounced search to store
-  useEffect(() => {
-    if (debouncedSearch !== search) {
-      setSearch(debouncedSearch)
-    }
+    if (debouncedSearch !== search) setSearch(debouncedSearch)
   }, [debouncedSearch])
 
   const handleSort = (column: string) => {
-    if (sortBy === column) {
-      setSort(column, sortOrder === "asc" ? "desc" : "asc")
-    } else {
-      setSort(column, "desc")
-    }
+    if (sortBy === column) setSort(column, sortOrder === "asc" ? "desc" : "asc")
+    else setSort(column, "desc")
   }
 
-  const handlePriceUpdate = () => {
-    setMinPrice(minPriceInput)
-    setMaxPrice(maxPriceInput)
-    setPage(1)
-  }
-
-  const handleScoreUpdate = () => {
-    setMinScore(minScoreInput)
-    setMaxScore(maxScoreInput)
-  }
-
+  const handlePriceUpdate = () => { setMinPrice(minPriceInput); setMaxPrice(maxPriceInput); setPage(1) }
+  const handleScoreUpdate = () => { setMinScore(minScoreInput); setMaxScore(maxScoreInput) }
   const handleResetFilters = () => {
-    setSearchTerm("")
-    setMinPriceInput("")
-    setMaxPriceInput("")
-    setMinScoreInput("")
-    setMaxScoreInput("")
-    reset()
+    setSearchTerm(""); setMinPriceInput(""); setMaxPriceInput("")
+    setMinScoreInput(""); setMaxScoreInput(""); reset()
   }
 
   const handleApplyPerfectSetup = (withBreakout = false) => {
-    reset()
-    setSearchTerm("")
-    setMinPriceInput("")
-    setMaxPriceInput("")
-    setMinScoreInput("70")
-    setMaxScoreInput("")
-    setMinScore("70")
-    setNetBrokerFlowValue("0")
-    setAccDist1D("-1")
-    setAccDist1W("-1")
-    setAccDist1M("-1")
-    setBandarStatus(["Accumulation"])
-    setWatchlistId(watchlistId)
-    if (withBreakout) {
-      setSignals(["Breakout"])
-    }
+    reset(); setSearchTerm(""); setMinPriceInput(""); setMaxPriceInput("")
+    setMinScoreInput("70"); setMaxScoreInput("")
+    setMinScore("70"); setNetBrokerFlowValue("0")
+    setAccDist1D("-1"); setAccDist1W("-1"); setAccDist1M("-1")
+    setBandarStatus(["Accumulation"]); setWatchlistId(watchlistId)
+    if (withBreakout) setSignals(["Breakout"])
   }
 
-  const { data: screenerDates, isLoading: isLoadingDates } = useQuery({
-    queryKey: ["screener-dates"],
-    queryFn: getScreenerDates,
-    staleTime: 5 * 60 * 1000,
+  const { data: screenerDates } = useQuery({
+    queryKey: ["screener-dates"], queryFn: getScreenerDates, staleTime: 5 * 60 * 1000,
   })
 
   const { data: watchlists } = useQuery({
-    queryKey: ["watchlists"],
-    queryFn: getWatchlists,
-    staleTime: 10 * 60 * 1000,
+    queryKey: ["watchlists"], queryFn: getWatchlists, staleTime: 10 * 60 * 1000,
   })
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [
-      "tickers",
-      page,
-      limit,
-      debouncedSearch,
-      watchlistId,
-      minPrice,
-      maxPrice,
-      sortBy,
-      sortOrder,
-      signals,
-      bandarStatus,
-      momentum,
-      date,
-      accDistOperator,
-      accDist1D,
-      accDist1W,
-      accDist1M,
-      minScore,
-      maxScore,
-      netBrokerFlowOperator,
-      netBrokerFlowValue,
-      liquidity,
+      "tickers", page, limit, debouncedSearch, watchlistId, minPrice, maxPrice,
+      sortBy, sortOrder, signals, bandarStatus, momentum, date,
+      accDistOperator, accDist1D, accDist1W, accDist1M, minScore, maxScore,
+      netBrokerFlowOperator, netBrokerFlowValue, liquidity,
     ],
     queryFn: () =>
       getScreener({
-        page,
-        limit,
-        search: debouncedSearch,
-        watchlistId: watchlistId ?? undefined,
-        minPrice,
-        maxPrice,
-        sortBy: sortBy || undefined,
-        sortOrder: sortOrder || undefined,
-        signals,
-        bandarStatus,
-        momentum,
-        date: date || undefined,
-        accDistOperator,
-        accDist1D: accDist1D ? parseFloat(accDist1D) : undefined,
+        page, limit, search: debouncedSearch, watchlistId: watchlistId ?? undefined,
+        minPrice, maxPrice, sortBy: sortBy || undefined, sortOrder: sortOrder || undefined,
+        signals, bandarStatus, momentum, date: date || undefined,
+        accDistOperator, accDist1D: accDist1D ? parseFloat(accDist1D) : undefined,
         accDist1W: accDist1W ? parseFloat(accDist1W) : undefined,
         accDist1M: accDist1M ? parseFloat(accDist1M) : undefined,
         minScore: minScore ? parseInt(minScore) : undefined,
         maxScore: maxScore ? parseInt(maxScore) : undefined,
-        netBrokerFlowOperator,
-        netBrokerFlowValue: netBrokerFlowValue ? parseFloat(netBrokerFlowValue) : undefined,
+        netBrokerFlowOperator, netBrokerFlowValue: netBrokerFlowValue ? parseFloat(netBrokerFlowValue) : undefined,
         liquidity,
       }),
   })
 
-  const { mutate: handleRefreshAllTickers, isPending: isRefreshing } =
-    useMutation({
-      mutationFn: refreshAllTickers,
-      onSuccess: () => {
-        toast.success("Refreshing all tickers data in background started.")
-      },
-      onError: (error) => {
-        toast.error(`Failed to start refreshing: ${(error as Error).message}`)
-      },
-    })
+  const { mutate: handleRefreshAllTickers, isPending: isRefreshing } = useMutation({
+    mutationFn: refreshAllTickers,
+    onSuccess: () => toast.success("Refreshing all tickers data in background started."),
+    onError: (error) => toast.error(`Failed to start refreshing: ${(error as Error).message}`),
+  })
+
+  const scoreColor = (v: number) =>
+    v >= 70 ? "text-positive" : v <= 30 ? "text-negative" : "text-warning"
+
+  const changeColor = (v: number) =>
+    v > 0 ? "text-positive" : v < 0 ? "text-negative" : "text-muted-foreground"
 
   return (
     <div className="space-y-3">
-      <AddToWatchlistDialog
-        symbol={watchlistDialogSymbol}
-        onClose={() => setWatchlistDialogSymbol(null)}
-      />
-      <Card className="bg-card/20 mb-2 py-0 border-muted">
-        <CardContent className="p-3">
-          <div className="flex flex-col gap-3">
-            {/* Top Bar: Search, Presets, Filter Toggle */}
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="relative flex-1 min-w-50">
-                <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  ref={searchInputRef}
-                  id="search"
-                  placeholder="Search symbol or name..."
-                  className="h-9 py-2 pl-9 bg-background/50"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+      <AddToWatchlistDialog symbol={watchlistDialogSymbol} onClose={() => setWatchlistDialogSymbol(null)} />
 
-              <div className="min-w-48 flex-1 max-w-xs">
-                <MultiSelect
-                  options={(watchlists ?? []).map((w) => ({
-                    value: String(w.id),
-                    label: w.name,
-                    description: `${w._count.tickers} saham`,
-                  }))}
-                  selected={watchlistId != null ? [String(watchlistId)] : []}
-                  onChange={(ids) => {
-                    const last = ids[ids.length - 1]
-                    setWatchlistId(last ? parseInt(last, 10) : null)
-                  }}
-                  placeholder="Pilih watchlist..."
-                  searchPlaceholder="Cari watchlist..."
-                />
-              </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative flex-1 min-w-48">
+          <Search className="absolute top-2 left-2.5 h-3.5 w-3.5 text-muted-foreground" />
+          <Input
+            ref={searchInputRef}
+            placeholder="Search symbol or name..."
+            className="h-9 pl-8 bg-transparent border-border font-mono text-sm placeholder:text-muted-foreground/40"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="min-w-40 max-w-56 flex-1">
+          <MultiSelect
+            options={(watchlists ?? []).map((w) => ({
+              value: String(w.id), label: w.name, description: `${w._count.tickers} saham`,
+            }))}
+            selected={watchlistId != null ? [String(watchlistId)] : []}
+            onChange={(ids) => { const last = ids[ids.length - 1]; setWatchlistId(last ? parseInt(last, 10) : null) }}
+            placeholder="Watchlist..."
+            searchPlaceholder="Cari watchlist..."
+          />
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Button variant="secondary" size="sm" className="h-9 font-mono text-[12px] font-medium tracking-tight" onClick={() => handleApplyPerfectSetup(false)}>
+            <Bookmark className="h-3 w-3 mr-1" />
+            Perfect Setup
+          </Button>
+          <Button variant="outline" size="sm" className="h-9 font-mono text-[12px] font-medium tracking-tight" onClick={() => handleApplyPerfectSetup(true)}>
+            + Breakout
+          </Button>
+          <Button variant={showFilters ? "default" : "outline"} size="sm" onClick={() => setShowFilters(!showFilters)} className="h-9 font-mono text-[12px]">
+            <SlidersHorizontal className="h-3.5 w-3.5 mr-1" />
+            Filters
+          </Button>
+          <Button variant="outline" size="icon" onClick={() => handleRefreshAllTickers()} disabled={isRefreshing} className="h-9 w-9 shrink-0" title="Refresh Tickers">
+            <RefreshCw className={cn("h-3.5 w-3.5", isRefreshing && "animate-spin")} />
+          </Button>
+        </div>
+      </div>
 
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 hide-scrollbar">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="h-9 cursor-pointer text-[13px] font-medium"
-                  onClick={() => handleApplyPerfectSetup(false)}
-                >
-                  ⭐ Perfect Setup
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="h-9 cursor-pointer text-[13px] font-medium whitespace-nowrap"
-                  onClick={() => handleApplyPerfectSetup(true)}
-                >
-                  ⚡ + Breakout
-                </Button>
-                <Separator orientation="vertical" className="h-5 mx-1" />
-                <Button
-                  variant={showFilters ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="h-9"
-                >
-                  <SlidersHorizontal className="h-4 w-4 mr-1.5" />
-                  Filters
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handleRefreshAllTickers()}
-                  disabled={isRefreshing}
-                  className="h-9 w-9 shrink-0"
-                  title="Refresh Tickers"
-                >
-                  <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
-                </Button>
+      {showFilters && (
+        <Card className="border-border bg-card/50">
+          <CardContent className="p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 animate-in fade-in slide-in-from-top-1 duration-150">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-[0.15em]">Price & Score</span>
+              <div className="flex h-8 items-center gap-1 rounded-sm border border-border bg-transparent px-2 text-xs font-mono">
+                <span className="font-medium text-muted-foreground">Price</span>
+                <span className="text-border">|</span>
+                <input className="w-full bg-transparent outline-none placeholder:text-muted-foreground/30" placeholder="Min" type="number" value={minPriceInput}
+                  onChange={(e) => setMinPriceInput(e.target.value)} onBlur={handlePriceUpdate} onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()} />
+                <span className="text-muted-foreground">-</span>
+                <input className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground/30" placeholder="Max" type="number" value={maxPriceInput}
+                  onChange={(e) => setMaxPriceInput(e.target.value)} onBlur={handlePriceUpdate} onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()} />
+              </div>
+              <div className="flex h-8 items-center gap-1 rounded-sm border border-border bg-transparent px-2 text-xs font-mono">
+                <span className="font-medium text-muted-foreground">Score</span>
+                <span className="text-border">|</span>
+                <input className="w-full bg-transparent outline-none placeholder:text-muted-foreground/30" placeholder="Min" type="number" min="0" max="100" value={minScoreInput}
+                  onChange={(e) => setMinScoreInput(e.target.value)} onBlur={handleScoreUpdate} onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()} />
+                <span className="text-muted-foreground">-</span>
+                <input className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground/30" placeholder="Max" type="number" min="0" max="100" value={maxScoreInput}
+                  onChange={(e) => setMaxScoreInput(e.target.value)} onBlur={handleScoreUpdate} onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()} />
               </div>
             </div>
 
-            {/* Expandable Advanced Filters */}
-            {showFilters && (
-              <div className="pt-3 border-t grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Price & Score</span>
-                  <div className="flex h-9 items-center rounded-md border bg-background px-2.5 text-xs">
-                    <span className="font-medium text-muted-foreground">Price</span>
-                    <Separator orientation="vertical" className="mx-2 h-4" />
-                    <input
-                      className="w-full bg-transparent outline-none placeholder:text-muted-foreground/50"
-                      placeholder="Min"
-                      type="number"
-                      value={minPriceInput}
-                      onChange={(e) => setMinPriceInput(e.target.value)}
-                      onBlur={handlePriceUpdate}
-                      onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
-                    />
-                    <span className="text-muted-foreground">-</span>
-                    <input
-                      className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground/50"
-                      placeholder="Max"
-                      type="number"
-                      value={maxPriceInput}
-                      onChange={(e) => setMaxPriceInput(e.target.value)}
-                      onBlur={handlePriceUpdate}
-                      onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
-                    />
-                  </div>
-                  <div className="flex h-9 items-center rounded-md border bg-background px-2.5 text-xs">
-                    <span className="font-medium text-muted-foreground">Score</span>
-                    <Separator orientation="vertical" className="mx-2 h-4" />
-                    <input
-                      className="w-full bg-transparent outline-none placeholder:text-muted-foreground/50"
-                      placeholder="Min"
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={minScoreInput}
-                      onChange={(e) => setMinScoreInput(e.target.value)}
-                      onBlur={handleScoreUpdate}
-                      onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
-                    />
-                    <span className="text-muted-foreground">-</span>
-                    <input
-                      className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground/50"
-                      placeholder="Max"
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={maxScoreInput}
-                      onChange={(e) => setMaxScoreInput(e.target.value)}
-                      onBlur={handleScoreUpdate}
-                      onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
-                    />
-                  </div>
-                </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-[0.15em]">Signals & Status</span>
+              <FilterMultiSelect title="Signals" options={[{ label: "Breakout", value: "Breakout" }, { label: "Spike", value: "Spike" }]} selected={signals} onChange={setSignals} />
+              <FilterMultiSelect title="Status" options={[{ label: "Accumulation", value: "Accumulation" }, { label: "Neutral", value: "Neutral" }, { label: "Distribution", value: "Distribution" }]} selected={bandarStatus} onChange={setBandarStatus} />
+            </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Signals & Status</span>
-                  <FilterMultiSelect
-                    title="Signals"
-                    options={[
-                      { label: "Breakout", value: "Breakout" },
-                      { label: "Spike", value: "Spike" },
-                    ]}
-                    selected={signals}
-                    onChange={(val) => setSignals(val)}
-                  />
-                  <FilterMultiSelect
-                    title="Status"
-                    options={[
-                      { label: "Accumulation", value: "Accumulation" },
-                      { label: "Neutral", value: "Neutral" },
-                      { label: "Distribution", value: "Distribution" },
-                    ]}
-                    selected={bandarStatus}
-                    onChange={(val) => setBandarStatus(val)}
-                  />
-                </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-[0.15em]">Momentum & Liquidity</span>
+              <FilterMultiSelect title="Momentum" options={[{ label: "Uptrend", value: "Uptrend" }, { label: "Sideways", value: "Sideways" }, { label: "Downtrend", value: "Downtrend" }]} selected={momentum} onChange={setMomentum} />
+              <FilterMultiSelect title="Liquidity" options={[{ label: "High", value: "High" }, { label: "Medium", value: "Medium" }, { label: "Low", value: "Low" }]} selected={liquidity} onChange={setLiquidity} />
+            </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Momentum & Liquidity</span>
-                  <FilterMultiSelect
-                    title="Momentum"
-                    options={[
-                      { label: "Uptrend", value: "Uptrend" },
-                      { label: "Sideways", value: "Sideways" },
-                      { label: "Downtrend", value: "Downtrend" },
-                    ]}
-                    selected={momentum}
-                    onChange={(val) => setMomentum(val)}
-                  />
-                  <FilterMultiSelect
-                    title="Liquidity"
-                    options={[
-                      { label: "High", value: "High" },
-                      { label: "Medium", value: "Medium" },
-                      { label: "Low", value: "Low" },
-                    ]}
-                    selected={liquidity}
-                    onChange={(val) => setLiquidity(val)}
-                  />
-                </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-[0.15em]">Flow & Date</span>
+              <div className="flex h-8 items-center gap-1 rounded-sm border border-border bg-transparent px-2 text-xs font-mono">
+                <Select value={accDistOperator} onValueChange={(val) => setAccDistOperator(val as "gt" | "lt")}>
+                  <SelectTrigger className="w-9 border-none px-0 py-0 h-auto text-[10px] focus:ring-0 bg-transparent"><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="gt">&gt;</SelectItem><SelectItem value="lt">&lt;</SelectItem></SelectContent>
+                </Select>
+                <span className="text-muted-foreground">AD</span>
+                <input className="w-full bg-transparent text-center outline-none" placeholder="1D" type="number" value={accDist1D} onChange={(e) => setAccDist1D(e.target.value)} />
+                <input className="w-full bg-transparent text-center outline-none" placeholder="1W" type="number" value={accDist1W} onChange={(e) => setAccDist1W(e.target.value)} />
+                <input className="w-full bg-transparent text-center outline-none" placeholder="1M" type="number" value={accDist1M} onChange={(e) => setAccDist1M(e.target.value)} />
+              </div>
+              <div className="flex h-8 items-center gap-1 rounded-sm border border-border bg-transparent px-2 text-xs font-mono">
+                <Select value={netBrokerFlowOperator} onValueChange={(val) => setNetBrokerFlowOperator(val as "gt" | "lt")}>
+                  <SelectTrigger className="w-9 border-none px-0 py-0 h-auto text-[10px] focus:ring-0 bg-transparent"><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="gt">&gt;</SelectItem><SelectItem value="lt">&lt;</SelectItem></SelectContent>
+                </Select>
+                <span className="text-muted-foreground">Net</span>
+                <input className="w-full bg-transparent outline-none text-right" placeholder="0" type="number" value={netBrokerFlowValue} onChange={(e) => setNetBrokerFlowValue(e.target.value)} />
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className={cn("h-7 flex-1 justify-start text-left font-mono text-[11px] px-2 rounded-sm", !date && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-1 h-3 w-3" />
+                      {date ? format(parseISO(date), "dd MMM yy") : "Latest"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar mode="single" selected={date ? parseISO(date) : undefined}
+                      onSelect={(d) => { if (!d) { setDate(null); return }; const str = format(d, "yyyy-MM-dd"); setDate(screenerDates?.includes(str) ? str : null); setPage(1) }}
+                      disabled={(d) => { const str = format(d, "yyyy-MM-dd"); return !screenerDates?.includes(str) }} initialFocus />
+                    {date && (
+                      <div className="border-t border-border p-2">
+                        <Button variant="ghost" size="sm" className="w-full text-xs h-7" onClick={() => { setDate(null); setPage(1) }}>Reset Date</Button>
+                      </div>
+                    )}
+                  </PopoverContent>
+                </Popover>
+                <Button onClick={handleResetFilters} size="sm" variant="ghost" className="h-7 px-2 text-destructive hover:bg-destructive/10 text-xs shrink-0">Clear</Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Flow & Date</span>
-                  <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs">
-                    <Select value={accDistOperator} onValueChange={(val) => setAccDistOperator(val as "gt" | "lt")}>
-                      <SelectTrigger className="w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="gt">&gt;</SelectItem>
-                        <SelectItem value="lt">&lt;</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Separator orientation="vertical" className="mx-1 h-3" />
-                    <span className="text-[10px] text-muted-foreground">A/D:</span>
-                    <input className="w-6 bg-transparent text-center outline-none" placeholder="1D" type="number" value={accDist1D} onChange={(e) => setAccDist1D(e.target.value)} />
-                    <input className="w-6 bg-transparent text-center outline-none" placeholder="1W" type="number" value={accDist1W} onChange={(e) => setAccDist1W(e.target.value)} />
-                    <input className="w-6 bg-transparent text-center outline-none" placeholder="1M" type="number" value={accDist1M} onChange={(e) => setAccDist1M(e.target.value)} />
-                  </div>
-
-                  <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs">
-                    <Select value={netBrokerFlowOperator} onValueChange={(val) => setNetBrokerFlowOperator(val as "gt" | "lt")}>
-                      <SelectTrigger className="w-11 border-none px-1 py-0 h-auto text-[11px] focus:ring-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="gt">&gt;</SelectItem>
-                        <SelectItem value="lt">&lt;</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Separator orientation="vertical" className="mx-1 h-3" />
-                    <span className="text-[10px] text-muted-foreground">Net:</span>
-                    <input className="w-full bg-transparent outline-none" placeholder="0" type="number" value={netBrokerFlowValue} onChange={(e) => setNetBrokerFlowValue(e.target.value)} />
-                  </div>
-
-                  <div className="flex items-center gap-2 mt-1">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={cn("h-8 flex-1 justify-start text-left font-normal text-xs px-2", !date && "text-muted-foreground")}
-                          disabled={isLoadingDates}
-                        >
-                          <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
-                          {date ? format(parseISO(date), "dd MMM yy") : "Latest"}
+      <div className="rounded-sm border border-border overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="h-8 cursor-pointer font-mono text-[11px] font-semibold text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("symbol")}>
+                  <div className="flex items-center gap-1">Ticker <SortIcon column="symbol" sortBy={sortBy} sortOrder={sortOrder} /></div>
+                </TableHead>
+                <TableHead className="h-8 cursor-pointer font-mono text-[11px] font-semibold text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("price")}>
+                  <div className="flex items-center gap-1">Price <SortIcon column="price" sortBy={sortBy} sortOrder={sortOrder} /></div>
+                </TableHead>
+                <TableHead className="h-8 cursor-pointer font-mono text-[11px] font-semibold text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("volume")}>
+                  <div className="flex items-center gap-1">Vol/Val <SortIcon column="volume" sortBy={sortBy} sortOrder={sortOrder} /></div>
+                </TableHead>
+                <TableHead className="h-8 cursor-pointer font-mono text-[11px] font-semibold text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("netBrokerFlow")}>
+                  <div className="flex items-center gap-1">B. Net <SortIcon column="netBrokerFlow" sortBy={sortBy} sortOrder={sortOrder} /></div>
+                </TableHead>
+                <TableHead className="h-8 cursor-pointer font-mono text-[11px] font-semibold text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("accumulationDistribution1D")}>
+                  <div className="flex items-center gap-1">Acc/Dist% <SortIcon column="accumulationDistribution1D" sortBy={sortBy} sortOrder={sortOrder} /></div>
+                </TableHead>
+                <TableHead className="h-8 cursor-pointer font-mono text-[11px] font-semibold text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("bandarStatus")}>
+                  <div className="flex items-center gap-1">Status <SortIcon column="bandarStatus" sortBy={sortBy} sortOrder={sortOrder} /></div>
+                </TableHead>
+                <TableHead className="h-8 cursor-pointer font-mono text-[11px] font-semibold text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("smartMoneyScore")}>
+                  <div className="flex items-center gap-1">Score <SortIcon column="smartMoneyScore" sortBy={sortBy} sortOrder={sortOrder} /></div>
+                </TableHead>
+                <TableHead className="h-8 cursor-pointer font-mono text-[11px] font-semibold text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("momentum")}>
+                  <div className="flex items-center gap-1">Mom <SortIcon column="momentum" sortBy={sortBy} sortOrder={sortOrder} /></div>
+                </TableHead>
+                <TableHead className="h-8 font-mono text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Remora</TableHead>
+                <TableHead className="h-8 font-mono text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Top Brokers</TableHead>
+                <TableHead className="h-8 cursor-pointer font-mono text-[11px] font-semibold text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("liquidityScore")}>
+                  <div className="flex items-center gap-1">Liq <SortIcon column="liquidityScore" sortBy={sortBy} sortOrder={sortOrder} /></div>
+                </TableHead>
+                <TableHead className="h-8 cursor-pointer font-mono text-[11px] font-semibold text-muted-foreground uppercase tracking-wider" onClick={() => handleSort("sector")}>
+                  <div className="flex items-center gap-1">Sector <SortIcon column="sector" sortBy={sortBy} sortOrder={sortOrder} /></div>
+                </TableHead>
+                <TableHead className="h-8 w-10"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow><TableCell colSpan={14} className="h-32 text-center font-mono text-sm text-muted-foreground">Loading...</TableCell></TableRow>
+              ) : isError ? (
+                <TableRow><TableCell colSpan={14} className="h-32 text-center font-mono text-sm text-destructive">{(error as Error).message}</TableCell></TableRow>
+              ) : data?.data.length === 0 ? (
+                <TableRow><TableCell colSpan={14} className="h-32 text-center font-mono text-sm text-muted-foreground">No results</TableCell></TableRow>
+              ) : (
+                data?.data.map((ticker) => (
+                  <TableRow key={ticker.symbol} className="cursor-pointer border-border hover:bg-accent/50 transition-colors"
+                    onClick={(e) => {
+                      if (e.ctrlKey || e.metaKey) window.open(`/stock/${ticker.symbol}`, "_blank")
+                      else navigate(`/stock/${ticker.symbol}`)
+                    }}>
+                    <TableCell className="py-2">
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon" className="h-5 w-5 shrink-0" onClick={(e) => { e.stopPropagation(); setWatchlistDialogSymbol(ticker.symbol) }}>
+                          <Bookmark className={cn("h-3.5 w-3.5", ticker.isOnWatchlist ? "fill-[#c8a951] text-[#c8a951]" : "text-muted-foreground/30")} />
                         </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="end">
-                        <Calendar
-                          mode="single"
-                          selected={date ? parseISO(date) : undefined}
-                          onSelect={(d) => {
-                            if (!d) { setDate(null); return }
-                            const str = format(d, "yyyy-MM-dd")
-                            setDate(screenerDates?.includes(str) ? str : null)
-                            setPage(1)
-                          }}
-                          disabled={(d) => {
-                            const str = format(d, "yyyy-MM-dd")
-                            return !screenerDates?.includes(str)
-                          }}
-                          initialFocus
-                        />
-                        {date && (
-                          <div className="border-t p-2">
-                            <Button variant="ghost" size="sm" className="w-full text-xs h-7" onClick={() => { setDate(null); setPage(1) }}>Reset Date</Button>
+                        {ticker.logo && (
+                          <img src={ticker.logo} alt={ticker.symbol} className="h-7 w-7 rounded-full object-cover border border-border" />
+                        )}
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-mono text-[13px] font-bold text-foreground">{ticker.symbol}</span>
+                            {ticker.isBreakout && <span className="font-mono text-[10px] text-positive bg-positive px-1 py-px rounded-sm">BO</span>}
+                          </div>
+                          <span className="text-[10px] text-muted-foreground line-clamp-1 max-w-40">{ticker.name || "-"}</span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <div>
+                        <span className="font-mono text-[13px] font-bold">{ticker.price.toLocaleString()}</span>
+                        <span className={cn("ml-1.5 font-mono text-[11px]", changeColor(ticker.changePercentage))}>
+                          {ticker.changePercentage > 0 ? "+" : ""}{ticker.changePercentage.toFixed(2)}%
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <div>
+                        <span className="font-mono text-[12px]">{formatNumber(ticker.volume)}</span>
+                        <span className="ml-1 font-mono text-[10px] text-muted-foreground">Rp {formatNumber(Number(ticker.transactionValue || 0))}</span>
+                        {ticker.isVolumeSpike && <span className="ml-1 font-mono text-[10px] text-warning bg-warning px-1 py-px rounded-sm">Spike</span>}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <span className={cn("font-mono text-[13px] font-semibold tracking-tight", changeColor(ticker.netBrokerFlow))}>
+                        {ticker.netBrokerFlow > 0 ? "+" : ""}{formatNumber(ticker.netBrokerFlow)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <div className="flex flex-col gap-0.5 font-mono text-[10px]">
+                        {[{ k: "1d", v: ticker.accumulationDistribution.d1 }, { k: "1w", v: ticker.accumulationDistribution.w1 }, { k: "1m", v: ticker.accumulationDistribution.m1 }]
+                          .map(({ k, v }) => (
+                            <div key={k} className="flex items-center justify-between gap-2">
+                              <span className="text-muted-foreground">{k}</span>
+                              <span className={cn("font-medium tracking-tight", v > 0 ? "text-positive" : v < 0 ? "text-negative" : "text-muted-foreground")}>
+                                {v > 0 ? "+" : ""}{v.toFixed(1)}%
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <StatusBadge status={ticker.bandarStatus} />
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <span className={cn("font-mono text-[13px] font-bold", scoreColor(ticker.smartMoneyScore))}>{ticker.smartMoneyScore}</span>
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <span className={cn("font-mono text-[11px] font-medium",
+                        ticker.momentum === "Uptrend" && "text-positive",
+                        ticker.momentum === "Downtrend" && "text-negative"
+                      )}>{ticker.momentum}</span>
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <div className="flex flex-col gap-0.5 font-mono text-[10px] whitespace-nowrap">
+                        <div title="PVA Trend" className={cn("flex items-center gap-1 font-medium",
+                          ticker.pvaTrend === "UPTREND" ? "text-positive" : ticker.pvaTrend === "DOWNTREND" ? "text-negative" : ticker.pvaTrend === "MIXED" ? "text-warning" : "text-muted-foreground")}>
+                          <Activity className="h-2.5 w-2.5 shrink-0" />{ticker.pvaTrend ?? "-"}
+                        </div>
+                        {ticker.volumeAnomaly && ticker.volumeAnomaly !== "NONE" && (
+                          <div title="Volume Anomaly" className={cn("flex items-center gap-1 font-medium",
+                            ticker.volumeAnomaly === "EXTREME" ? "text-negative" : ticker.volumeAnomaly === "STRONG" ? "text-warning" : "text-positive")}>
+                            <BarChart2 className="h-2.5 w-2.5 shrink-0" />{ticker.volumeAnomaly}
                           </div>
                         )}
-                      </PopoverContent>
-                    </Popover>
-
-                    <Button onClick={handleResetFilters} size="sm" variant="ghost" className="h-8 px-2 text-destructive hover:bg-destructive/10 hover:text-destructive text-xs shrink-0">
-                      <X className="mr-1 h-3 w-3" />
-                      Clear
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead
-              className="cursor-pointer hover:bg-muted/50"
-              onClick={() => handleSort("symbol")}
-            >
-              <div className="flex items-center gap-1">
-                Ticker
-                {sortBy === "symbol" ? (
-                  sortOrder === "asc" ? (
-                    <ArrowUp className="h-3 w-3" />
-                  ) : (
-                    <ArrowDown className="h-3 w-3" />
-                  )
-                ) : (
-                  <ArrowUpDown className="h-3 w-3 opacity-30" />
-                )}
-              </div>
-            </TableHead>
-            <TableHead
-              className="cursor-pointer hover:bg-muted/50"
-              onClick={() => handleSort("price")}
-            >
-              <div className="flex items-center gap-1">
-                Price
-                {sortBy === "price" ? (
-                  sortOrder === "asc" ? (
-                    <ArrowUp className="h-3 w-3" />
-                  ) : (
-                    <ArrowDown className="h-3 w-3" />
-                  )
-                ) : (
-                  <ArrowUpDown className="h-3 w-3 opacity-30" />
-                )}
-              </div>
-            </TableHead>
-            <TableHead
-              className="cursor-pointer hover:bg-muted/50"
-              onClick={() => handleSort("volume")}
-            >
-              <div className="flex items-center gap-1">
-                Vol/Val
-                {sortBy === "volume" ? (
-                  sortOrder === "asc" ? (
-                    <ArrowUp className="h-3 w-3" />
-                  ) : (
-                    <ArrowDown className="h-3 w-3" />
-                  )
-                ) : (
-                  <ArrowUpDown className="h-3 w-3 opacity-30" />
-                )}
-              </div>
-            </TableHead>
-            <TableHead
-              className="cursor-pointer hover:bg-muted/50"
-              onClick={() => handleSort("netBrokerFlow")}
-            >
-              <div className="flex items-center gap-1">
-                B. Net
-                {sortBy === "netBrokerFlow" ? (
-                  sortOrder === "asc" ? (
-                    <ArrowUp className="h-3 w-3" />
-                  ) : (
-                    <ArrowDown className="h-3 w-3" />
-                  )
-                ) : (
-                  <ArrowUpDown className="h-3 w-3 opacity-30" />
-                )}
-              </div>
-            </TableHead>
-            <TableHead
-              className="cursor-pointer hover:bg-muted/50"
-              onClick={() => handleSort("accumulationDistribution1D")}
-            >
-              <div className="flex items-center gap-1">
-                Acc/Dist (%)
-                {sortBy === "accumulationDistribution1D" ? (
-                  sortOrder === "asc" ? (
-                    <ArrowUp className="h-3 w-3" />
-                  ) : (
-                    <ArrowDown className="h-3 w-3" />
-                  )
-                ) : (
-                  <ArrowUpDown className="h-3 w-3 opacity-30" />
-                )}
-              </div>
-            </TableHead>
-            <TableHead
-              className="cursor-pointer hover:bg-muted/50"
-              onClick={() => handleSort("bandarStatus")}
-            >
-              <div className="flex items-center gap-1">
-                Bandar Status
-                {sortBy === "bandarStatus" ? (
-                  sortOrder === "asc" ? (
-                    <ArrowUp className="h-3 w-3" />
-                  ) : (
-                    <ArrowDown className="h-3 w-3" />
-                  )
-                ) : (
-                  <ArrowUpDown className="h-3 w-3 opacity-30" />
-                )}
-              </div>
-            </TableHead>
-            <TableHead
-              className="cursor-pointer hover:bg-muted/50"
-              onClick={() => handleSort("smartMoneyScore")}
-            >
-              <div className="flex items-center gap-1">
-                Score
-                {sortBy === "smartMoneyScore" ? (
-                  sortOrder === "asc" ? (
-                    <ArrowUp className="h-3 w-3" />
-                  ) : (
-                    <ArrowDown className="h-3 w-3" />
-                  )
-                ) : (
-                  <ArrowUpDown className="h-3 w-3 opacity-30" />
-                )}
-              </div>
-            </TableHead>
-            <TableHead
-              className="cursor-pointer hover:bg-muted/50"
-              onClick={() => handleSort("momentum")}
-            >
-              <div className="flex items-center gap-1">
-                Mom
-                {sortBy === "momentum" ? (
-                  sortOrder === "asc" ? (
-                    <ArrowUp className="h-3 w-3" />
-                  ) : (
-                    <ArrowDown className="h-3 w-3" />
-                  )
-                ) : (
-                  <ArrowUpDown className="h-3 w-3 opacity-30" />
-                )}
-              </div>
-            </TableHead>
-            <TableHead>Remora</TableHead>
-            <TableHead
-              className="cursor-pointer hover:bg-muted/50"
-              onClick={() => handleSort("topBrokers")}
-            >
-              <div className="flex items-center gap-1">
-                Top Brokers
-                {sortBy === "topBrokers" ? (
-                  sortOrder === "asc" ? (
-                    <ArrowUp className="h-3 w-3" />
-                  ) : (
-                    <ArrowDown className="h-3 w-3" />
-                  )
-                ) : (
-                  <ArrowUpDown className="h-3 w-3 opacity-30" />
-                )}
-              </div>
-            </TableHead>
-            <TableHead
-              className="cursor-pointer hover:bg-muted/50"
-              onClick={() => handleSort("liquidityScore")}
-            >
-              <div className="flex items-center gap-1">
-                Liquidity
-                {sortBy === "liquidityScore" ? (
-                  sortOrder === "asc" ? (
-                    <ArrowUp className="h-3 w-3" />
-                  ) : (
-                    <ArrowDown className="h-3 w-3" />
-                  )
-                ) : (
-                  <ArrowUpDown className="h-3 w-3 opacity-30" />
-                )}
-              </div>
-            </TableHead>
-            <TableHead
-              className="cursor-pointer hover:bg-muted/50"
-              onClick={() => handleSort("sector")}
-            >
-              <div className="flex items-center gap-1">
-                Sector
-                {sortBy === "sector" ? (
-                  sortOrder === "asc" ? (
-                    <ArrowUp className="h-3 w-3" />
-                  ) : (
-                    <ArrowDown className="h-3 w-3" />
-                  )
-                ) : (
-                  <ArrowUpDown className="h-3 w-3 opacity-30" />
-                )}
-              </div>
-            </TableHead>
-            <TableHead className="w-12.5"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {isLoading ? (
-            <TableRow>
-              <TableCell colSpan={14} className="h-24 text-center">
-                Loading...
-              </TableCell>
-            </TableRow>
-          ) : isError ? (
-            <TableRow>
-              <TableCell colSpan={14} className="h-24 text-center text-red-500">
-                Error: {(error as Error).message}
-              </TableCell>
-            </TableRow>
-          ) : data?.data.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={14} className="h-24 text-center">
-                No results found.
-              </TableCell>
-            </TableRow>
-          ) : (
-            data?.data.map((ticker) => (
-              <TableRow
-                key={ticker.symbol}
-                className="cursor-pointer"
-                onClick={(e) => {
-                  if (e.ctrlKey || e.metaKey) {
-                    window.open(`/stock/${ticker.symbol}`, "_blank")
-                  } else {
-                    navigate(`/stock/${ticker.symbol}`)
-                  }
-                }}
-              >
-                <TableCell className="font-medium">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setWatchlistDialogSymbol(ticker.symbol)
-                      }}
-                    >
-                      <Bookmark
-                        className={cn(
-                          "h-4 w-4",
-                          ticker.isOnWatchlist
-                            ? "fill-blue-500 text-blue-500"
-                            : "text-muted-foreground"
+                        {ticker.washTradingRisk && ticker.washTradingRisk !== "LOW" && (
+                          <div title="Wash Trading" className={cn("flex items-center gap-1 font-medium", ticker.washTradingRisk === "HIGH" ? "text-negative" : "text-warning")}>
+                            <Shuffle className="h-2.5 w-2.5 shrink-0" />{ticker.washTradingRisk}
+                          </div>
                         )}
-                      />
-                    </Button>
-                    <div className="flex items-center gap-2">
-                      {ticker.logo && (
-                        <img
-                          src={ticker.logo}
-                          alt={ticker.symbol}
-                          className="h-8 w-8 rounded-full object-cover"
-                        />
-                      )}
-                      <div className="flex flex-col">
-                        <span className="flex items-center gap-1 text-sm font-bold">
-                          {ticker.symbol}
-                          {ticker.isBreakout && (
-                            <span
-                              title="Breakout"
-                              className="text-[11px] text-orange-500"
-                            >
-                              ⚡Breakout
-                            </span>
-                          )}
-                        </span>
-                        <span className="text-xs text-muted-foreground line-clamp-1 max-w-48">
-                          {ticker.name || "-"}
-                        </span>
+                        {ticker.distributionRisk != null && ticker.distributionRisk > 30 && (
+                          <div title="Distribution Risk" className={cn("flex items-center gap-1 font-medium", ticker.distributionRisk > 60 ? "text-negative" : "text-warning")}>
+                            <ArrowDownRight className="h-2.5 w-2.5 shrink-0" />{ticker.distributionRisk.toFixed(0)}%
+                          </div>
+                        )}
+                        {ticker.repoPatternDetected && (
+                          <div title="Repo Pattern" className="flex items-center gap-1 font-medium text-destructive">
+                            <AlertTriangle className="h-2.5 w-2.5 shrink-0" />Repo
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold">
-                      {ticker.price.toLocaleString()}
-                    </span>
-                    <span
-                      className={cn(
-                        "text-xs font-medium",
-                        ticker.changePercentage > 0
-                          ? "text-green-600"
-                          : ticker.changePercentage < 0
-                            ? "text-red-600"
-                            : "text-gray-600"
-                      )}
-                    >
-                      {ticker.changePercentage > 0 ? "+" : ""}
-                      {ticker.changePercentage.toFixed(2)}%
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">
-                      {formatNumber(ticker.volume)}
-                    </span>
-                    <span className="text-[11px] text-muted-foreground font-medium mt-0.5">
-                      Rp {formatNumber(Number(ticker.transactionValue || 0))}
-                    </span>
-                    {ticker.isVolumeSpike && (
-                      <span className="text-xs font-bold text-orange-500">
-                        🔥 Spike
-                      </span>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={cn(
-                      "font-medium",
-                      ticker.netBrokerFlow > 0
-                        ? "text-green-600"
-                        : ticker.netBrokerFlow < 0
-                          ? "text-red-600"
-                          : "text-gray-600"
-                    )}
-                  >
-                    {ticker.netBrokerFlow > 0 ? "+" : ""}
-                    {formatNumber(ticker.netBrokerFlow)}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-col gap-1 text-[11px] whitespace-nowrap">
-                    <div className="flex items-center gap-1.5 justify-between">
-                      <span className="text-muted-foreground/70">1D</span>
-                      <span className={cn("font-medium", ticker.accumulationDistribution.d1 > 0 ? "text-green-600" : ticker.accumulationDistribution.d1 < 0 ? "text-red-600" : "text-gray-600")}>
-                        {ticker.accumulationDistribution.d1 > 0 ? "+" : ""}{ticker.accumulationDistribution.d1.toFixed(1)}%
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 justify-between">
-                      <span className="text-muted-foreground/70">1W</span>
-                      <span className={cn("font-medium", ticker.accumulationDistribution.w1 > 0 ? "text-green-600" : ticker.accumulationDistribution.w1 < 0 ? "text-red-600" : "text-gray-600")}>
-                        {ticker.accumulationDistribution.w1 > 0 ? "+" : ""}{ticker.accumulationDistribution.w1.toFixed(1)}%
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 justify-between">
-                      <span className="text-muted-foreground/70">1M</span>
-                      <span className={cn("font-medium", ticker.accumulationDistribution.m1 > 0 ? "text-green-600" : ticker.accumulationDistribution.m1 < 0 ? "text-red-600" : "text-gray-600")}>
-                        {ticker.accumulationDistribution.m1 > 0 ? "+" : ""}{ticker.accumulationDistribution.m1.toFixed(1)}%
-                      </span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      "font-medium tracking-tight",
-                      ticker.bandarStatus === "Accumulation" && "border-green-200 bg-green-50 text-green-700",
-                      ticker.bandarStatus === "Distribution" && "border-red-200 bg-red-50 text-red-700",
-                      ticker.bandarStatus === "Neutral" && "border-gray-200 bg-gray-50 text-gray-700"
-                    )}
-                  >
-                    {ticker.bandarStatus}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={cn(
-                      "font-bold",
-                      ticker.smartMoneyScore >= 70
-                        ? "text-green-600"
-                        : ticker.smartMoneyScore <= 30
-                          ? "text-red-600"
-                          : "text-yellow-600"
-                    )}
-                  >
-                    {ticker.smartMoneyScore}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant="secondary"
-                    className={cn(
-                      ticker.momentum === "Uptrend" && "text-green-600",
-                      ticker.momentum === "Downtrend" && "text-red-600"
-                    )}
-                  >
-                    {ticker.momentum}
-                  </Badge>
-                </TableCell>
-
-                <TableCell>
-                  <div className="flex flex-col gap-0.5 text-[11px] whitespace-nowrap">
-                    <div title="Price Volume Analysis" className={cn(
-                      "flex items-center gap-1 font-medium",
-                      ticker.pvaTrend === "UPTREND" ? "text-green-600" :
-                      ticker.pvaTrend === "DOWNTREND" ? "text-red-600" :
-                      ticker.pvaTrend === "MIXED" ? "text-orange-500" : "text-muted-foreground"
-                    )}>
-                      <Activity className="h-3 w-3 shrink-0" />
-                      <span>{ticker.pvaTrend ?? "-"}</span>
-                    </div>
-                    {ticker.volumeAnomaly && ticker.volumeAnomaly !== "NONE" && (
-                      <div title="Volume Anomaly" className={cn(
-                        "flex items-center gap-1 font-medium",
-                        ticker.volumeAnomaly === "EXTREME" ? "text-red-600" :
-                        ticker.volumeAnomaly === "STRONG" ? "text-orange-500" : "text-yellow-600"
-                      )}>
-                        <BarChart2 className="h-3 w-3 shrink-0" />
-                        <span>{ticker.volumeAnomaly}</span>
+                    </TableCell>
+                    <TableCell className="py-2" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex flex-col gap-1 font-mono text-[10px]">
+                        <div className="flex items-center gap-1 max-w-36 flex-wrap">
+                          {ticker.topBuyers?.length > 0 ? ticker.topBuyers.map((b: any, idx: number) => (
+                            <span key={(b.code || String(idx))} className={cn("px-1 py-0.5 rounded-sm whitespace-nowrap font-medium bg-muted/50", getBrokerCodeClass(b.code))}>{b.code}</span>
+                          )) : <span className="text-muted-foreground">-</span>}
+                        </div>
+                        <div className="flex items-center gap-1 max-w-36 flex-wrap">
+                          {ticker.topSellers?.length > 0 ? ticker.topSellers.map((b: any, idx: number) => (
+                            <span key={(b.code || String(idx))} className={cn("px-1 py-0.5 rounded-sm whitespace-nowrap font-medium bg-muted/50", getBrokerCodeClass(b.code))}>{b.code}</span>
+                          )) : <span className="text-muted-foreground">-</span>}
+                        </div>
                       </div>
-                    )}
-                    {ticker.washTradingRisk && ticker.washTradingRisk !== "LOW" && (
-                      <div title="Wash Trading Risk" className={cn("flex items-center gap-1 font-medium", ticker.washTradingRisk === "HIGH" ? "text-red-600" : "text-orange-500")}>
-                        <Shuffle className="h-3 w-3 shrink-0" />
-                        <span>{ticker.washTradingRisk}</span>
-                      </div>
-                    )}
-                    {ticker.distributionRisk != null && ticker.distributionRisk > 30 && (
-                      <div title="Distribution Risk" className={cn("flex items-center gap-1 font-medium", ticker.distributionRisk > 60 ? "text-red-600" : "text-orange-500")}>
-                        <ArrowDownRight className="h-3 w-3 shrink-0" />
-                        <span>{ticker.distributionRisk.toFixed(0)}%</span>
-                      </div>
-                    )}
-                    {ticker.repoPatternDetected && (
-                      <div title="Repo Pattern Detected" className="flex items-center gap-1 font-medium text-red-600">
-                        <AlertTriangle className="h-3 w-3 shrink-0" />
-                        <span>Repo</span>
-                      </div>
-                    )}
-                  </div>
-                </TableCell>
-
-                <TableCell onClick={(e) => e.stopPropagation()}>
-                  <div className="flex flex-col gap-1.5 text-[11px]">
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-33.75">
-                      {ticker.topBuyers?.length > 0 ? (
-                        ticker.topBuyers.map((b: any, idx: number) => (
-                          <span
-                            key={(b.code || String(idx)) + "-tb"}
-                            className={cn("px-1 py-0.5 rounded bg-muted/50 whitespace-nowrap font-medium", getBrokerCodeClass(b.code))}
-                          >
-                            {b.code}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-33.75">
-                      {ticker.topSellers?.length > 0 ? (
-                        ticker.topSellers.map((b: any, idx: number) => (
-                          <span
-                            key={(b.code || String(idx)) + "-ts"}
-                            className={cn("px-1 py-0.5 rounded bg-muted/50 whitespace-nowrap font-medium", getBrokerCodeClass(b.code))}
-                          >
-                            {b.code}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      ticker.liquidityScore === "High"
-                        ? "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-50"
-                        : ticker.liquidityScore === "Medium"
-                          ? "border-yellow-200 bg-yellow-50 text-yellow-700 hover:bg-yellow-50"
-                          : "border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-50"
-                    )}
-                  >
-                    {ticker.liquidityScore}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {ticker.sector ? (
-                    <span className="text-[11px] font-medium text-muted-foreground line-clamp-2 leading-tight">
-                      {ticker.sector}
-                    </span>
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
-                </TableCell>
-                <TableCell onClick={(e) => e.stopPropagation()}>
-                  <SimulateBuyButton ticker={ticker} />
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <Badge variant="outline" className={cn(
+                        "font-mono text-[10px] rounded-sm border-border",
+                        ticker.liquidityScore === "High" && "text-blue-400 bg-blue-400/10 border-blue-400/20",
+                        ticker.liquidityScore === "Medium" && "text-warning bg-warning border-amber-400/20",
+                        ticker.liquidityScore === "Low" && "text-muted-foreground bg-muted border-border"
+                      )}>{ticker.liquidityScore}</Badge>
+                    </TableCell>
+                    <TableCell className="py-2">
+                      {ticker.sector ? (
+                        <span className="font-mono text-[10px] text-muted-foreground line-clamp-2 leading-tight">{ticker.sector}</span>
+                      ) : <span className="text-muted-foreground">-</span>}
+                    </TableCell>
+                    <TableCell className="py-2" onClick={(e) => e.stopPropagation()}>
+                      <SimulateBuyButton ticker={ticker} />
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>
-            Showing {data?.data.length || 0} of {data?.meta.total || 0} results
-          </span>
-          <Select
-            value={String(limit)}
-            onValueChange={(val) => {
-              setLimit(Number(val))
-              setPage(1)
-            }}
-          >
-            <SelectTrigger className="h-8 w-16">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[10, 25, 50, 100].map((n) => (
-                <SelectItem key={n} value={String(n)}>
-                  {n}
-                </SelectItem>
-              ))}
-            </SelectContent>
+        <div className="flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
+          <span>{data?.data.length || 0} of {data?.meta.total || 0}</span>
+          <Select value={String(limit)} onValueChange={(val) => { setLimit(Number(val)); setPage(1) }}>
+            <SelectTrigger className="h-7 w-14 rounded-sm border-border text-[11px]"><SelectValue /></SelectTrigger>
+            <SelectContent>{[10, 25, 50, 100].map((n) => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}</SelectContent>
           </Select>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setPage(1)}
-            disabled={page <= 1 || isLoading}
-            title="First Page"
-          >
-            <ChevronsLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(Math.max(1, page - 1))}
-            disabled={page <= 1 || isLoading}
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Previous
-          </Button>
-
-          <div className="mx-2 flex items-center gap-2">
-            <span className="text-sm font-medium">Page</span>
-            <Input
-              className="h-8 w-16 px-1 text-center"
-              value={pageInput}
-              type="number"
-              onChange={(e) => setPageInput(e.target.value)}
-              onBlur={() => {
-                const p = parseInt(pageInput)
-                if (!isNaN(p) && p > 0) setPage(p)
-                else setPageInput(page.toString())
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  const p = parseInt(pageInput)
-                  if (!isNaN(p) && p > 0) setPage(p)
-                }
-              }}
-            />
-            <span className="text-sm font-medium">
-              of {data?.meta.totalPages || 1}
-            </span>
-          </div>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(page + 1)}
-            disabled={!data || page >= data.meta.totalPages || isLoading}
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setPage(data?.meta.totalPages || 1)}
-            disabled={!data || page >= data.meta.totalPages || isLoading}
-            title="Last Page"
-          >
-            <ChevronsRight className="h-4 w-4" />
-          </Button>
+        <div className="flex items-center gap-1.5">
+          <Button variant="outline" size="icon" className="h-7 w-7 rounded-sm" onClick={() => setPage(1)} disabled={page <= 1 || isLoading}><ChevronsLeft className="h-3 w-3" /></Button>
+          <Button variant="outline" size="sm" className="h-7 rounded-sm font-mono text-[11px]" onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1 || isLoading}><ChevronLeft className="h-3 w-3" /> Prev</Button>
+          <Input className="h-7 w-14 rounded-sm text-center font-mono text-[11px]" value={pageInput} type="number"
+            onChange={(e) => setPageInput(e.target.value)} onBlur={() => { const p = parseInt(pageInput); if (!isNaN(p) && p > 0) setPage(p); else setPageInput(page.toString()) }}
+            onKeyDown={(e) => { if (e.key === "Enter") { const p = parseInt(pageInput); if (!isNaN(p) && p > 0) setPage(p) } }} />
+          <span className="font-mono text-[11px] text-muted-foreground">/ {data?.meta.totalPages || 1}</span>
+          <Button variant="outline" size="sm" className="h-7 rounded-sm font-mono text-[11px]" onClick={() => setPage(page + 1)} disabled={!data || page >= data.meta.totalPages || isLoading}>Next <ChevronRight className="h-3 w-3" /></Button>
+          <Button variant="outline" size="icon" className="h-7 w-7 rounded-sm" onClick={() => setPage(data?.meta.totalPages || 1)} disabled={!data || page >= data.meta.totalPages || isLoading}><ChevronsRight className="h-3 w-3" /></Button>
         </div>
       </div>
     </div>

@@ -72,8 +72,8 @@ function getScoreInfo(score: number) {
   if (score < 40) {
     return {
       label: "Low probability",
-      badgeClassName: "bg-red-500 text-white",
-      progressClassName: "[&_[data-slot=progress-indicator]]:bg-red-500",
+      badgeClassName: "bg-destructive text-white",
+      progressClassName: "[&_[data-slot=progress-indicator]]:bg-destructive",
       guidance:
         "Avoid chasing. Focus on building a watchlist and wait for breakout + volume confirmation.",
     }
@@ -81,8 +81,8 @@ function getScoreInfo(score: number) {
   if (score < 60) {
     return {
       label: "Moderate setup",
-      badgeClassName: "bg-orange-500 text-white",
-      progressClassName: "[&_[data-slot=progress-indicator]]:bg-orange-500",
+      badgeClassName: "bg-amber-400/100 text-white",
+      progressClassName: "[&_[data-slot=progress-indicator]]:bg-amber-400/100",
       guidance:
         "Consider a small starter position only if risk is defined; prefer waiting for a cleaner breakout.",
     }
@@ -90,8 +90,8 @@ function getScoreInfo(score: number) {
   if (score < 75) {
     return {
       label: "Strong candidate",
-      badgeClassName: "bg-yellow-500 text-white",
-      progressClassName: "[&_[data-slot=progress-indicator]]:bg-yellow-500",
+      badgeClassName: "bg-amber-400/100 text-white",
+      progressClassName: "[&_[data-slot=progress-indicator]]:bg-amber-400/100",
       guidance:
         "Plan an entry on breakout/pullback with a tight stop. Scale in if volume confirms.",
     }
@@ -99,8 +99,8 @@ function getScoreInfo(score: number) {
   if (score < 85) {
     return {
       label: "High probability runner",
-      badgeClassName: "bg-green-600 text-white",
-      progressClassName: "[&_[data-slot=progress-indicator]]:bg-green-600",
+      badgeClassName: "bg-emerald-600 text-white",
+      progressClassName: "[&_[data-slot=progress-indicator]]:bg-emerald-600",
       guidance:
         "Primary breakout entry is favored. Manage risk aggressively and consider partial profit-taking.",
     }
@@ -123,7 +123,7 @@ const defaultValues: Record<ScoreKey, number> = {
   momentum: 0,
 }
 
-export function RunnerCalculator() {
+export function RunnerCalculator({ collapsed: _collapsed }: { collapsed?: boolean }) {
   const [open, setOpen] = useState(false)
   const [calcValues, setCalcValues] =
     useState<Record<ScoreKey, number>>(defaultValues)
@@ -159,7 +159,7 @@ export function RunnerCalculator() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 gap-1.5">
+        <Button variant="ghost" size="icon" className="shrink-0 h-7 w-7 text-muted-foreground hover:text-foreground" title="Calculator">
           <Calculator className="h-3.5 w-3.5" />
         </Button>
       </SheetTrigger>
@@ -175,7 +175,7 @@ export function RunnerCalculator() {
         </SheetHeader>
 
         <div className="space-y-4 px-4">
-          <div className="rounded-xl border bg-muted/30 p-4">
+          <div className="rounded-sm border bg-muted/30 p-4">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
@@ -194,7 +194,7 @@ export function RunnerCalculator() {
               />
               <div className="text-xs text-muted-foreground">0–100 scale</div>
             </div>
-            <div className="mt-4 rounded-lg border bg-background p-3 text-sm text-muted-foreground">
+            <div className="mt-4 rounded-sm border bg-background p-3 text-sm text-muted-foreground">
               <div className="font-medium text-foreground">
                 Suggested approach
               </div>

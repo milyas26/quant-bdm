@@ -48,7 +48,7 @@ function TradingViewWidget({ symbol }: { symbol: string }) {
 
   return (
     <div
-      className="tradingview-widget-container overflow-hidden rounded-lg border bg-card"
+      className="tradingview-widget-container overflow-hidden rounded-sm border bg-card"
       ref={container}
     >
       <div className="tradingview-widget-container__widget"></div>

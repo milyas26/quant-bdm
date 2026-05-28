@@ -330,7 +330,7 @@ export function HistoricalPriceChart({
                       </div>
                       {ds.totalNet !== undefined && (
                         <span
-                          className={`text-[10px] ${ds.totalNet >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                          className={`text-[10px] ${ds.totalNet >= 0 ? "text-positive " : "text-negative "}`}
                         >
                           {formatNumber(ds.totalNet)}
                         </span>

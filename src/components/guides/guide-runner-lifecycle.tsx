@@ -19,10 +19,10 @@ const phases = [
   },
   {
     label: "Volume Expansion",
-    color: "bg-blue-500",
-    textColor: "text-blue-500",
-    borderColor: "border-blue-500/30",
-    bgColor: "bg-blue-500/5",
+    color: "bg-blue-400/10 text-blue-400",
+    textColor: "text-blue-400",
+    borderColor: "border-blue-400/20",
+    bgColor: "bg-blue-400/5",
     description: "Likuiditas mulai masuk secara signifikan sebelum breakout.",
     ciri: [
       "Volume mulai melebihi rata-rata",
@@ -47,10 +47,10 @@ const phases = [
   },
   {
     label: "Trend Expansion",
-    color: "bg-yellow-500",
+    color: "bg-amber-400/20 text-amber-400",
     textColor: "text-yellow-500",
     borderColor: "border-yellow-500/30",
-    bgColor: "bg-yellow-500/5",
+    bgColor: "bg-amber-400/5",
     description: "Setelah breakout, harga bergerak naik dengan cepat.",
     ciri: [
       "Higher highs secara konsisten",
@@ -61,10 +61,10 @@ const phases = [
   },
   {
     label: "Distribution",
-    color: "bg-red-500",
-    textColor: "text-red-500",
-    borderColor: "border-red-500/30",
-    bgColor: "bg-red-500/5",
+    color: "bg-destructive",
+    textColor: "text-negative",
+    borderColor: "border-destructive/30",
+    bgColor: "bg-destructive/5",
     description: "Bandar mulai melepas posisi saat harga naik atau mendatar.",
     ciri: [
       "Broker yang sebelumnya beli mulai jual",
@@ -97,7 +97,7 @@ export default function GuideRunnerLifecycle() {
           <div className="flex flex-col items-center gap-1">
             {phases.map((phase, i) => (
               <div key={phase.label} className="flex w-full flex-col items-center">
-                <div className={`flex w-full max-w-md items-center justify-center rounded-lg border px-4 py-2 text-sm font-semibold ${phase.borderColor} ${phase.bgColor} ${phase.textColor}`}>
+                <div className={`flex w-full max-w-md items-center justify-center rounded-sm border px-4 py-2 text-sm font-semibold ${phase.borderColor} ${phase.bgColor} ${phase.textColor}`}>
                   {phase.label}
                 </div>
                 {i < phases.length - 1 && (
@@ -134,8 +134,8 @@ export default function GuideRunnerLifecycle() {
         ))}
       </div>
 
-      <div className="rounded-lg border bg-indigo-500/5 p-4 text-sm">
-        <div className="font-semibold text-foreground mb-1">💡 Key Insight</div>
+      <div className="rounded-sm border bg-indigo-500/5 p-4 text-sm">
+        <div className="font-semibold text-foreground mb-1">Key Insight</div>
         <p className="text-muted-foreground leading-relaxed">
           Runner <span className="font-medium text-foreground">tidak dimulai saat breakout</span>. Runner dimulai saat accumulation. Breakout hanya merupakan <span className="font-medium text-foreground">trigger publik</span> dari move yang sudah dimulai sebelumnya.
         </p>

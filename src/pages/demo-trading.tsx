@@ -1,147 +1,79 @@
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import {
-  getActiveTrades,
-  getTradeHistory,
-  closeTrade,
-  captureSnapshots,
-} from "@/lib/api"
+import { getActiveTrades, getTradeHistory, closeTrade, captureSnapshots } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 import { RefreshCw, Camera, Activity, History } from "lucide-react"
-import {
-  SummaryCards,
-  TradesTable,
-  HistorySummary,
-} from "@/components/demo-trading"
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
+import { SummaryCards, TradesTable, HistorySummary } from "@/components/demo-trading"
 
 export default function DemoTradingPage() {
   const queryClient = useQueryClient()
   const [closingId, setClosingId] = useState<number | null>(null)
 
   const { data: activeTrades = [], isLoading: loadingActive } = useQuery({
-    queryKey: ["demo-trades", "active"],
-    queryFn: getActiveTrades,
-    refetchInterval: 60_000,
+    queryKey: ["demo-trades", "active"], queryFn: getActiveTrades, refetchInterval: 60_000,
   })
 
   const { data: historyTrades = [], isLoading: loadingHistory } = useQuery({
-    queryKey: ["demo-trades", "history"],
-    queryFn: getTradeHistory,
+    queryKey: ["demo-trades", "history"], queryFn: getTradeHistory,
   })
 
   const { mutate: handleClose, isPending: isClosing } = useMutation({
     mutationFn: closeTrade,
     onMutate: (id) => setClosingId(id),
-    onSuccess: () => {
-      toast.success("Trade closed successfully")
-      queryClient.invalidateQueries({ queryKey: ["demo-trades"] })
-    },
-    onError: (err: any) => {
-      toast.error(err?.response?.data?.error ?? "Failed to close trade")
-    },
+    onSuccess: () => { toast.success("Trade closed"); queryClient.invalidateQueries({ queryKey: ["demo-trades"] }) },
+    onError: (err: any) => toast.error(err?.response?.data?.error ?? "Failed to close trade"),
     onSettled: () => setClosingId(null),
   })
 
   const { mutate: handleSnapshot, isPending: isSnapshotting } = useMutation({
     mutationFn: captureSnapshots,
-    onSuccess: () => toast.success("Price snapshots captured"),
+    onSuccess: () => toast.success("Snapshots captured"),
     onError: () => toast.error("Failed to capture snapshots"),
   })
 
   return (
-    <div className="flex flex-col gap-5 p-6">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+    <div className="space-y-5">
+      <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">Demo Trading</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            Simulate &amp; track trades from screener signals — no real money.
-          </p>
+          <h1 className="font-mono text-lg font-bold tracking-tight">Portfolio</h1>
+          <p className="mt-0.5 text-[12px] text-muted-foreground">Demo trading. No real money involved.</p>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={isSnapshotting}
-            onClick={() => handleSnapshot()}
-          >
-            {isSnapshotting ? (
-              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Camera className="h-3.5 w-3.5" />
-            )}
-            Capture Snapshots
+        <div className="flex items-center gap-1.5">
+          <Button variant="outline" size="sm" className="h-8 rounded-sm font-mono text-[11px]" disabled={isSnapshotting} onClick={() => handleSnapshot()}>
+            {isSnapshotting ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              queryClient.invalidateQueries({ queryKey: ["demo-trades"] })
-            }
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-            Refresh
+          <Button variant="outline" size="sm" className="h-8 rounded-sm font-mono text-[11px]" onClick={() => queryClient.invalidateQueries({ queryKey: ["demo-trades"] })}>
+            <RefreshCw className="h-3 w-3 mr-1" /> Refresh
           </Button>
         </div>
       </div>
 
-      <Separator />
-
-      {/* Summary */}
       <SummaryCards trades={activeTrades} loading={loadingActive} />
 
-      {/* Tabs */}
-      <Tabs defaultValue="active" className="gap-4">
-        <TabsList className="h-9">
-          <TabsTrigger value="active" className="gap-1.5">
-            <Activity className="h-3.5 w-3.5" />
-            Active Trades
+      <Tabs defaultValue="active">
+        <TabsList className="h-8 rounded-sm">
+          <TabsTrigger value="active" className="rounded-sm font-mono text-[11px] gap-1.5 h-7">
+            <Activity className="h-3 w-3" /> Active
             {!loadingActive && activeTrades.length > 0 && (
-              <Badge className="ml-0.5 h-4 min-w-4 border-emerald-500/30 bg-emerald-500/20 px-1 text-[10px] text-emerald-500">
-                {activeTrades.length}
-              </Badge>
+              <Badge className="h-4 min-w-4 px-1 text-[10px] rounded-sm text-positive bg-positive border-emerald-400/20">{activeTrades.length}</Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="history" className="gap-1.5">
-            <History className="h-3.5 w-3.5" />
-            History
+          <TabsTrigger value="history" className="rounded-sm font-mono text-[11px] gap-1.5 h-7">
+            <History className="h-3 w-3" /> History
             {!loadingHistory && historyTrades.length > 0 && (
-              <Badge
-                variant="secondary"
-                className="ml-0.5 h-4 min-w-4 px-1 text-[10px]"
-              >
-                {historyTrades.length}
-              </Badge>
+              <Badge variant="secondary" className="h-4 min-w-4 px-1 text-[10px] rounded-sm">{historyTrades.length}</Badge>
             )}
           </TabsTrigger>
         </TabsList>
-
         <TabsContent value="active">
-          <TradesTable
-            trades={activeTrades}
-            showCloseButton
-            onClose={(id) => handleClose(id)}
-            isClosing={isClosing}
-            closingId={closingId}
-            loading={loadingActive}
-          />
+          <TradesTable trades={activeTrades} showCloseButton onClose={(id) => handleClose(id)} isClosing={isClosing} closingId={closingId} loading={loadingActive} />
         </TabsContent>
-
         <TabsContent value="history">
-          {!loadingHistory && historyTrades.length > 0 && (
-            <HistorySummary trades={historyTrades} />
-          )}
-          <TradesTable
-            trades={historyTrades}
-            showCloseButton={false}
-            loading={loadingHistory}
-          />
+          {!loadingHistory && historyTrades.length > 0 && <HistorySummary trades={historyTrades} />}
+          <TradesTable trades={historyTrades} showCloseButton={false} loading={loadingHistory} />
         </TabsContent>
       </Tabs>
     </div>

@@ -97,7 +97,7 @@ export function SimulateBuyButton({ ticker }: SimulateBuyButtonProps) {
       <Button
         size="sm"
         variant="outline"
-        className="h-7 px-2 cursor-pointer text-xs text-green-500 border-green-500/40 hover:bg-green-500/10 hover:text-green-400 rounded-xs"
+        className="h-7 px-2 cursor-pointer text-xs text-positive border-emerald-400/20 hover:bg-emerald-400/10 hover:text-positive rounded-sm"
         onClick={(e) => {
           e.stopPropagation()
           setOpen(true)
@@ -114,21 +114,21 @@ export function SimulateBuyButton({ ticker }: SimulateBuyButtonProps) {
         >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ShoppingCart className="h-4 w-4 text-green-500" />
+              <ShoppingCart className="h-4 w-4 text-positive" />
               Konfirmasi Simulate Buy
             </DialogTitle>
           </DialogHeader>
 
           {/* Ticker identity */}
-          <div className="flex items-start gap-3 rounded-lg bg-muted/40 px-4 py-3">
+          <div className="flex items-start gap-3 rounded-sm bg-muted/40 px-4 py-3">
             {ticker.logo ? (
               <img
                 src={ticker.logo}
                 alt={ticker.symbol}
-                className="h-10 w-10 rounded-md object-contain bg-background border"
+                className="h-10 w-10 rounded-sm object-contain bg-background border"
               />
             ) : (
-              <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center text-sm font-bold">
+              <div className="h-10 w-10 rounded-sm bg-muted flex items-center justify-center text-sm font-bold">
                 {ticker.symbol.slice(0, 2)}
               </div>
             )}
@@ -143,7 +143,7 @@ export function SimulateBuyButton({ ticker }: SimulateBuyButtonProps) {
             </div>
             <div className="text-right">
               <p className="font-bold text-base">{fmtPrice(ticker.price)}</p>
-              <p className={cn("text-xs font-medium", ticker.changePercentage >= 0 ? "text-green-500" : "text-red-500")}>
+              <p className={cn("text-xs font-medium", ticker.changePercentage >= 0 ? "text-positive" : "text-negative")}>
                 {ticker.changePercentage >= 0 ? "+" : ""}
                 {ticker.changePercentage.toFixed(2)}%
               </p>
@@ -178,7 +178,7 @@ export function SimulateBuyButton({ ticker }: SimulateBuyButtonProps) {
             <InfoRow
               label="Smart Money Score"
               value={
-                <span className={cn(ticker.smartMoneyScore >= 70 ? "text-green-500" : ticker.smartMoneyScore >= 40 ? "text-yellow-500" : "text-red-500")}>
+                <span className={cn(ticker.smartMoneyScore >= 70 ? "text-positive" : ticker.smartMoneyScore >= 40 ? "text-warning" : "text-negative")}>
                   {ticker.smartMoneyScore.toFixed(1)}
                 </span>
               }
@@ -187,7 +187,7 @@ export function SimulateBuyButton({ ticker }: SimulateBuyButtonProps) {
             <InfoRow
               label="Net Broker Flow"
               value={
-                <span className={cn(ticker.netBrokerFlow >= 0 ? "text-green-500" : "text-red-500")}>
+                <span className={cn(ticker.netBrokerFlow >= 0 ? "text-positive" : "text-negative")}>
                   {ticker.netBrokerFlow >= 0 ? "+" : ""}{fmtVolume(ticker.netBrokerFlow)}
                 </span>
               }
@@ -196,7 +196,7 @@ export function SimulateBuyButton({ ticker }: SimulateBuyButtonProps) {
             <InfoRow
               label="Acc/Dist 1D"
               value={
-                <span className={cn(ticker.accumulationDistribution.d1 >= 0 ? "text-green-500" : "text-red-500")}>
+                <span className={cn(ticker.accumulationDistribution.d1 >= 0 ? "text-positive" : "text-negative")}>
                   {ticker.accumulationDistribution.d1 >= 0 ? "+" : ""}
                   {fmtVolume(ticker.accumulationDistribution.d1)}
                 </span>
@@ -205,7 +205,7 @@ export function SimulateBuyButton({ ticker }: SimulateBuyButtonProps) {
             <InfoRow
               label="Acc/Dist 1W"
               value={
-                <span className={cn(ticker.accumulationDistribution.w1 >= 0 ? "text-green-500" : "text-red-500")}>
+                <span className={cn(ticker.accumulationDistribution.w1 >= 0 ? "text-positive" : "text-negative")}>
                   {ticker.accumulationDistribution.w1 >= 0 ? "+" : ""}
                   {fmtVolume(ticker.accumulationDistribution.w1)}
                 </span>
@@ -216,7 +216,7 @@ export function SimulateBuyButton({ ticker }: SimulateBuyButtonProps) {
           <Separator />
 
           {/* Order summary */}
-          <div className="rounded-lg bg-muted/40 px-4 py-3 space-y-2.5">
+          <div className="rounded-sm bg-muted/40 px-4 py-3 space-y-2.5">
             <InfoRow label="Entry Price (estimasi)" value={<span className="font-semibold">{fmtPrice(ticker.price)}</span>} />
             <div className="flex items-center justify-between gap-3">
               <span className="text-xs text-muted-foreground shrink-0">Jumlah Lot</span>
@@ -240,7 +240,7 @@ export function SimulateBuyButton({ ticker }: SimulateBuyButtonProps) {
                   inputMode="numeric"
                   value={txValue === 0 ? "" : fmtPrice(txValue)}
                   onChange={(e) => handleTxValueChange(e.target.value)}
-                  className="h-7 w-36 text-xs text-right font-semibold text-green-500"
+                  className="h-7 w-36 text-xs text-right font-semibold text-positive"
                 />
               </div>
             </div>
@@ -258,7 +258,7 @@ export function SimulateBuyButton({ ticker }: SimulateBuyButtonProps) {
             </DialogClose>
             <Button
               size="sm"
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
               disabled={isPending}
               onClick={() => mutate()}
             >

@@ -14,6 +14,7 @@ import { useDebounce } from "@/hooks/use-debounce"
 import { useInView } from "react-intersection-observer"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { StatusBadge, ScoreBadge } from "@/components/indicators"
 
 interface CommandMenuProps {
   open: boolean
@@ -162,7 +163,7 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
                     <span className="font-bold">{ticker.symbol}</span>
                     {ticker.isBreakout && (
                       <span title="Breakout" className="text-xs">
-                        ⚡
+                        go
                       </span>
                     )}
                     {ticker.sector && (
@@ -184,10 +185,10 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
                     <span
                       className={cn(
                         ticker.changePercentage > 0
-                          ? "text-green-600"
+                          ? "text-positive"
                           : ticker.changePercentage < 0
-                            ? "text-red-600"
-                            : "text-gray-600"
+                            ? "text-negative"
+                            : "text-muted-foreground"
                       )}
                     >
                       {ticker.changePercentage > 0 ? "+" : ""}
@@ -200,8 +201,8 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
                       {formatNumber(ticker.volume || 0)}
                     </span>
                     {ticker.isVolumeSpike && (
-                      <span className="text-[10px] font-bold text-orange-500">
-                        🔥 Spike
+                      <span className="text-[10px] font-bold text-warning">
+                        Spike
                       </span>
                     )}
                   </div>
@@ -211,10 +212,10 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
                       className={cn(
                         "font-medium",
                         (ticker.netBrokerFlow || 0) > 0
-                          ? "text-green-600"
+                          ? "text-positive"
                           : (ticker.netBrokerFlow || 0) < 0
-                            ? "text-red-600"
-                            : "text-gray-600"
+                            ? "text-negative"
+                            : "text-muted-foreground"
                       )}
                     >
                       {(ticker.netBrokerFlow || 0) > 0 ? "+" : ""}
@@ -226,31 +227,9 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
                   </div>
 
                   <div className="hidden flex-col items-end sm:flex">
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "h-5 py-0 text-[10px]",
-                        ticker.bandarStatus === "Accumulation" &&
-                          "bg-green-100 text-green-800 border-green-200",
-                        ticker.bandarStatus === "Distribution" &&
-                          "bg-red-100 text-red-800 border-red-200",
-                        ticker.bandarStatus === "Neutral" &&
-                          "bg-gray-100 text-gray-800 border-gray-200"
-                      )}
-                    >
-                      {ticker.bandarStatus || "Neutral"}
-                    </Badge>
-                    <span
-                      className={cn(
-                        "text-[10px] font-bold",
-                        (ticker.smartMoneyScore || 0) >= 70
-                          ? "text-green-600"
-                          : (ticker.smartMoneyScore || 0) <= 30
-                            ? "text-red-600"
-                            : "text-yellow-600"
-                      )}
-                    >
-                      Score: {ticker.smartMoneyScore || 0}
+                    <StatusBadge status={ticker.bandarStatus || "Neutral"} />
+                    <span className="mt-0.5">
+                      <ScoreBadge score={ticker.smartMoneyScore || 0} className="text-[10px]" />
                     </span>
                   </div>
                 </div>

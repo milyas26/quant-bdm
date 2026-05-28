@@ -50,13 +50,13 @@ export function WhaleDetection({ symbol, from, to }: WhaleDetectionProps) {
   }
 
   const categoryColor: Record<string, string> = {
-    "Institutional Foreign": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-    "Institutional Local": "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300",
-    "Market Maker": "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
-    "Smart Money": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-    "Retail Major": "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-    "Retail Minor": "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-    Retail: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+    "Institutional Foreign": "bg-blue-400/10 text-blue-400 ",
+    "Institutional Local": "bg-indigo-400/10 text-indigo-400 ",
+    "Market Maker": "bg-purple-400/10 text-purple-400 ",
+    "Smart Money": "text-positive bg-emerald-400/10",
+    "Retail Major": "text-warning bg-amber-400/10",
+    "Retail Minor": "text-negative bg-red-400/10",
+    Retail: "text-negative bg-red-400/10",
     Other: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",
   }
 
@@ -107,7 +107,7 @@ export function WhaleDetection({ symbol, from, to }: WhaleDetectionProps) {
                   <TableCell
                     className={cn(
                       "text-right font-mono",
-                      broker.netVal > 0 ? "text-green-600" : broker.netVal < 0 ? "text-red-600" : ""
+                      broker.netVal > 0 ? "text-positive" : broker.netVal < 0 ? "text-negative" : ""
                     )}
                   >
                     {formatValue(broker.netVal)}
@@ -121,7 +121,7 @@ export function WhaleDetection({ symbol, from, to }: WhaleDetectionProps) {
                   <TableCell
                     className={cn(
                       "text-right font-mono",
-                      broker.netLot > 0 ? "text-green-600" : broker.netLot < 0 ? "text-red-600" : ""
+                      broker.netLot > 0 ? "text-positive" : broker.netLot < 0 ? "text-negative" : ""
                     )}
                   >
                     {broker.netLot.toLocaleString()}

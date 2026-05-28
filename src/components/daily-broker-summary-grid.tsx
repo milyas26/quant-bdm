@@ -102,7 +102,7 @@ export function DailyBrokerSummaryGrid({
                     className={cn(
                       "text-xs leading-none font-medium",
                       day.isToday
-                        ? "text-blue-600 dark:text-blue-400"
+                        ? "text-blue-400 "
                         : hasData
                           ? "text-foreground"
                           : "text-muted-foreground"

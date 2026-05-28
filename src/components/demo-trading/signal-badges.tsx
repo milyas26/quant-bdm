@@ -1,52 +1,27 @@
 import type { DemoTrade } from "@/lib/api"
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { StatusBadge } from "@/components/indicators"
+import { ScoreBadge } from "@/components/indicators"
 
-interface SignalBadgesProps {
-  trade: DemoTrade
-}
+interface SignalBadgesProps { trade: DemoTrade }
 
 export const SignalBadges = ({ trade }: SignalBadgesProps) => (
-  <div className="flex flex-col gap-1.5 min-w-[80px]">
+  <div className="flex flex-col gap-1 min-w-20">
     <div className="flex flex-wrap gap-1">
       {trade.isBreakout && (
-        <Badge
-          variant="outline"
-          className="h-4 border-orange-200 bg-orange-50 px-1 py-0 text-[10px] font-normal text-orange-600"
-        >
-          Breakout
-        </Badge>
+        <Badge variant="outline" className="h-4 rounded-sm border-emerald-400/20 bg-emerald-400/10 px-1 py-0 text-[9px] font-mono text-positive">BO</Badge>
       )}
       {trade.isVolumeSpike && (
-        <span className="text-[10px] font-bold text-orange-600">🔥Spike</span>
+        <span className="text-[9px] font-mono font-medium text-warning bg-amber-400/10 px-1 rounded-sm">Spike</span>
       )}
     </div>
-    
-    <div className="flex items-center gap-2">
-      {trade.bandarStatus && (
-        <Badge
-          variant="outline"
-          className={cn(
-            "h-4 px-1 py-0 text-[10px] font-normal",
-            trade.bandarStatus === "Accumulation" && "border-green-200 bg-green-50 text-green-700",
-            trade.bandarStatus === "Distribution" && "border-red-200 bg-red-50 text-red-700",
-            trade.bandarStatus === "Neutral" && "border-gray-200 bg-gray-50 text-gray-700"
-          )}
-        >
-          {trade.bandarStatus}
-        </Badge>
-      )}
-    </div>
-    
+    {trade.bandarStatus && (
+      <StatusBadge status={trade.bandarStatus} />
+    )}
     {trade.smartMoneyScore != null && (
-      <div className="flex items-center gap-1.5 text-[10px]">
-        <span className="text-muted-foreground/70">Scr:</span>
-        <span className={cn(
-          "font-bold",
-          Number(trade.smartMoneyScore) >= 70 ? "text-green-600" : Number(trade.smartMoneyScore) <= 30 ? "text-red-600" : "text-yellow-600"
-        )}>
-          {Number(trade.smartMoneyScore).toFixed(0)}
-        </span>
+      <div className="flex items-center gap-1 text-[9px] font-mono">
+        <span className="text-muted-foreground">Scr:</span>
+        <ScoreBadge score={Number(trade.smartMoneyScore)} className="text-[9px]" />
       </div>
     )}
   </div>

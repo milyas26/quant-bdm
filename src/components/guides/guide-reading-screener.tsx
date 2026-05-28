@@ -17,11 +17,11 @@ const indicators = [
     detail: "Breakout adalah trigger utama runner. Ketika breakout terkonfirmasi bersama volume, probabilitas kelanjutan naik meningkat signifikan.",
     content: (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
+        <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/5 p-3">
           <div className="font-semibold text-emerald-500 text-sm mb-1">YES</div>
           <div className="text-xs text-muted-foreground">Saham sedang memulai trend baru. Potensi runner aktif.</div>
         </div>
-        <div className="rounded-lg border border-muted p-3">
+        <div className="rounded-sm border border-muted p-3">
           <div className="font-semibold text-muted-foreground text-sm mb-1">NO</div>
           <div className="text-xs text-muted-foreground">Saham masih dalam fase base / accumulation.</div>
         </div>
@@ -40,7 +40,7 @@ const indicators = [
           Volume spike = likuiditas masuk ke saham
         </div>
         <div className="flex items-start gap-2">
-          <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+          <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive" />
           Breakout tanpa volume = sinyal lemah, sering false breakout
         </div>
         <div className="flex items-start gap-2">
@@ -77,7 +77,7 @@ const indicators = [
             <TableCell className="text-muted-foreground text-sm font-medium">Zona runner potensial ✓</TableCell>
           </TableRow>
           <TableRow>
-            <TableCell><Badge className="bg-orange-500 text-white">&gt;80</Badge></TableCell>
+            <TableCell><Badge className="bg-amber-400/20 text-amber-400 text-white">&gt;80</Badge></TableCell>
             <TableCell className="text-muted-foreground text-sm">Sering sudah terlambat</TableCell>
           </TableRow>
         </TableBody>
@@ -110,15 +110,15 @@ const indicators = [
     detail: "Runner biasanya muncul saat fase late accumulation atau saat baru masuk ke early distribution setelah breakout.",
     content: (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
+        <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/5 p-3">
           <div className="font-semibold text-emerald-500 text-sm mb-1">Accumulation</div>
           <div className="text-xs text-muted-foreground">Sedang dikumpulkan. Potensi runner ke depan.</div>
         </div>
-        <div className="rounded-lg border border-orange-500/30 bg-orange-500/5 p-3">
-          <div className="font-semibold text-orange-500 text-sm mb-1">Distribution</div>
+        <div className="rounded-sm border border-warning/30 bg-amber-400/5 p-3">
+          <div className="font-semibold text-warning text-sm mb-1">Distribution</div>
           <div className="text-xs text-muted-foreground">Sedang dijual. Hati-hati, bisa akhir dari runner.</div>
         </div>
-        <div className="rounded-lg border bg-muted/20 p-3">
+        <div className="rounded-sm border bg-muted/20 p-3">
           <div className="font-semibold text-muted-foreground text-sm mb-1">Neutral</div>
           <div className="text-xs text-muted-foreground">Tidak ada dominasi. Tunggu konfirmasi.</div>
         </div>

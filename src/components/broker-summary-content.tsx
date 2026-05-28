@@ -12,7 +12,6 @@ import {
   getBandarColor,
   getBandarStatus,
   getBrokerCodeClass,
-  getBrokerColor,
 } from "@/lib/utils"
 
 import { BrokerBalance } from "@/components/broker-balance"
@@ -33,7 +32,7 @@ export function BrokerSummaryPopover({
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent
-        className="max-h-125 w-200 max-w-none overflow-y-auto border border-border bg-popover p-1 text-popover-foreground shadow-xl"
+        className="max-h-125 w-200 max-w-none overflow-y-auto border border-border bg-popover p-1 text-popover-foreground -xl"
         side="top"
         align="start"
       >
@@ -173,7 +172,7 @@ export function BrokerSummaryContent({
         {brokerCode && selectedTicker && date ? (
           <div className="flex flex-col items-center justify-center space-y-4 text-sm text-muted-foreground">
             <div className="w-full">
-              <div className="rounded-md border bg-card px-4 py-3 text-sm shadow-sm">
+              <div className="rounded-sm border bg-card px-4 py-3 text-sm ">
                 <BrokerBalance
                   brokerCode={brokerCode}
                   selectedTicker={selectedTicker}
@@ -196,7 +195,7 @@ export function BrokerSummaryContent({
       {brokerCode && selectedTicker && date && (
         <div className="flex flex-col items-center justify-center space-y-4 text-sm text-muted-foreground">
           <div className="w-full">
-            <div className="rounded-md border bg-card px-4 py-3 text-sm shadow-sm">
+            <div className="rounded-sm border bg-card px-4 py-3 text-sm ">
               <BrokerBalance
                 brokerCode={brokerCode}
                 selectedTicker={selectedTicker}
@@ -207,7 +206,7 @@ export function BrokerSummaryContent({
         </div>
       )}
 
-      <div className="rounded-md border bg-card px-4 py-3 text-sm shadow-sm">
+      <div className="rounded-sm border bg-card px-4 py-3 text-sm ">
         <p className="mb-1 text-sm font-semibold text-card-foreground">
           Bandar Detector
         </p>
@@ -282,11 +281,11 @@ export function BrokerSummaryContent({
           </div>
         </div>
       </div>
-      <div className="bg-card px-4 py-3 shadow-sm">
+      <div className="bg-card px-4 py-3 ">
         <p className="mb-1 text-sm font-semibold text-card-foreground">
           Broker Summary
         </p>
-        <div className="max-h-150 overflow-auto rounded-md text-[12px]">
+        <div className="max-h-150 overflow-auto rounded-sm text-[12px]">
           <table className="w-full">
             <thead className="bg-muted text-[12px] font-semibold text-muted-foreground">
               <tr>
@@ -311,14 +310,14 @@ export function BrokerSummaryContent({
                       </span>
                     )}
                   </td>
-                  <td className="p-1 text-right text-green-600 dark:text-green-400">
+                  <td className="p-1 text-right text-positive ">
                     {row.buy && formatNumber(parseFloat(row.buy.bval))}
                   </td>
-                  <td className="p-1 text-right text-green-600 dark:text-green-400">
+                  <td className="p-1 text-right text-positive ">
                     {row.buy &&
                       formatNumber(parseFloat(row.buy.blot).toFixed(0) as any)}
                   </td>
-                  <td className="p-1 text-right text-green-600 dark:text-green-400">
+                  <td className="p-1 text-right text-positive ">
                     {row.buy && formatAvg(parseFloat(row.buy.netbsBuyAvgPrice))}
                   </td>
 
@@ -330,14 +329,14 @@ export function BrokerSummaryContent({
                       </span>
                     )}
                   </td>
-                  <td className="p-1 text-right text-red-600 dark:text-red-400">
+                  <td className="p-1 text-right text-negative ">
                     {row.sell && formatNumber(parseFloat(row.sell.sval))}
                   </td>
-                  <td className="p-1 text-right text-red-600 dark:text-red-400">
+                  <td className="p-1 text-right text-negative ">
                     {row.sell &&
                       formatNumber(parseFloat(row.sell.slot).toFixed(0) as any)}
                   </td>
-                  <td className="p-1 text-right text-red-600 dark:text-red-400">
+                  <td className="p-1 text-right text-negative ">
                     {row.sell &&
                       formatAvg(parseFloat(row.sell.netbsSellAvgPrice))}
                   </td>

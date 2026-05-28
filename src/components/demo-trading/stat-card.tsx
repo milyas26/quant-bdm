@@ -11,32 +11,19 @@ interface StatCardProps {
   loading?: boolean
 }
 
-export const StatCard = ({
-  label,
-  value,
-  sub,
-  icon: Icon,
-  valueClass,
-  loading,
-}: StatCardProps) => (
-  <Card className="relative overflow-hidden">
-    <CardHeader className="flex items-center space-y-0 px-4 pb-0">
-      <div className="flex h-7 w-7 items-center justify-center rounded-md bg-muted">
-        <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+export const StatCard = ({ label, value, sub, icon: Icon, valueClass, loading }: StatCardProps) => (
+  <Card className="relative overflow-hidden border-border">
+    <CardHeader className="flex items-center space-y-0 px-3 pb-0">
+      <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-muted">
+        <Icon className="h-3 w-3 text-muted-foreground" />
       </div>
-      <CardTitle className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
-        {label}
-      </CardTitle>
+      <CardTitle className="text-[10px] font-mono font-medium tracking-wider text-muted-foreground uppercase">{label}</CardTitle>
     </CardHeader>
-    <CardContent className="px-4">
-      {loading ? (
-        <Skeleton className="mt-1 h-7 w-20" />
-      ) : (
+    <CardContent className="px-3">
+      {loading ? <Skeleton className="mt-1 h-6 w-16" /> : (
         <>
-          <p className={cn("text-2xl font-bold tracking-tight", valueClass)}>
-            {value}
-          </p>
-          {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
+          <p className={cn("text-lg font-mono font-bold tracking-tight", valueClass)}>{value}</p>
+          {sub && <p className="mt-0.5 text-[10px] text-muted-foreground">{sub}</p>}
         </>
       )}
     </CardContent>

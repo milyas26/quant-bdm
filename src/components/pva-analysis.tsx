@@ -33,12 +33,12 @@ export function PvaAnalysis({
 
   const pvaTrendColor =
     pvaTrend === "UPTREND"
-      ? "text-green-600"
+      ? "text-positive"
       : pvaTrend === "DOWNTREND"
-        ? "text-red-600"
+        ? "text-negative"
         : pvaTrend === "MIXED"
-          ? "text-orange-500"
-          : "text-gray-500"
+          ? "text-warning"
+          : "text-muted-foreground"
 
   const volumeAnomalyVariant =
     volumeAnomaly === "EXTREME"
@@ -51,10 +51,10 @@ export function PvaAnalysis({
 
   const washTradingColor =
     washTradingRisk === "HIGH"
-      ? "text-red-600"
+      ? "text-negative"
       : washTradingRisk === "MEDIUM"
-        ? "text-orange-500"
-        : "text-green-600"
+        ? "text-warning"
+        : "text-positive"
 
   return (
     <Card>
@@ -96,10 +96,10 @@ export function PvaAnalysis({
               className={cn(
                 "text-sm font-semibold",
                 correctionHealth !== null && correctionHealth < 0.8
-                  ? "text-green-600"
+                  ? "text-positive"
                   : correctionHealth !== null && correctionHealth > 1.2
-                    ? "text-red-600"
-                    : "text-yellow-600"
+                    ? "text-negative"
+                    : "text-warning"
               )}
             >
               {correctionHealth !== null ? correctionHealth.toFixed(2) : "-"}
@@ -133,10 +133,10 @@ export function PvaAnalysis({
               className={cn(
                 "text-sm font-semibold",
                 distributionRisk !== null && distributionRisk > 60
-                  ? "text-red-600"
+                  ? "text-negative"
                   : distributionRisk !== null && distributionRisk > 30
-                    ? "text-orange-500"
-                    : "text-green-600"
+                    ? "text-warning"
+                    : "text-positive"
               )}
             >
               {distributionRisk !== null ? `${distributionRisk.toFixed(0)}%` : "-"}

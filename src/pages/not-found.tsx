@@ -1,14 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-
 export default function NotFound() {
   return (
-    <div className="flex h-[80vh] flex-col items-center justify-center gap-4 text-center">
-      <h1 className="text-4xl font-bold">404</h1>
-      <p className="text-xl text-muted-foreground">Page not found</p>
-      <Button asChild>
-        <Link to="/">Go Home</Link>
-      </Button>
+    <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
+      <div className="font-mono text-8xl font-bold text-border">404</div>
+      <p className="font-mono text-sm text-muted-foreground">Page not found</p>
     </div>
-  );
+  )
 }

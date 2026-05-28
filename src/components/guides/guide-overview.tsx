@@ -16,14 +16,14 @@ export default function GuideOverview() {
         {[
           { icon: TrendingUp, label: "Breakout harga", color: "text-indigo-500" },
           { icon: BarChart2, label: "Volume expansion", color: "text-emerald-500" },
-          { icon: Users, label: "Broker accumulation", color: "text-blue-500" },
+          { icon: Users, label: "Broker accumulation", color: "text-blue-400" },
           { icon: Zap, label: "Smart money activity", color: "text-yellow-500" },
           { icon: Layers, label: "Liquidity strength", color: "text-purple-500" },
           { icon: Activity, label: "Momentum", color: "text-rose-500" },
         ].map(({ icon: Icon, label, color }) => (
           <div
             key={label}
-            className="flex items-center gap-3 rounded-lg border bg-muted/20 px-4 py-3 text-sm font-medium"
+            className="flex items-center gap-3 rounded-sm border bg-muted/20 px-4 py-3 text-sm font-medium"
           >
             <Icon className={`h-4 w-4 shrink-0 ${color}`} />
             {label}
@@ -43,15 +43,15 @@ export default function GuideOverview() {
             Statistik dari dataset menunjukkan bahwa tidak semua breakout menjadi runner besar. Namun screener ini dirancang untuk <span className="font-medium text-foreground">meningkatkan probabilitas menemukan runner tersebut lebih awal</span>.
           </p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="rounded-lg border bg-muted/30 p-4 text-center">
+            <div className="rounded-sm border bg-muted/30 p-4 text-center">
               <div className="text-3xl font-black text-indigo-500">~10%</div>
               <div className="mt-1 text-xs text-muted-foreground">breakout menjadi multibagger (≥100%)</div>
             </div>
-            <div className="rounded-lg border bg-muted/30 p-4 text-center">
+            <div className="rounded-sm border bg-muted/30 p-4 text-center">
               <div className="text-3xl font-black text-emerald-500">~3%</div>
               <div className="mt-1 text-xs text-muted-foreground">breakout menjadi 3x</div>
             </div>
-            <div className="rounded-lg border bg-muted/30 p-4 text-center">
+            <div className="rounded-sm border bg-muted/30 p-4 text-center">
               <div className="text-3xl font-black text-foreground">1 : 10</div>
               <div className="mt-1 text-xs text-muted-foreground">10 breakout → ~1 runner besar</div>
             </div>

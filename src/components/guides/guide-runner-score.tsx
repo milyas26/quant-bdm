@@ -72,10 +72,10 @@ const components = [
 ]
 
 const interpretations = [
-  { range: "0–40", label: "Low probability", color: "bg-red-500", textColor: "text-red-500", rule: null },
-  { range: "40–60", label: "Moderate setup", color: "bg-orange-500", textColor: "text-orange-500", rule: null },
-  { range: "60–75", label: "Strong candidate", color: "bg-yellow-500", textColor: "text-yellow-500", rule: null },
-  { range: "75–85", label: "High probability runner", color: "bg-green-600", textColor: "text-green-600", rule: "Watchlist" },
+  { range: "0–40", label: "Low probability", color: "bg-destructive", textColor: "text-negative", rule: null },
+  { range: "40–60", label: "Moderate setup", color: "bg-amber-400/20 text-amber-400", textColor: "text-warning", rule: null },
+  { range: "60–75", label: "Strong candidate", color: "bg-amber-400/20 text-amber-400", textColor: "text-yellow-500", rule: null },
+  { range: "75–85", label: "High probability runner", color: "bg-emerald-600", textColor: "text-positive", rule: "Watchlist" },
   { range: "85+", label: "Explosive setup", color: "bg-emerald-600", textColor: "text-emerald-600", rule: "Trade candidate" },
 ]
 
@@ -98,7 +98,7 @@ export default function GuideRunnerScore() {
           <CardDescription>Total maksimal = 100 poin dari 6 komponen.</CardDescription>
         </CardHeader>
         <CardContent className="pt-4">
-          <div className="rounded-lg border bg-muted/30 p-4 font-mono text-sm leading-relaxed text-muted-foreground">
+          <div className="rounded-sm border bg-muted/30 p-4 font-mono text-sm leading-relaxed text-muted-foreground">
             Runner Score =<br />
             &nbsp;&nbsp;Breakout Strength (max 25)<br />
             &nbsp;+ Volume Expansion (max 20)<br />
@@ -163,11 +163,11 @@ export default function GuideRunnerScore() {
           </Table>
 
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="rounded-lg border bg-muted/30 p-3 text-center">
+            <div className="rounded-sm border bg-muted/30 p-3 text-center">
               <div className="text-xs text-muted-foreground">Minimum Watchlist</div>
               <div className="text-3xl font-black text-foreground mt-1">≥70</div>
             </div>
-            <div className="rounded-lg border bg-emerald-500/5 border-emerald-500/30 p-3 text-center">
+            <div className="rounded-sm border bg-emerald-500/5 border-emerald-500/30 p-3 text-center">
               <div className="text-xs text-muted-foreground">Trade Candidate</div>
               <div className="text-3xl font-black text-emerald-500 mt-1">≥80</div>
             </div>
@@ -199,7 +199,7 @@ export default function GuideRunnerScore() {
                 </div>
               ))}
             </div>
-            <div className="flex flex-col items-center justify-center rounded-xl border bg-muted/30 p-6">
+            <div className="flex flex-col items-center justify-center rounded-sm border bg-muted/30 p-6">
               <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Final Runner Score</div>
               <div className="mt-2 text-6xl font-black">92</div>
               <Badge className="mt-3 bg-emerald-600 text-white">Explosive Setup</Badge>

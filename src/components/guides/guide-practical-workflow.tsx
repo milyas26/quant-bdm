@@ -95,8 +95,8 @@ export default function GuidePracticalWorkflow() {
                   </div>
                 ))}
               </div>
-              <div className="rounded-lg border bg-indigo-500/5 px-3 py-2.5 text-xs text-muted-foreground">
-                <span className="font-medium text-indigo-500">💡 Tip:</span> {tip}
+              <div className="rounded-sm border bg-indigo-500/5 px-3 py-2.5 text-xs text-muted-foreground">
+                <span className="font-medium text-indigo-500">Tip:</span> {tip}
               </div>
             </CardContent>
           </Card>
@@ -105,11 +105,11 @@ export default function GuidePracticalWorkflow() {
 
       <Card className="border-emerald-500/30 bg-emerald-500/5">
         <CardHeader className="border-b border-emerald-500/20">
-          <CardTitle className="text-base text-emerald-600 dark:text-emerald-400">🎯 Key Takeaway</CardTitle>
+          <CardTitle className="text-base text-emerald-600 dark:text-emerald-400">Key Takeaway</CardTitle>
           <CardDescription>Hal paling penting dari seluruh sistem ini.</CardDescription>
         </CardHeader>
         <CardContent className="pt-4 space-y-3">
-          <div className="rounded-lg border border-emerald-500/20 bg-background p-4 font-mono text-sm text-center">
+          <div className="rounded-sm border border-emerald-500/20 bg-background p-4 font-mono text-sm text-center">
             <div className="text-muted-foreground">Runner tidak dimulai saat <span className="line-through">breakout</span></div>
             <div className="mt-1 font-bold text-foreground text-base">Runner dimulai saat <span className="text-emerald-500">Accumulation</span></div>
           </div>
@@ -117,15 +117,15 @@ export default function GuidePracticalWorkflow() {
             Breakout hanya merupakan <span className="font-medium text-foreground">trigger publik</span> dari move yang sudah dimulai sebelumnya. Tugas screener ini adalah membantu kamu menemukan accumulation tersebut <span className="font-medium text-foreground">lebih awal dari publik</span>.
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="rounded-lg border bg-muted/30 p-3 text-center">
+            <div className="rounded-sm border bg-muted/30 p-3 text-center">
               <div className="text-xs text-muted-foreground">Temukan</div>
               <div className="font-semibold text-foreground mt-0.5">Accumulation</div>
             </div>
-            <div className="rounded-lg border bg-muted/30 p-3 text-center">
+            <div className="rounded-sm border bg-muted/30 p-3 text-center">
               <div className="text-xs text-muted-foreground">Konfirmasi</div>
               <div className="font-semibold text-foreground mt-0.5">Breakout</div>
             </div>
-            <div className="rounded-lg border bg-muted/30 p-3 text-center">
+            <div className="rounded-sm border bg-muted/30 p-3 text-center">
               <div className="text-xs text-muted-foreground">Ride</div>
               <div className="font-semibold text-foreground mt-0.5">Runner</div>
             </div>

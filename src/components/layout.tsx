@@ -1,176 +1,146 @@
-/* eslint-disable react-hooks/set-state-in-effect */
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
+import { NavLink, Outlet, useNavigate } from "react-router-dom"
+import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
-import { useState, useEffect } from "react"
-import { CommandMenu } from "@/components/command-menu"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Settings, Info, BookCheck } from "lucide-react"
-import { useTheme } from "@/components/theme-provider"
-
-const navItems = [
-  { title: "Screener", url: "/" },
-  { title: "History", url: "/history" },
-  { title: "Watchlist", url: "/watchlist" },
-  { title: "Streak", url: "/broker-accumulation" },
-  { title: "Portfolio", url: "/portfolio" },
-]
-
+import { CommandMenu } from "@/components/command-menu"
 import { AddTickerDialog } from "@/components/add-ticker-dialog"
 import { RunnerCalculator } from "@/components/runner-calculator"
 import { BrokersSheet } from "@/components/brokers-sheet"
+import { ThemeSwitcher } from "@/components/theme-switcher"
+import {
+  LayoutDashboard,
+  Search,
+  History,
+  Bookmark,
+  TrendingUp,
+  Briefcase,
+  BookOpen,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from "lucide-react"
 
-function SettingsMenu() {
-  const { theme, setTheme } = useTheme()
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Settings className="h-[1.2rem] w-[1.2rem]" />
-          <span className="sr-only">Settings</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-52">
-        <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-        <div className="px-2 pb-1">
-          <Select
-            value={theme}
-            onValueChange={(v) => setTheme(v as "light" | "dark" | "system")}
-          >
-            <SelectTrigger className="h-8 w-full">
-              <SelectValue placeholder="Theme" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="light">Light</SelectItem>
-              <SelectItem value="dark">Dark</SelectItem>
-              <SelectItem value="system">System</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel>Pages</DropdownMenuLabel>
-        <DropdownMenuItem asChild>
-          <Link to="/extra-info">
-            <Info className="mr-2 h-4 w-4" />
-            Extra Info
-          </Link>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
+const navItems = [
+  { title: "Screener", url: "/", icon: LayoutDashboard },
+  { title: "History", url: "/history", icon: History },
+  { title: "Watchlist", url: "/watchlist", icon: Bookmark },
+  { title: "Streak", url: "/broker-accumulation", icon: TrendingUp },
+  { title: "Portfolio", url: "/portfolio", icon: Briefcase },
+  { title: "Guide", url: "/guide", icon: BookOpen },
+]
 
 export default function Layout() {
-  const location = useLocation()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
-  const [inputValue, setInputValue] = useState(() => {
-    if (location.pathname.startsWith("/stock/")) {
-      const ticker = location.pathname.split("/")[2]
-      return ticker ? ticker.toUpperCase() : ""
+  const [collapsed, setCollapsed] = useState(false)
+  const [searchValue, setSearchValue] = useState("")
+
+  const handleSearchSubmit = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && searchValue.trim()) {
+      navigate(`/stock/${searchValue.trim().toUpperCase()}`)
+      setSearchValue("")
     }
-    return ""
-  })
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.key === "/" &&
-        !open &&
-        !(e.target instanceof HTMLInputElement) &&
-        !(e.target instanceof HTMLTextAreaElement)
-      ) {
-        e.preventDefault()
-        setOpen(true)
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown)
-    return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [open])
-
-  useEffect(() => {
-    const currentTicker = location.pathname.startsWith("/stock/")
-      ? location.pathname.split("/")[2]?.toUpperCase() || ""
-      : ""
-
-    setInputValue(currentTicker)
-  }, [location.pathname])
+  }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
       <CommandMenu open={open} onOpenChange={setOpen} />
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-        <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          <Link to="/" className="flex items-center space-x-2">
-            <span className="font-mono text-2xl font-bold italic sm:inline-block">
-              katanyainibagusbuatscreeningsaham
+
+      <aside
+        className={cn(
+          "flex shrink-0 flex-col border-r border-border bg-sidebar transition-all duration-200",
+          collapsed ? "w-14" : "w-52"
+        )}
+      >
+        <div className={cn(
+          "flex h-12 items-center border-b border-border shrink-0",
+          collapsed ? "justify-center px-2" : "px-4"
+        )}>
+          {!collapsed && (
+            <span className="font-mono text-sm font-bold tracking-tight text-foreground truncate">
+              quant<span className="text-[#c8a951]">/bdm</span>
             </span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <nav className="flex cursor-pointer items-center gap-0 font-mono">
-              {navItems.map((item) => (
-                <Link
-                  key={item.url}
-                  to={item.url}
-                  className={cn(
-                    "cursor-pointer border-l px-4 py-4 text-sm transition-colors hover:bg-muted/80",
-                    (
-                      item.url === "/"
-                        ? location.pathname === "/"
-                        : location.pathname.startsWith(item.url)
-                    )
-                      ? "font-semibold"
-                      : "font-medium text-muted-foreground"
-                  )}
-                >
-                  {item.title}
-                </Link>
-              ))}
-            </nav>
-            <div className="flex items-center gap-2">
-              <div className="relative w-37.5">
-                <Input
-                  key={location.pathname}
-                  readOnly
-                  value={inputValue}
-                  onClick={() => setOpen(true)}
-                  className="h-8 w-full cursor-pointer text-center font-bold"
-                  placeholder="Search... (/)"
-                />
-              </div>
-              <Button variant="outline" size="sm" className="h-8 gap-1.5"
-                onClick={() => navigate("/guide")}
-              >
-                <BookCheck className="h-4 w-4 text-muted-foreground" />
-              </Button>
-              <AddTickerDialog />
-              <BrokersSheet />
-              <RunnerCalculator />
-              <SettingsMenu />
-            </div>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn("h-7 w-7 ml-auto shrink-0 text-muted-foreground hover:text-foreground", collapsed && "ml-0")}
+            onClick={() => setCollapsed(!collapsed)}
+          >
+            {collapsed ? (
+              <PanelLeftOpen className="h-3.5 w-3.5" />
+            ) : (
+              <PanelLeftClose className="h-3.5 w-3.5" />
+            )}
+          </Button>
+        </div>
+
+        <div className={cn("px-2 py-2 border-b border-border", collapsed && "hidden")}>
+          <div className="relative">
+            <Search className="absolute top-1.5 left-2 h-3 w-3 text-muted-foreground" />
+            <Input
+              className="h-7 pl-6 pr-2 text-[11px] bg-transparent border-border font-mono placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:border-muted-foreground"
+              placeholder="/stock"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={handleSearchSubmit}
+            />
           </div>
         </div>
-      </header>
-      <main className="flex-1">
-        <div className="container mx-auto p-4">
-          <Outlet />
+
+        <nav className="flex-1 overflow-y-auto scrollbar-thin py-2 px-1.5">
+          {navItems.map(({ title, url, icon: Icon }) => (
+            <NavLink
+              key={url}
+              to={url}
+              end={url === "/"}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-2.5 rounded-sm px-2.5 py-1.5 text-[13px] font-medium transition-colors",
+                  collapsed ? "justify-center px-0" : "",
+                  isActive
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )
+              }
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              {!collapsed && <span>{title}</span>}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className={cn(
+          "border-t border-border p-2 flex items-center gap-1",
+          collapsed ? "flex-col" : ""
+        )}>
+          <AddTickerDialog collapsed={collapsed} />
+          <BrokersSheet collapsed={collapsed} />
+          <RunnerCalculator collapsed={collapsed} />
+        </div>
+      </aside>
+
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4 bg-card/50 backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+              BDM Screener
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <ThemeSwitcher />
+            <Input
+              readOnly
+              onClick={() => setOpen(true)}
+              className="h-6 w-40 cursor-pointer text-[11px] text-center font-mono bg-transparent border-border text-muted-foreground hover:border-muted-foreground/50 placeholder:text-muted-foreground/30"
+              placeholder="Cmd+K"
+            />
+          </div>
+        </header>
+        <div className="flex-1 overflow-y-auto scrollbar-thin">
+          <div className="p-4">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

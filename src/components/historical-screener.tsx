@@ -1,5 +1,6 @@
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
+import { StatusBadge, ScoreBadge } from "@/components/indicators"
 import { cn } from "@/lib/utils"
 import {
   CartesianGrid,
@@ -34,36 +35,16 @@ const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length > 0) {
     const item = payload[0].payload
     return (
-      <div className="flex w-70 flex-col gap-1 rounded-md border bg-background p-2 shadow-md">
+      <div className="flex w-70 flex-col gap-1 rounded-sm border bg-background p-2 ">
         <div className="flex items-center justify-between border-b pb-1">
           <span className="text-xs font-semibold">
             {format(new Date(item.date), "dd MMM yyyy")}
           </span>
           <div className="flex items-center gap-1.5">
-            <Badge
-              variant="outline"
-              className={cn(
-                "h-4 px-1 text-[9px] font-normal",
-                item.momentum === "Uptrend" &&
-                  "border-green-200 bg-green-50 text-green-700",
-                item.momentum === "Downtrend" &&
-                  "border-red-200 bg-red-50 text-red-700"
-              )}
-            >
+            <span className={cn("font-mono text-[9px]", item.momentum === "Uptrend" && "text-positive", item.momentum === "Downtrend" && "text-negative", !item.momentum || item.momentum === "Sideways" ? "text-muted-foreground" : "")}>
               {item.momentum}
-            </Badge>
-            <span
-              className={cn(
-                "text-[10px] font-bold",
-                item.smartMoneyScore >= 70
-                  ? "text-green-600"
-                  : item.smartMoneyScore <= 30
-                    ? "text-red-600"
-                    : "text-yellow-600"
-              )}
-            >
-              Score: {item.smartMoneyScore.toFixed(0)}
             </span>
+            <ScoreBadge score={item.smartMoneyScore} className="text-[10px]" />
           </div>
         </div>
 
@@ -75,10 +56,10 @@ const CustomTooltip = ({ active, payload }: any) => {
               <span
                 className={cn(
                   item.changePercentage > 0
-                    ? "text-green-600"
+                    ? "text-positive"
                     : item.changePercentage < 0
-                      ? "text-red-600"
-                      : "text-gray-600"
+                      ? "text-negative"
+                      : "text-muted-foreground"
                 )}
               >
                 ({item.changePercentage > 0 ? "+" : ""}
@@ -97,7 +78,7 @@ const CustomTooltip = ({ active, payload }: any) => {
                 }).format(item.volume)}
               </span>
               {item.isVolumeSpike && (
-                <span className="font-bold text-orange-500">🔥</span>
+                <span className="font-bold text-warning">Spike</span>
               )}
             </div>
           </div>
@@ -108,10 +89,10 @@ const CustomTooltip = ({ active, payload }: any) => {
               className={cn(
                 "font-medium",
                 item.netBrokerFlow > 0
-                  ? "text-green-600"
+                  ? "text-positive"
                   : item.netBrokerFlow < 0
-                    ? "text-red-600"
-                    : "text-gray-600"
+                    ? "text-negative"
+                    : "text-muted-foreground"
               )}
             >
               {item.netBrokerFlow > 0 ? "+" : ""}
@@ -124,36 +105,19 @@ const CustomTooltip = ({ active, payload }: any) => {
 
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Status</span>
-            <Badge
-              className={cn(
-                "h-3.5 px-1 text-[9px] font-normal",
-                item.bandarStatus === "Accumulation" &&
-                  "bg-green-100 text-green-800 hover:bg-green-100",
-                item.bandarStatus === "Distribution" &&
-                  "bg-red-100 text-red-800 hover:bg-red-100",
-                item.bandarStatus === "Neutral" &&
-                  "bg-gray-100 text-gray-800 hover:bg-gray-100"
-              )}
-            >
-              {item.bandarStatus === "Accumulation"
-                ? "Acc"
-                : item.bandarStatus === "Distribution"
-                  ? "Dist"
-                  : item.bandarStatus}
-            </Badge>
+            <StatusBadge status={item.bandarStatus} />
           </div>
         </div>
-
         <div className="flex items-center justify-between border-t pt-1 text-[9px]">
           <span className="text-muted-foreground">Acc/Dist:</span>
           <div className="flex gap-1.5">
             <span
               className={cn(
                 item.accumulationDistribution.d1 > 0
-                  ? "text-green-600"
+                  ? "text-positive"
                   : item.accumulationDistribution.d1 < 0
-                    ? "text-red-600"
-                    : "text-gray-600"
+                    ? "text-negative"
+                    : "text-muted-foreground"
               )}
             >
               D1: {item.accumulationDistribution.d1.toFixed(1)}%
@@ -161,10 +125,10 @@ const CustomTooltip = ({ active, payload }: any) => {
             <span
               className={cn(
                 item.accumulationDistribution.w1 > 0
-                  ? "text-green-600"
+                  ? "text-positive"
                   : item.accumulationDistribution.w1 < 0
-                    ? "text-red-600"
-                    : "text-gray-600"
+                    ? "text-negative"
+                    : "text-muted-foreground"
               )}
             >
               W1: {item.accumulationDistribution.w1.toFixed(1)}%
@@ -172,10 +136,10 @@ const CustomTooltip = ({ active, payload }: any) => {
             <span
               className={cn(
                 item.accumulationDistribution.m1 > 0
-                  ? "text-green-600"
+                  ? "text-positive"
                   : item.accumulationDistribution.m1 < 0
-                    ? "text-red-600"
-                    : "text-gray-600"
+                    ? "text-negative"
+                    : "text-muted-foreground"
               )}
             >
               M1: {item.accumulationDistribution.m1.toFixed(1)}%
@@ -196,10 +160,10 @@ const CustomTooltip = ({ active, payload }: any) => {
                     key={`buyer-${idx}`}
                     className="flex items-center justify-between"
                   >
-                    <span className="font-bold text-green-700">
+                    <span className="font-bold text-positive">
                       {buyer.code}
                     </span>
-                    <span className="text-green-600">
+                    <span className="text-positive">
                       {new Intl.NumberFormat("en-US", {
                         notation: "compact",
                         maximumFractionDigits: 1,
@@ -221,10 +185,10 @@ const CustomTooltip = ({ active, payload }: any) => {
                     key={`seller-${idx}`}
                     className="flex items-center justify-between"
                   >
-                    <span className="font-bold text-red-700">
+                    <span className="font-bold text-negative">
                       {seller.code}
                     </span>
-                    <span className="text-red-600">
+                    <span className="text-negative">
                       {new Intl.NumberFormat("en-US", {
                         notation: "compact",
                         maximumFractionDigits: 1,
@@ -257,7 +221,7 @@ export function HistoricalScreener({
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-32 items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
+      <div className="flex h-32 items-center justify-center rounded-sm border border-dashed text-sm text-muted-foreground">
         No historical screener data available
       </div>
     )
@@ -287,7 +251,7 @@ export function HistoricalScreener({
   return (
     <div className="grid grid-cols-12 gap-4">
       <div
-        className={`col-span-9 h-[calc(100vh-280px)] ${showCandlestick ? "" : "rounded-md border p-4"}`}
+        className={`col-span-9 h-[calc(100vh-280px)] ${showCandlestick ? "" : "rounded-sm border p-4"}`}
       >
         <div className="mb-4 flex items-center justify-end space-x-2">
           <Label htmlFor="chart-type" className="text-xs">
@@ -407,7 +371,7 @@ export function HistoricalScreener({
             <div
               key={`${item.date}-${index}`}
               className={cn(
-                "flex flex-col gap-1 rounded-md border p-2 transition-colors hover:bg-muted/50",
+                "flex flex-col gap-1 rounded-sm border p-2 transition-colors hover:bg-muted/50",
                 hoveredData?.date === item.date && "border-primary bg-muted"
               )}
               onMouseEnter={() => setHoveredData(item)}
@@ -423,25 +387,14 @@ export function HistoricalScreener({
                     className={cn(
                       "h-4 px-1 text-[9px] font-normal",
                       item.momentum === "Uptrend" &&
-                        "border-green-200 bg-green-50 text-green-700",
+                        "border-emerald-400/20 bg-emerald-400/10 text-positive",
                       item.momentum === "Downtrend" &&
-                        "border-red-200 bg-red-50 text-red-700"
+                        "border-red-400/20 bg-red-400/10 text-negative"
                     )}
                   >
                     {item.momentum}
                   </Badge>
-                  <span
-                    className={cn(
-                      "text-[10px] font-bold",
-                      item.smartMoneyScore >= 70
-                        ? "text-green-600"
-                        : item.smartMoneyScore <= 30
-                          ? "text-red-600"
-                          : "text-yellow-600"
-                    )}
-                  >
-                    Score: {item.smartMoneyScore.toFixed(0)}
-                  </span>
+                  <ScoreBadge score={item.smartMoneyScore} className="text-[10px]" />
                 </div>
               </div>
 
@@ -455,10 +408,10 @@ export function HistoricalScreener({
                     <span
                       className={cn(
                         item.changePercentage > 0
-                          ? "text-green-600"
+                          ? "text-positive"
                           : item.changePercentage < 0
-                            ? "text-red-600"
-                            : "text-gray-600"
+                            ? "text-negative"
+                            : "text-muted-foreground"
                       )}
                     >
                       ({item.changePercentage > 0 ? "+" : ""}
@@ -477,10 +430,10 @@ export function HistoricalScreener({
                       }).format(item.volume)}
                     </span>
                     {item.isVolumeSpike && (
-                      <span className="font-bold text-orange-500">🔥</span>
+                      <span className="font-bold text-warning">Spike</span>
                     )}
                     {item.isBreakout && (
-                      <span className="font-bold text-indigo-500" title="Breakout">⚡</span>
+                      <span className="font-bold text-blue-400" title="Breakout">BO</span>
                     )}
                   </div>
                 </div>
@@ -491,10 +444,10 @@ export function HistoricalScreener({
                     className={cn(
                       "font-medium",
                       item.netBrokerFlow > 0
-                        ? "text-green-600"
+                        ? "text-positive"
                         : item.netBrokerFlow < 0
-                          ? "text-red-600"
-                          : "text-gray-600"
+                          ? "text-negative"
+                          : "text-muted-foreground"
                     )}
                   >
                     {item.netBrokerFlow > 0 ? "+" : ""}
@@ -507,23 +460,7 @@ export function HistoricalScreener({
 
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Status</span>
-                  <Badge
-                    className={cn(
-                      "h-3.5 px-1 text-[9px] font-normal",
-                      item.bandarStatus === "Accumulation" &&
-                        "bg-green-100 text-green-800 hover:bg-green-100",
-                      item.bandarStatus === "Distribution" &&
-                        "bg-red-100 text-red-800 hover:bg-red-100",
-                      item.bandarStatus === "Neutral" &&
-                        "bg-gray-100 text-gray-800 hover:bg-gray-100"
-                    )}
-                  >
-                    {item.bandarStatus === "Accumulation"
-                      ? "Acc"
-                      : item.bandarStatus === "Distribution"
-                        ? "Dist"
-                        : item.bandarStatus}
-                  </Badge>
+                  <StatusBadge status={item.bandarStatus} />
                 </div>
               </div>
 
@@ -533,10 +470,10 @@ export function HistoricalScreener({
                   <span
                     className={cn(
                       item.accumulationDistribution.d1 > 0
-                        ? "text-green-600"
+                        ? "text-positive"
                         : item.accumulationDistribution.d1 < 0
-                          ? "text-red-600"
-                          : "text-gray-600"
+                          ? "text-negative"
+                          : "text-muted-foreground"
                     )}
                   >
                     D1: {item.accumulationDistribution.d1.toFixed(1)}%
@@ -544,10 +481,10 @@ export function HistoricalScreener({
                   <span
                     className={cn(
                       item.accumulationDistribution.w1 > 0
-                        ? "text-green-600"
+                        ? "text-positive"
                         : item.accumulationDistribution.w1 < 0
-                          ? "text-red-600"
-                          : "text-gray-600"
+                          ? "text-negative"
+                          : "text-muted-foreground"
                     )}
                   >
                     W1: {item.accumulationDistribution.w1.toFixed(1)}%
@@ -555,10 +492,10 @@ export function HistoricalScreener({
                   <span
                     className={cn(
                       item.accumulationDistribution.m1 > 0
-                        ? "text-green-600"
+                        ? "text-positive"
                         : item.accumulationDistribution.m1 < 0
-                          ? "text-red-600"
-                          : "text-gray-600"
+                          ? "text-negative"
+                          : "text-muted-foreground"
                     )}
                   >
                     M1: {item.accumulationDistribution.m1.toFixed(1)}%
@@ -578,10 +515,10 @@ export function HistoricalScreener({
                           key={`history-buyer-${item.date}-${idx}`}
                           className="flex items-center justify-between"
                         >
-                          <span className="font-bold text-green-700">
+                          <span className="font-bold text-positive">
                             {buyer.code}
                           </span>
-                          <span className="text-green-600">
+                          <span className="text-positive">
                             {new Intl.NumberFormat("en-US", {
                               notation: "compact",
                               maximumFractionDigits: 1,
@@ -603,10 +540,10 @@ export function HistoricalScreener({
                           key={`history-seller-${item.date}-${idx}`}
                           className="flex items-center justify-between"
                         >
-                          <span className="font-bold text-red-700">
+                          <span className="font-bold text-negative">
                             {seller.code}
                           </span>
-                          <span className="text-red-600">
+                          <span className="text-negative">
                             {new Intl.NumberFormat("en-US", {
                               notation: "compact",
                               maximumFractionDigits: 1,

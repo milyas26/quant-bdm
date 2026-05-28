@@ -16,7 +16,7 @@ import {
 import { Plus } from "lucide-react"
 import { toast } from "sonner"
 
-export function AddTickerDialog() {
+export function AddTickerDialog({ collapsed: _collapsed }: { collapsed?: boolean }) {
   const queryClient = useQueryClient()
   const [isOpen, setIsOpen] = useState(false)
   const [newTickerSymbol, setNewTickerSymbol] = useState("")
@@ -58,8 +58,8 @@ export function AddTickerDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon" className="shrink-0">
-          <Plus className="h-4 w-4" />
+        <Button variant="ghost" size="icon" className="shrink-0 h-7 w-7 text-muted-foreground hover:text-foreground" title="Add Ticker">
+          <Plus className="h-3.5 w-3.5" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

@@ -113,7 +113,7 @@ export function AddToWatchlistDialog({ symbol, onClose }: AddToWatchlistDialogPr
         <div className="space-y-1 max-h-64 overflow-y-auto">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-10 w-full rounded-md" />
+              <Skeleton key={i} className="h-10 w-full rounded-sm" />
             ))
           ) : watchlists?.length === 0 ? (
             <p className="py-4 text-center text-sm text-muted-foreground">
@@ -126,7 +126,7 @@ export function AddToWatchlistDialog({ symbol, onClose }: AddToWatchlistDialogPr
                 <div
                   key={watchlist.id}
                   className={cn(
-                    "flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 transition-colors hover:bg-muted",
+                    "flex cursor-pointer items-center gap-3 rounded-sm px-3 py-2.5 transition-colors hover:bg-muted",
                     isMutating && "pointer-events-none opacity-60"
                   )}
                   onClick={() => handleToggle(watchlist.id, isInWatchlist)}

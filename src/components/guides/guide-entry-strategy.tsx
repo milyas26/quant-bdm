@@ -44,7 +44,7 @@ const entries = [
   },
   {
     badge: "3",
-    badgeColor: "bg-blue-600",
+    badgeColor: "bg-blue-400/10 text-blue-400",
     title: "Momentum Entry",
     subtitle: "Trend Continuation — After Trend Started",
     description: "Digunakan setelah trend sudah berjalan. Memanfaatkan pullback atau konsolidasi sebagai titik entry.",
@@ -122,7 +122,7 @@ export default function GuideEntryStrategy() {
                   <ul className="space-y-1.5">
                     {cons.map((c) => (
                       <li key={c} className="flex items-start gap-2 text-sm text-muted-foreground">
-                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive" />
                         {c}
                       </li>
                     ))}
@@ -130,14 +130,14 @@ export default function GuideEntryStrategy() {
                 </div>
               </div>
 
-              <div className="rounded-lg border bg-muted/30 p-3 text-sm">
+              <div className="rounded-sm border bg-muted/30 p-3 text-sm">
                 <span className="font-medium text-foreground">Entry Point: </span>
                 <span className="text-muted-foreground">{entry}</span>
               </div>
 
               {highlight && (
-                <div className="rounded-lg border bg-emerald-500/5 border-emerald-500/30 p-3 text-sm text-emerald-600 dark:text-emerald-400 font-medium">
-                  ✓ {highlight}
+                <div className="rounded-sm border bg-emerald-500/5 border-emerald-500/30 p-3 text-sm text-emerald-600 dark:text-emerald-400 font-medium">
+                  {highlight}
                 </div>
               )}
             </CardContent>
@@ -145,8 +145,8 @@ export default function GuideEntryStrategy() {
         ))}
       </div>
 
-      <div className="rounded-lg border bg-indigo-500/5 p-4 text-sm">
-        <div className="font-semibold text-foreground mb-1">💡 Tips Memilih Entry</div>
+      <div className="rounded-sm border bg-indigo-500/5 p-4 text-sm">
+        <div className="font-semibold text-foreground mb-1">Tips Memilih Entry</div>
         <p className="text-muted-foreground leading-relaxed">
           Gunakan <span className="font-medium text-foreground">Breakout Entry</span> sebagai default. Gunakan Early Entry jika kamu sudah mengidentifikasi accumulation lebih awal. Gunakan Momentum Entry hanya jika trend sudah sangat kuat dan volume masih tinggi.
         </p>

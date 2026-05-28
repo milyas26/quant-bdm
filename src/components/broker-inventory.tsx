@@ -172,7 +172,7 @@ export function BrokerInventory({ selectedTicker }: BrokerInventoryProps) {
   return (
     <div className="space-y-6">
       {isError && (
-        <div className="text-red-500">Error: {(error as Error).message}</div>
+        <div className="text-negative">Error: {(error as Error).message}</div>
       )}
 
       <div className="grid grid-cols-12 gap-2">
@@ -241,7 +241,7 @@ export function BrokerInventory({ selectedTicker }: BrokerInventoryProps) {
               return (
                 <div
                   key={type}
-                  className="overflow-hidden rounded-lg border p-2"
+                  className="overflow-hidden rounded-sm border p-2"
                 >
                   <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <p className="text-xs font-medium">{config.label}</p>
@@ -252,8 +252,8 @@ export function BrokerInventory({ selectedTicker }: BrokerInventoryProps) {
                           className={cn(
                             "font-mono font-medium",
                             resume.netLot < 0
-                              ? "text-red-600 dark:text-red-400"
-                              : "text-green-600 dark:text-green-400"
+                              ? "text-negative "
+                              : "text-positive "
                           )}
                         >
                           {formatNumber(resume.netLot)}
@@ -267,8 +267,8 @@ export function BrokerInventory({ selectedTicker }: BrokerInventoryProps) {
                           className={cn(
                             "font-mono font-medium",
                             resume.netVal < 0
-                              ? "text-red-600 dark:text-red-400"
-                              : "text-green-600 dark:text-green-400"
+                              ? "text-negative "
+                              : "text-positive "
                           )}
                         >
                           {formatNumber(resume.netVal)}

@@ -233,7 +233,7 @@ export function BrokerSummaryDashboard({
   return (
     <div className={cn("w-full", className)}>
       {isLoading && (
-        <div className="mb-2 text-sm text-blue-500 dark:text-blue-400">
+        <div className="mb-2 text-sm text-blue-500 ">
           Loading data...
         </div>
       )}
@@ -249,7 +249,7 @@ export function BrokerSummaryDashboard({
             onBrokerClick={handleBrokerClick}
           />
         </div>
-        <div className="col-span-3 rounded-lg">
+        <div className="col-span-3 rounded-sm">
           <BrokerSummaryContent
             data={selectedDateData}
             selectedTicker={selectedTicker}

@@ -78,7 +78,7 @@ export function BrokerBalance({
   return (
     <div className="space-y-2">
       {isError && (
-        <div className="text-red-500">Error: {(error as Error).message}</div>
+        <div className="text-negative">Error: {(error as Error).message}</div>
       )}
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
@@ -106,8 +106,8 @@ export function BrokerBalance({
                 className={cn(
                   "font-mono font-medium",
                   (brokerBalance?.resume.netLot || 0) < 0
-                    ? "text-red-600 dark:text-red-400"
-                    : "text-green-600 dark:text-green-400"
+                    ? "text-negative "
+                    : "text-positive "
                 )}
               >
                 {formatNumber(brokerBalance?.resume.netLot || 0)}
@@ -119,8 +119,8 @@ export function BrokerBalance({
                 className={cn(
                   "font-mono font-medium",
                   (brokerBalance?.resume.netVal || 0) < 0
-                    ? "text-red-600 dark:text-red-400"
-                    : "text-green-600 dark:text-green-400"
+                    ? "text-negative "
+                    : "text-positive "
                 )}
               >
                 {formatNumber(brokerBalance?.resume.netVal || 0)}

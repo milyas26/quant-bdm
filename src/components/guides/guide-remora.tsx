@@ -66,7 +66,7 @@ export default function GuideRemora() {
             color: "text-yellow-400",
           },
         ].map(({ label, desc, color }) => (
-          <div key={label} className="rounded-lg border bg-muted/20 p-4">
+          <div key={label} className="rounded-sm border bg-muted/20 p-4">
             <div className={`text-sm font-semibold ${color}`}>{label}</div>
             <div className="mt-1 text-xs text-muted-foreground">{desc}</div>
           </div>
@@ -105,7 +105,7 @@ export default function GuideRemora() {
                 </TableRow>
                 <TableRow>
                   <TableCell>
-                    <Badge className="bg-red-600 text-white">DOWNTREND</Badge>
+                    <Badge className="bg-destructive text-white">DOWNTREND</Badge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     Hari harga turun → volume justru besar
@@ -134,7 +134,7 @@ export default function GuideRemora() {
                 </TableRow>
               </TableBody>
             </Table>
-            <div className="mt-4 rounded-lg border border-indigo-500/30 bg-indigo-500/5 p-3 text-xs text-muted-foreground">
+            <div className="mt-4 rounded-sm border border-indigo-500/30 bg-indigo-500/5 p-3 text-xs text-muted-foreground">
               <span className="font-medium text-indigo-400">PVA Score</span> — persentase hari dalam 10 hari terakhir
               yang volumenya selaras dengan arah harga. Score &gt;70% = konsisten kuat.
             </div>
@@ -165,7 +165,7 @@ export default function GuideRemora() {
                 </TableRow>
                 <TableRow>
                   <TableCell>
-                    <Badge className="bg-yellow-500 text-white">MILD</Badge>
+                    <Badge className="bg-amber-400/20 text-amber-400 text-white">MILD</Badge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">1.5–3× avg</TableCell>
                   <TableCell className="text-xs text-muted-foreground">
@@ -174,7 +174,7 @@ export default function GuideRemora() {
                 </TableRow>
                 <TableRow>
                   <TableCell>
-                    <Badge className="bg-orange-500 text-white">STRONG</Badge>
+                    <Badge className="bg-amber-400/20 text-amber-400 text-white">STRONG</Badge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">3–5× avg</TableCell>
                   <TableCell className="text-xs text-muted-foreground">
@@ -183,7 +183,7 @@ export default function GuideRemora() {
                 </TableRow>
                 <TableRow>
                   <TableCell>
-                    <Badge className="bg-red-600 text-white">EXTREME</Badge>
+                    <Badge className="bg-destructive text-white">EXTREME</Badge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">&gt;5× avg</TableCell>
                   <TableCell className="text-xs text-muted-foreground">
@@ -207,19 +207,19 @@ export default function GuideRemora() {
         <Card>
           <CardContent className="pt-5 space-y-4">
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Dihitung sebagai rasio: <code className="rounded bg-muted px-1 text-xs">avg_vol_hari_turun / avg_vol_hari_naik</code> selama 20 hari.
+              Dihitung sebagai rasio: <code className="rounded-sm bg-muted px-1 text-xs">avg_vol_hari_turun / avg_vol_hari_naik</code> selama 20 hari.
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-center">
+              <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/5 p-3 text-center">
                 <div className="text-lg font-bold text-emerald-400">&lt;0.8</div>
                 <div className="text-xs text-muted-foreground mt-1">Koreksi sehat — volume kering saat turun</div>
               </div>
-              <div className="rounded-lg border p-3 text-center">
+              <div className="rounded-sm border p-3 text-center">
                 <div className="text-lg font-bold text-yellow-400">0.8–1.2</div>
                 <div className="text-xs text-muted-foreground mt-1">Netral — perlu perhatian lebih</div>
               </div>
-              <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-center">
-                <div className="text-lg font-bold text-red-400">&gt;1.2</div>
+              <div className="rounded-sm border border-destructive/30 bg-destructive/5 p-3 text-center">
+                <div className="text-lg font-bold text-negative">&gt;1.2</div>
                 <div className="text-xs text-muted-foreground mt-1">Koreksi tidak sehat — potensi distribusi</div>
               </div>
             </div>
@@ -230,7 +230,7 @@ export default function GuideRemora() {
                   kecil — artinya tidak ada yang mau jual banyak. Smart money masih pegang.
                 </span>
               </Bullet>
-              <Bullet color="bg-red-500">
+              <Bullet color="bg-destructive">
                 <span>
                   <span className="font-medium text-foreground">Tidak sehat (&gt;1.2):</span> Saat turun, volume
                   justru besar — distribusi atau kepanikan jual.
@@ -248,7 +248,7 @@ export default function GuideRemora() {
           <CardContent className="pt-5 space-y-4">
             <p className="text-sm text-muted-foreground leading-relaxed">
               Formula:{" "}
-              <code className="rounded bg-muted px-1 text-xs">
+              <code className="rounded-sm bg-muted px-1 text-xs">
                 (totalVolume − |netVolume|) / totalVolume × 100
               </code>
               . Makin tinggi skor, makin banyak transaksi yang bolak-balik (beli sekaligus jual di broker yang sama atau
@@ -274,7 +274,7 @@ export default function GuideRemora() {
                 </TableRow>
                 <TableRow>
                   <TableCell>
-                    <Badge className="bg-yellow-500 text-white">MEDIUM</Badge>
+                    <Badge className="bg-amber-400/20 text-amber-400 text-white">MEDIUM</Badge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">50–70</TableCell>
                   <TableCell className="text-xs text-muted-foreground">
@@ -283,7 +283,7 @@ export default function GuideRemora() {
                 </TableRow>
                 <TableRow>
                   <TableCell>
-                    <Badge className="bg-red-600 text-white">HIGH</Badge>
+                    <Badge className="bg-destructive text-white">HIGH</Badge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">&gt;70</TableCell>
                   <TableCell className="text-xs text-muted-foreground">
@@ -292,7 +292,7 @@ export default function GuideRemora() {
                 </TableRow>
               </TableBody>
             </Table>
-            <div className="rounded-md border border-yellow-500/30 bg-yellow-500/5 p-3 text-xs text-muted-foreground">
+            <div className="rounded-sm border border-yellow-500/30 bg-amber-400/5 p-3 text-xs text-muted-foreground">
               <span className="font-medium text-yellow-400">Contoh:</span> MINA punya volume 100 juta lot, tapi net akumulasi
               hanya 300 ribu lot → wash score sangat tinggi. Ini bukan akumulasi nyata.
             </div>
@@ -317,7 +317,7 @@ export default function GuideRemora() {
                 { label: "Wash Trading Score tinggi", bobot: "+10", desc: "Transaksi banyak yang bolak-balik" },
                 { label: "Correction Health tidak sehat", bobot: "+10", desc: "Volume besar saat koreksi" },
               ].map(({ label, bobot, desc }) => (
-                <div key={label} className="flex items-start gap-3 rounded-lg border bg-muted/20 px-3 py-2">
+                <div key={label} className="flex items-start gap-3 rounded-sm border bg-muted/20 px-3 py-2">
                   <Badge variant="outline" className="shrink-0 font-mono text-xs">
                     {bobot}
                   </Badge>
@@ -329,16 +329,16 @@ export default function GuideRemora() {
               ))}
             </div>
             <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-2">
+              <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/5 p-2">
                 <div className="font-bold text-emerald-400">&lt;30</div>
                 <div className="text-muted-foreground">Aman</div>
               </div>
-              <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-2">
+              <div className="rounded-sm border border-yellow-500/30 bg-amber-400/5 p-2">
                 <div className="font-bold text-yellow-400">30–60</div>
                 <div className="text-muted-foreground">Waspada</div>
               </div>
-              <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-2">
-                <div className="font-bold text-red-400">&gt;60</div>
+              <div className="rounded-sm border border-destructive/30 bg-destructive/5 p-2">
+                <div className="font-bold text-negative">&gt;60</div>
                 <div className="text-muted-foreground">Bahaya</div>
               </div>
             </div>
@@ -357,16 +357,16 @@ export default function GuideRemora() {
               <span className="font-medium text-foreground">Coefficient of Variation (CV) volume 20 hari</span>.
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-4">
-                <div className="font-semibold text-red-400 text-sm mb-2">⚠ Repo Terdeteksi</div>
+              <div className="rounded-sm border border-destructive/30 bg-destructive/5 p-4">
+                <div className="font-semibold text-negative text-sm mb-2">Repo Terdeteksi</div>
                 <div className="space-y-1.5">
-                  <Bullet color="bg-red-500">CV volume &lt; 0.3 (sangat seragam)</Bullet>
-                  <Bullet color="bg-red-500">Harga naik pelan-pelan tanpa akselerasi</Bullet>
-                  <Bullet color="bg-red-500">Volume seperti sisir — sama terus setiap hari</Bullet>
+                  <Bullet color="bg-destructive">CV volume &lt; 0.3 (sangat seragam)</Bullet>
+                  <Bullet color="bg-destructive">Harga naik pelan-pelan tanpa akselerasi</Bullet>
+                  <Bullet color="bg-destructive">Volume seperti sisir — sama terus setiap hari</Bullet>
                 </div>
               </div>
-              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4">
-                <div className="font-semibold text-emerald-400 text-sm mb-2">✅ Akumulasi Normal</div>
+              <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/5 p-4">
+                <div className="font-semibold text-emerald-400 text-sm mb-2">Akumulasi Normal</div>
                 <div className="space-y-1.5">
                   <Bullet color="bg-emerald-500">Volume bervariasi alami (CV &gt; 0.3)</Bullet>
                   <Bullet color="bg-emerald-500">Ada spike volume di hari-hari tertentu</Bullet>
@@ -374,7 +374,7 @@ export default function GuideRemora() {
                 </div>
               </div>
             </div>
-            <div className="rounded-md border border-slate-500/30 bg-muted/20 p-3 text-xs text-muted-foreground">
+            <div className="rounded-sm border border-border bg-muted/20 p-3 text-xs text-muted-foreground">
               <span className="font-medium text-foreground">Catatan:</span> Repo pattern bukan selalu negatif —
               ada institusi yang memang cicil perlahan. Tapi harus dicek siapa yang melakukan dan apakah ada
               distribusi bersamaan.
@@ -402,7 +402,7 @@ export default function GuideRemora() {
                     awal periode
                   </span>
                 </Bullet>
-                <Bullet color="bg-orange-500">
+                <Bullet color="bg-amber-400/20 text-amber-400">
                   <span>
                     <span className="font-medium text-foreground">Garis exhaustion %:</span> berapa persen dari peak
                     holding yang sudah terjual
@@ -415,7 +415,7 @@ export default function GuideRemora() {
                   </span>
                 </Bullet>
               </div>
-              <div className="rounded-md border border-indigo-500/30 bg-indigo-500/5 p-3 text-xs text-muted-foreground">
+              <div className="rounded-sm border border-indigo-500/30 bg-indigo-500/5 p-3 text-xs text-muted-foreground">
                 <span className="font-medium text-indigo-400">Konsep Hengki:</span> "XC dan XL makan 95.000 lot. Minimal
                 harus keluar 50% dulu sebelum sahamnya naik."
               </div>
@@ -431,21 +431,21 @@ export default function GuideRemora() {
             </CardHeader>
             <CardContent className="pt-4 space-y-3">
               <div className="space-y-2">
-                <Bullet color="bg-blue-500">
+                <Bullet color="bg-blue-400/10 text-blue-400">
                   <span>
                     <span className="font-medium text-foreground">Bar SM net lot:</span> total lot yang dibeli SM per
                     hari
                   </span>
                 </Bullet>
-                <Bullet color="bg-yellow-400">
+                <Bullet color="bg-amber-400/20 text-amber-400">
                   <span>
                     <span className="font-medium text-foreground">Garis Floor Price (dashed):</span>{" "}
-                    <code className="rounded bg-muted px-1 text-xs">∑(SM buy val) / ∑(SM buy lot × 100)</code> —
+                    <code className="rounded-sm bg-muted px-1 text-xs">∑(SM buy val) / ∑(SM buy lot × 100)</code> —
                     estimasi average entry
                   </span>
                 </Bullet>
               </div>
-              <div className="rounded-md border border-yellow-500/30 bg-yellow-500/5 p-3 text-xs text-muted-foreground">
+              <div className="rounded-sm border border-yellow-500/30 bg-amber-400/5 p-3 text-xs text-muted-foreground">
                 <span className="font-medium text-yellow-400">Konsep Hengki:</span> "Bandar beli gede di harga 140.
                 Floor price-nya di sana. Di bawah itu, mereka yang defend posisi."
               </div>
@@ -467,15 +467,15 @@ export default function GuideRemora() {
             </CardHeader>
             <CardContent className="pt-4 space-y-3">
               <p className="text-xs text-muted-foreground">
-                Dihitung dari <code className="rounded bg-muted px-1 text-xs">bval / freq</code> — nilai rata-rata
+                Dihitung dari <code className="rounded-sm bg-muted px-1 text-xs">bval / freq</code> — nilai rata-rata
                 per transaksi. Retail cicil kecil-kecil (10–20 lot/tx), whale masuk besar sekali jalan.
               </p>
               <div className="space-y-2">
                 {[
-                  { cat: "retail", color: "bg-slate-600 text-white", desc: "Avg lot/tx normal, konsisten kecil" },
-                  { cat: "active", color: "bg-blue-600 text-white", desc: "Medium size, frekuensi sedang" },
-                  { cat: "whale", color: "bg-orange-500 text-white", desc: "Lot besar per transaksi — bandar muda" },
-                  { cat: "institutional", color: "bg-purple-600 text-white", desc: "Sangat besar, broker asing/dana" },
+                  { cat: "retail", color: "bg-muted-foreground/20 text-muted-foreground", desc: "Avg lot/tx normal, konsisten kecil" },
+                  { cat: "active", color: "", desc: "Medium size, frekuensi sedang" },
+                  { cat: "whale", color: "bg-amber-400/20 text-amber-400 text-white", desc: "Lot besar per transaksi — bandar muda" },
+                  { cat: "institutional", color: "bg-purple-400/20 text-purple-400 text-white", desc: "Sangat besar, broker asing/dana" },
                 ].map(({ cat, color, desc }) => (
                   <div key={cat} className="flex items-center gap-2 text-xs">
                     <Badge className={`shrink-0 ${color}`}>{cat}</Badge>
@@ -501,21 +501,21 @@ export default function GuideRemora() {
                     searah semua — FOMO atau panic bersamaan
                   </span>
                 </Bullet>
-                <Bullet color="bg-red-500">
+                <Bullet color="bg-destructive">
                   <span>
                     <span className="font-medium text-foreground">Imposter Move:</span> Retail dominan (&gt;60%) tapi
                     SM tidak ikut (&lt;15%) — sinyal berbahaya (bandar tidak masuk tapi retail sudah FOMO)
                   </span>
                 </Bullet>
-                <Bullet color="bg-blue-500">
+                <Bullet color="bg-blue-400/10 text-blue-400">
                   <span>
                     <span className="font-medium text-foreground">SM Alignment:</span> Apakah SM dan retail bergerak
                     ke arah yang sama pada hari itu?
                   </span>
                 </Bullet>
               </div>
-              <div className="rounded-md border border-red-500/30 bg-red-500/5 p-3 text-xs text-muted-foreground">
-                <span className="font-medium text-red-400">Imposter Move</span> = retail kompak beli tapi SM diam —
+              <div className="rounded-sm border border-destructive/30 bg-destructive/5 p-3 text-xs text-muted-foreground">
+                <span className="font-medium text-negative">Imposter Move</span> = retail kompak beli tapi SM diam —
                 ini sering jadi tanda distribusi atau saham tanpa bandar nyata.
               </div>
             </CardContent>
@@ -542,31 +542,31 @@ export default function GuideRemora() {
                 },
                 {
                   badge: "DOWNTREND",
-                  badgeCls: "bg-red-600 text-white",
+                  badgeCls: "bg-destructive text-white",
                   label: "PVA Trend",
                   desc: "Distribusi aktif atau tekanan jual. Hindari entry baru.",
                 },
                 {
                   badge: "EXTREME",
-                  badgeCls: "bg-red-500 text-white",
+                  badgeCls: "bg-destructive text-white",
                   label: "Volume Anomaly",
                   desc: "Lonjakan volume >5× rata-rata — bisa puncak distribusi.",
                 },
                 {
                   badge: "HIGH",
-                  badgeCls: "bg-red-600 text-white",
+                  badgeCls: "bg-destructive text-white",
                   label: "Wash Trading Risk",
                   desc: "Hanya muncul jika MEDIUM atau HIGH. Volume bolak-balik fiktif.",
                 },
                 {
                   badge: "Dist >50%",
-                  badgeCls: "bg-orange-500 text-white",
+                  badgeCls: "bg-amber-400/20 text-amber-400 text-white",
                   label: "Distribution Risk",
                   desc: "Hanya muncul jika >30. Skor distribusi composite tinggi.",
                 },
                 {
-                  badge: "⚠ Repo",
-                  badgeCls: "bg-yellow-500 text-white",
+                  badge: "Repo",
+                  badgeCls: "bg-amber-400/20 text-amber-400 text-white",
                   label: "Repo Pattern",
                   desc: "Volume terlalu seragam — pola cicil repo terdeteksi.",
                 },
