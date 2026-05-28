@@ -141,6 +141,8 @@ export function RunnerCalculator({ collapsed: _collapsed }: { collapsed?: boolea
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) return
+
       if (
         e.key === "c" &&
         !(e.target instanceof HTMLInputElement) &&

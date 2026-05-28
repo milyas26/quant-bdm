@@ -23,6 +23,9 @@ export function AddTickerDialog({ collapsed: _collapsed }: { collapsed?: boolean
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) return
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+
       const target = e.target as HTMLElement
       const isInput =
         target.tagName === "INPUT" ||
@@ -31,8 +34,7 @@ export function AddTickerDialog({ collapsed: _collapsed }: { collapsed?: boolean
 
       if (isInput) return
 
-      // Hotkey "n" to open add ticker dialog
-      if (e.key === "n") {
+      if (e.key.toLowerCase() === "n") {
         e.preventDefault()
         setIsOpen(true)
       }

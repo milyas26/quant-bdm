@@ -49,7 +49,9 @@ export default function StockDetail() {
   const [brokerCode, setBrokerCode] = useState("")
   const [refreshDialogOpen, setRefreshDialogOpen] = useState(false)
   const [watchlistDialogOpen, setWatchlistDialogOpen] = useState(false)
-  const [refreshDateRange, setRefreshDateRange] = useState<DateRange | undefined>({
+  const [refreshDateRange, setRefreshDateRange] = useState<
+    DateRange | undefined
+  >({
     from: startOfMonth(subMonths(new Date(), 1)),
     to: new Date(),
   })
@@ -83,93 +85,214 @@ export default function StockDetail() {
 
   const refreshMutation = useMutation({
     mutationFn: () =>
-      refreshSingleTicker(selectedTicker,
-        refreshDateRange?.from ? format(refreshDateRange.from, "yyyy-MM-dd") : "",
-        refreshDateRange?.to ? format(refreshDateRange.to, "yyyy-MM-dd") : ""),
+      refreshSingleTicker(
+        selectedTicker,
+        refreshDateRange?.from
+          ? format(refreshDateRange.from, "yyyy-MM-dd")
+          : "",
+        refreshDateRange?.to ? format(refreshDateRange.to, "yyyy-MM-dd") : ""
+      ),
     onSuccess: () => {
       toast.success(`Refreshing ${selectedTicker} in background.`)
       setRefreshDialogOpen(false)
       queryClient.invalidateQueries({ queryKey: ["broker-summary-range"] })
-      queryClient.invalidateQueries({ queryKey: ["ticker-detail", selectedTicker] })
-      queryClient.invalidateQueries({ queryKey: ["screener-ticker", selectedTicker] })
+      queryClient.invalidateQueries({
+        queryKey: ["ticker-detail", selectedTicker],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["screener-ticker", selectedTicker],
+      })
     },
-    onError: (error) => toast.error(`Failed to refresh: ${(error as Error).message}`),
+    onError: (error) =>
+      toast.error(`Failed to refresh: ${(error as Error).message}`),
   })
 
   return (
     <div className="space-y-6">
-      <AddToWatchlistDialog symbol={watchlistDialogOpen ? selectedTicker : null} onClose={() => setWatchlistDialogOpen(false)} />
+      <AddToWatchlistDialog
+        symbol={watchlistDialogOpen ? selectedTicker : null}
+        onClose={() => setWatchlistDialogOpen(false)}
+      />
 
       <div className="flex items-start justify-between">
         <div>
-          <Button onClick={() => navigate("/")} variant="ghost" size="sm" className="mb-3 -ml-2 font-mono text-muted-foreground hover:text-foreground text-xs">
-            <ArrowLeft className="h-3 w-3 mr-1" /> Back
+          <Button
+            onClick={() => navigate("/")}
+            variant="ghost"
+            size="sm"
+            className="mb-3 -ml-2 font-mono text-xs text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="mr-1 h-3 w-3" /> Back
           </Button>
           <div className="flex items-center gap-4">
             {tickerInfo?.logo && (
-              <img src={tickerInfo.logo} alt={selectedTicker} className="h-14 w-14 rounded-full object-cover border-2 border-border" />
+              <img
+                src={tickerInfo.logo}
+                alt={selectedTicker}
+                className="h-14 w-14 rounded-full border-2 border-border object-cover"
+              />
             )}
             <div>
               <div className="flex items-baseline gap-3">
-                <h1 className="font-mono text-2xl font-bold tracking-tight">{selectedTicker}</h1>
+                <h1 className="font-mono text-2xl font-bold tracking-tight">
+                  {selectedTicker}
+                </h1>
                 {tickerInfo?.latestHistoricalData && (
                   <div className="flex items-baseline gap-2">
-                    <span className="font-mono text-xl font-bold">{parseInt(tickerInfo.latestHistoricalData.close).toLocaleString()}</span>
-                    <span className={cn("font-mono text-sm font-medium",
-                      parseFloat(tickerInfo.latestHistoricalData.change_percentage) > 0 ? "text-positive" :
-                      parseFloat(tickerInfo.latestHistoricalData.change_percentage) < 0 ? "text-negative" : "text-muted-foreground")}>
-                      {parseFloat(tickerInfo.latestHistoricalData.change_percentage) > 0 ? "+" : ""}
-                      {parseFloat(tickerInfo.latestHistoricalData.change_percentage).toFixed(2)}%
+                    <span className="font-mono text-xl font-bold">
+                      {parseInt(
+                        tickerInfo.latestHistoricalData.close
+                      ).toLocaleString()}
+                    </span>
+                    <span
+                      className={cn(
+                        "font-mono text-sm font-medium",
+                        parseFloat(
+                          tickerInfo.latestHistoricalData.change_percentage
+                        ) > 0
+                          ? "text-positive"
+                          : parseFloat(
+                                tickerInfo.latestHistoricalData
+                                  .change_percentage
+                              ) < 0
+                            ? "text-negative"
+                            : "text-muted-foreground"
+                      )}
+                    >
+                      {parseFloat(
+                        tickerInfo.latestHistoricalData.change_percentage
+                      ) > 0
+                        ? "+"
+                        : ""}
+                      {parseFloat(
+                        tickerInfo.latestHistoricalData.change_percentage
+                      ).toFixed(2)}
+                      %
                     </span>
                   </div>
                 )}
               </div>
-              <div className="mt-1 text-sm text-muted-foreground">{tickerInfo?.name || "-"}</div>
-              <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-                {tickerInfo?.sector && <Badge variant="outline" className="font-mono text-[10px] rounded-sm">{tickerInfo.sector}</Badge>}
-                {tickerInfo?.subSector && <Badge variant="secondary" className="font-mono text-[10px] rounded-sm">{tickerInfo.subSector}</Badge>}
-                {screenerTicker && <SimulateBuyButton ticker={screenerTicker} />}
+              <div className="mt-1 text-sm text-muted-foreground">
+                {tickerInfo?.name || "-"}
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                {tickerInfo?.sector && (
+                  <Badge
+                    variant="outline"
+                    className="rounded-sm font-mono text-[10px]"
+                  >
+                    {tickerInfo.sector}
+                  </Badge>
+                )}
+                {tickerInfo?.subSector && (
+                  <Badge
+                    variant="secondary"
+                    className="rounded-sm font-mono text-[10px]"
+                  >
+                    {tickerInfo.subSector}
+                  </Badge>
+                )}
+                {screenerTicker && (
+                  <SimulateBuyButton ticker={screenerTicker} />
+                )}
               </div>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-1.5">
-          <Button variant="outline" size="sm" className="h-8 rounded-sm font-mono text-[11px]" onClick={() => setWatchlistDialogOpen(true)}>
-            <Bookmark className={cn("h-3.5 w-3.5", tickerInfo?.isOnWatchlist && "fill-[#c8a951] text-[#c8a951]")} />
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 rounded-sm font-mono text-[11px]"
+            onClick={() => setWatchlistDialogOpen(true)}
+          >
+            <Bookmark
+              className={cn(
+                "h-3.5 w-3.5",
+                tickerInfo?.isOnWatchlist && "fill-[#c8a951] text-[#c8a951]"
+              )}
+            />
           </Button>
-          <Button variant="outline" size="sm" className="h-8 rounded-sm font-mono text-[11px]"
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 rounded-sm font-mono text-[11px]"
             onClick={async () => {
               try {
-                const data = await exportTickerData(selectedTicker,
+                const data = await exportTickerData(
+                  selectedTicker,
                   date?.from ? format(date.from, "yyyy-MM-dd") : undefined,
-                  date?.to ? format(date.to, "yyyy-MM-dd") : undefined)
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
+                  date?.to ? format(date.to, "yyyy-MM-dd") : undefined
+                )
+                const blob = new Blob([JSON.stringify(data, null, 2)], {
+                  type: "application/json",
+                })
                 const url = URL.createObjectURL(blob)
                 const a = document.createElement("a")
-                a.href = url; a.download = `${selectedTicker}_${format(new Date(), "yyyyMMdd")}.json`; a.click()
+                a.href = url
+                a.download = `${selectedTicker}_${format(new Date(), "yyyyMMdd")}.json`
+                a.click()
                 URL.revokeObjectURL(url)
                 toast.success("JSON exported")
-              } catch (error) { toast.error(`Export failed: ${(error as Error).message}`) }
-            }}>
+              } catch (error) {
+                toast.error(`Export failed: ${(error as Error).message}`)
+              }
+            }}
+          >
             <Download className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="default" size="sm" className="h-8 rounded-sm font-mono text-[11px]" onClick={() => setRefreshDialogOpen(true)}>
-            <RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh
+          <Button
+            variant="default"
+            size="sm"
+            className="h-8 rounded-sm font-mono text-[11px]"
+            onClick={() => setRefreshDialogOpen(true)}
+          >
+            <RefreshCw className="mr-1 h-3.5 w-3.5" /> Refresh
           </Button>
         </div>
       </div>
 
       <Dialog open={refreshDialogOpen} onOpenChange={setRefreshDialogOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>Refresh {selectedTicker}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Refresh {selectedTicker}</DialogTitle>
+          </DialogHeader>
           <div className="py-4">
-            <p className="mb-3 text-sm text-muted-foreground">Select date range for broker summary data.</p>
-            <DatePickerWithRange date={refreshDateRange} setDate={setRefreshDateRange} />
+            <p className="mb-3 text-sm text-muted-foreground">
+              Select date range for broker summary data.
+            </p>
+            <DatePickerWithRange
+              date={refreshDateRange}
+              setDate={setRefreshDateRange}
+            />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRefreshDialogOpen(false)} className="rounded-sm">Cancel</Button>
-            <Button onClick={() => refreshMutation.mutate()} disabled={refreshMutation.isPending || !refreshDateRange?.from || !refreshDateRange?.to} className="rounded-sm">
-              {refreshMutation.isPending ? <><RefreshCw className="h-3.5 w-3.5 animate-spin mr-1" /> Refreshing...</> : <><RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh</>}
+            <Button
+              variant="outline"
+              onClick={() => setRefreshDialogOpen(false)}
+              className="rounded-sm"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => refreshMutation.mutate()}
+              disabled={
+                refreshMutation.isPending ||
+                !refreshDateRange?.from ||
+                !refreshDateRange?.to
+              }
+              className="rounded-sm"
+            >
+              {refreshMutation.isPending ? (
+                <>
+                  <RefreshCw className="mr-1 h-3.5 w-3.5 animate-spin" />{" "}
+                  Refreshing...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-1 h-3.5 w-3.5" /> Refresh
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -177,22 +300,41 @@ export default function StockDetail() {
 
       <div className="flex items-center gap-2">
         <DatePickerWithRange date={date} setDate={setDate} />
-        <Select value={valueType} onValueChange={(val) => setValueType(val as "Net" | "Gross")}>
-          <SelectTrigger className="h-8 w-20 rounded-sm font-mono text-[11px]"><SelectValue /></SelectTrigger>
-          <SelectContent><SelectItem value="Net">Net</SelectItem><SelectItem value="Gross">Gross</SelectItem></SelectContent>
+        <Select
+          value={valueType}
+          onValueChange={(val) => setValueType(val as "Net" | "Gross")}
+        >
+          <SelectTrigger className="h-8 w-20 rounded-sm font-mono text-[11px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Net">Net</SelectItem>
+            <SelectItem value="Gross">Gross</SelectItem>
+          </SelectContent>
         </Select>
       </div>
 
-      <BrokerSummaryDashboard selectedTicker={selectedTicker} date={date} valueType={valueType} onBrokerClick={setBrokerCode} highlightedBroker={brokerCode} />
+      <BrokerSummaryDashboard
+        selectedTicker={selectedTicker}
+        date={date}
+        valueType={valueType}
+        onBrokerClick={setBrokerCode}
+        highlightedBroker={brokerCode}
+      />
 
       <div className="space-y-6">
         {screenerTicker && (
           <PvaAnalysis
-            pvaTrend={screenerTicker.pvaTrend} pvaScore={screenerTicker.pvaScore}
-            volumeAnomaly={screenerTicker.volumeAnomaly} correctionHealth={screenerTicker.correctionHealth}
-            volumeDistributionRisk={screenerTicker.volumeDistributionRisk} volumeChangeRatio={screenerTicker.volumeChangeRatio}
-            washTradingRisk={screenerTicker.washTradingRisk} washTradingScore={screenerTicker.washTradingScore}
-            distributionRisk={screenerTicker.distributionRisk} repoPatternDetected={screenerTicker.repoPatternDetected}
+            pvaTrend={screenerTicker.pvaTrend}
+            pvaScore={screenerTicker.pvaScore}
+            volumeAnomaly={screenerTicker.volumeAnomaly}
+            correctionHealth={screenerTicker.correctionHealth}
+            volumeDistributionRisk={screenerTicker.volumeDistributionRisk}
+            volumeChangeRatio={screenerTicker.volumeChangeRatio}
+            washTradingRisk={screenerTicker.washTradingRisk}
+            washTradingScore={screenerTicker.washTradingScore}
+            distributionRisk={screenerTicker.distributionRisk}
+            repoPatternDetected={screenerTicker.repoPatternDetected}
           />
         )}
         <BrokerInventory selectedTicker={selectedTicker} />
@@ -201,12 +343,22 @@ export default function StockDetail() {
           <RetailExhaustionChart symbol={selectedTicker} />
         </div>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <WhaleDetection symbol={selectedTicker} from={date?.from ? format(date.from, "yyyy-MM-dd") : undefined} to={date?.to ? format(date.to, "yyyy-MM-dd") : undefined} />
+          <WhaleDetection
+            symbol={selectedTicker}
+            from={date?.from ? format(date.from, "yyyy-MM-dd") : undefined}
+            to={date?.to ? format(date.to, "yyyy-MM-dd") : undefined}
+          />
           <CohesionAnalysisChart symbol={selectedTicker} />
         </div>
         <div>
-          <div className="mb-3 font-mono text-xs font-semibold text-muted-foreground uppercase tracking-wider">Historical Screener</div>
-          <HistoricalScreener data={historicalScreenerData?.data || []} months={screenerMonths} onMonthsChange={setScreenerMonths} />
+          <div className="mb-3 font-mono text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+            Historical Screener
+          </div>
+          <HistoricalScreener
+            data={historicalScreenerData?.data || []}
+            months={screenerMonths}
+            onMonthsChange={setScreenerMonths}
+          />
         </div>
       </div>
     </div>

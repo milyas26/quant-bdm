@@ -18,13 +18,15 @@ export function BrokersSheet({ collapsed: _collapsed }: { collapsed?: boolean })
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Toggle on "b" or "B" when not focused on an input
+      if (e.repeat) return
+
       if (
         e.key.toLowerCase() === "b" &&
         !(e.target instanceof HTMLInputElement) &&
         !(e.target instanceof HTMLTextAreaElement) &&
         !e.metaKey &&
-        !e.ctrlKey
+        !e.ctrlKey &&
+        !e.altKey
       ) {
         e.preventDefault()
         setOpen((prev) => !prev)

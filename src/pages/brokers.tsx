@@ -1,24 +1,35 @@
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: <explanation> */
-import { useQuery } from '@tanstack/react-query'
-import { getBrokers } from '@/lib/apis/broker/broker-api'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Separator } from '@/components/ui/separator'
-import { AlertCircle } from 'lucide-react'
-import { useMemo } from 'react'
-import { getBrokerColor, cn } from '@/lib/utils'
+import { useQuery } from "@tanstack/react-query"
+import { getBrokers } from "@/lib/apis/broker/broker-api"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Separator } from "@/components/ui/separator"
+import { AlertCircle } from "lucide-react"
+import { useMemo } from "react"
+import { getBrokerColor, cn } from "@/lib/utils"
 
-const GROUP_ORDER = ['SMART_MONEY', 'DUMB_MONEY', 'RITEL', 'PEMERINTAH', 'ASING', 'LOKAL']
+const GROUP_ORDER = [
+  "SMART_MONEY",
+  "DUMB_MONEY",
+  "RITEL",
+  "PEMERINTAH",
+  "ASING",
+  "LOKAL",
+]
 
 interface BrokersProps {
   search?: string
 }
 
 const Brokers = ({ search = "" }: BrokersProps) => {
-
-  const { data: brokerGroup, isLoading, isError, error } = useQuery({
-    queryKey: ['brokers'],
+  const {
+    data: brokerGroup,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["brokers"],
     queryFn: getBrokers,
   })
 
@@ -36,13 +47,14 @@ const Brokers = ({ search = "" }: BrokersProps) => {
               b.name.toLowerCase().includes(q)
           ),
         ])
-        .filter(([, brokers]) => (brokers as typeof brokerGroup[string]).length > 0)
+        .filter(
+          ([, brokers]) => (brokers as (typeof brokerGroup)[string]).length > 0
+        )
     )
   }, [brokerGroup, search])
 
   return (
     <div className="space-y-4">
-
       {isLoading && (
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -67,35 +79,54 @@ const Brokers = ({ search = "" }: BrokersProps) => {
         </Card>
       )}
 
-      {!isLoading && !isError && Object.keys(filteredGroup ?? {}).length === 0 && (
-        <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
-          {search ? 'Tidak ada broker yang cocok.' : 'Tidak ada data broker.'}
-        </div>
-      )}
-
-      {!isLoading && !isError && Object.entries(filteredGroup ?? {})
-        .sort(([a], [b]) => GROUP_ORDER.indexOf(a) - GROUP_ORDER.indexOf(b))
-        .map(([groupKey, brokers]) => (
-          <div key={groupKey} className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Badge variant="default">
-                {groupKey}
-              </Badge>
-              <Separator className="flex-1" />
-              <span className="text-xs text-muted-foreground">{brokers.length} broker</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {brokers.map((broker) => (
-                <Card key={broker.code} className="hover:bg-muted/50 rounded-sm transition-colors cursor-default py-0  border-muted">
-                  <CardContent className="p-2 space-y-0.5">
-                    <p className={cn("text-xs font-bold leading-none", getBrokerColor(broker.type))}>{broker.code}</p>
-                    <p className="text-[10px] text-muted-foreground truncate max-w-full" title={broker.name}>{broker.name}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+      {!isLoading &&
+        !isError &&
+        Object.keys(filteredGroup ?? {}).length === 0 && (
+          <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
+            {search ? "Tidak ada broker yang cocok." : "Tidak ada data broker."}
           </div>
-        ))}
+        )}
+
+      {!isLoading &&
+        !isError &&
+        Object.entries(filteredGroup ?? {})
+          .sort(([a], [b]) => GROUP_ORDER.indexOf(a) - GROUP_ORDER.indexOf(b))
+          .map(([groupKey, brokers]) => (
+            <div key={groupKey} className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Badge variant="default">{groupKey}</Badge>
+                <Separator className="flex-1" />
+                <span className="text-xs text-muted-foreground">
+                  {brokers.length} broker
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {brokers.map((broker) => (
+                  <Card
+                    key={broker.code}
+                    className="cursor-default rounded-sm border-muted py-0 transition-colors hover:bg-muted/50"
+                  >
+                    <CardContent className="space-y-0.5 p-2">
+                      <p
+                        className={cn(
+                          "text-xs leading-none font-bold",
+                          getBrokerColor(broker.type)
+                        )}
+                      >
+                        {broker.code}
+                      </p>
+                      <p
+                        className="max-w-full truncate text-[10px] text-muted-foreground"
+                        title={broker.name}
+                      >
+                        {broker.name}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ))}
     </div>
   )
 }
