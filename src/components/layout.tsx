@@ -8,6 +8,7 @@ import { AddTickerDialog } from "@/components/add-ticker-dialog"
 import { RunnerCalculator } from "@/components/runner-calculator"
 import { BrokersSheet } from "@/components/brokers-sheet"
 import { ThemeSwitcher } from "@/components/theme-switcher"
+import { useAuth } from "@/hooks/use-auth"
 import {
   LayoutDashboard,
   Search,
@@ -18,6 +19,7 @@ import {
   BookOpen,
   PanelLeftClose,
   PanelLeftOpen,
+  LogOut,
 } from "lucide-react"
 
 const navItems = [
@@ -31,6 +33,7 @@ const navItems = [
 
 export default function Layout() {
   const navigate = useNavigate()
+  const { logout } = useAuth()
   const [open, setOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const [searchValue, setSearchValue] = useState("")
@@ -148,6 +151,15 @@ export default function Layout() {
           </div>
           <div className="flex items-center gap-2">
             <ThemeSwitcher />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-muted-foreground hover:text-foreground"
+              onClick={() => { logout(); navigate("/login", { replace: true }) }}
+              title="Logout"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+            </Button>
             <Input
               readOnly
               onClick={() => setOpen(true)}
