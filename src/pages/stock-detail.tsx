@@ -5,9 +5,11 @@ import {
   getScreener,
   refreshSingleTicker,
   exportTickerData,
+  getStockProfile,
 } from "@/lib/api"
 import { SimulateBuyButton } from "@/components/simulate-buy-button"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useState } from "react"
 import { format, startOfMonth, subMonths } from "date-fns"
 import { BrokerSummaryDashboard } from "@/components/broker-summary-dashboard"
@@ -75,6 +77,13 @@ export default function StockDetail() {
     queryKey: ["historical-screener", selectedTicker, screenerMonths],
     queryFn: () => getHistoricalScreenerData(selectedTicker, screenerMonths),
     enabled: !!selectedTicker,
+  })
+
+  const { data: stockProfile } = useQuery({
+    queryKey: ["stock-profile", selectedTicker],
+    queryFn: () => getStockProfile(selectedTicker),
+    enabled: !!selectedTicker,
+    retry: false,
   })
 
   const [date, setDate] = useState<DateRange | undefined>({
@@ -321,6 +330,115 @@ export default function StockDetail() {
         onBrokerClick={setBrokerCode}
         highlightedBroker={brokerCode}
       />
+
+      {stockProfile ? (
+        <Card className="border-border bg-card/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="font-mono text-sm font-semibold tracking-wider text-muted-foreground uppercase">
+              Company Profile
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm">
+            {stockProfile.data?.background && (
+              <div>
+                <div className="mb-1 font-mono text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
+                  Business Background
+                </div>
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                  {stockProfile.data.background}
+                </p>
+              </div>
+            )}
+            {stockProfile.data?.address?.[0] && (
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                {stockProfile.data.address[0].office && (
+                  <div>
+                    <div className="mb-1 font-mono text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
+                      Office
+                    </div>
+                    <p className="text-muted-foreground whitespace-pre-line">
+                      {stockProfile.data.address[0].office}
+                    </p>
+                  </div>
+                )}
+                <div className="space-y-2">
+                  {stockProfile.data.address[0].website && (
+                    <div>
+                      <div className="mb-1 font-mono text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
+                        Website
+                      </div>
+                      <a
+                        href={`https://${stockProfile.data.address[0].website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:underline"
+                      >
+                        {stockProfile.data.address[0].website}
+                      </a>
+                    </div>
+                  )}
+                  {stockProfile.data.address[0].phone && (
+                    <div>
+                      <div className="mb-1 font-mono text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
+                        Phone
+                      </div>
+                      <span className="text-muted-foreground">
+                        {stockProfile.data.address[0].phone}
+                      </span>
+                    </div>
+                  )}
+                  {stockProfile.data.address[0].fax && (
+                    <div>
+                      <div className="mb-1 font-mono text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
+                        Fax
+                      </div>
+                      <span className="text-muted-foreground">
+                        {stockProfile.data.address[0].fax}
+                      </span>
+                    </div>
+                  )}
+                  {stockProfile.data.address[0].email?.[0] && (
+                    <div>
+                      <div className="mb-1 font-mono text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
+                        Email
+                      </div>
+                      <a
+                        href={`mailto:${stockProfile.data.address[0].email[0]}`}
+                        className="text-blue-400 hover:underline"
+                      >
+                        {stockProfile.data.address[0].email[0]}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            {stockProfile.data?.listingDate && (
+              <div>
+                <div className="mb-1 font-mono text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
+                  Listing Date
+                </div>
+                <span className="text-muted-foreground">
+                  {stockProfile.data.listingDate}
+                </span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="border-dashed border-border bg-card/30">
+          <CardContent className="flex items-center justify-center py-8">
+            <div className="text-center">
+              <p className="font-mono text-xs text-muted-foreground">
+                No profile data available
+              </p>
+              <p className="mt-1 font-mono text-[10px] text-muted-foreground/50">
+                Click "Get All Profiles" from the screener page to fetch
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="space-y-6">
         {screenerTicker && (

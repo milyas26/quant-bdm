@@ -6,6 +6,7 @@ import {
   getScreenerDates,
   refreshAllTickers,
   getWatchlists,
+  refreshAllProfiles,
 } from "@/lib/api"
 import { AddToWatchlistDialog } from "@/components/add-to-watchlist-dialog"
 import { useStocksFilterStore } from "@/stores/stocksFilterStore"
@@ -21,12 +22,21 @@ import {
 } from "@/components/ui/table"
 import { Card, CardContent } from "@/components/ui/card"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
   Search,
   RefreshCw,
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
   SlidersHorizontal,
+  Building2,
 } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
 import { Badge } from "@/components/ui/badge"
@@ -146,6 +156,7 @@ export default function StocksPage() {
   const [minScoreInput, setMinScoreInput] = useState(minScore)
   const [maxScoreInput, setMaxScoreInput] = useState(maxScore)
   const [showFilters, setShowFilters] = useState(false)
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false)
 
   const debouncedSearch = useDebounce(searchTerm, 500)
   const minPrice = minPriceStr ? parseInt(minPriceStr) : undefined
@@ -269,6 +280,15 @@ export default function StocksPage() {
         toast.error(`Failed to start refreshing: ${(error as Error).message}`),
     })
 
+  const { mutate: handleRefreshAllProfiles, isPending: isFetchingProfiles } =
+    useMutation({
+      mutationFn: refreshAllProfiles,
+      onSuccess: () =>
+        toast.success("Started fetching all stock profiles in background."),
+      onError: (error) =>
+        toast.error(`Failed to start profile fetch: ${(error as Error).message}`),
+    })
+
   const scoreColor = (v: number) =>
     v >= 70 ? "text-positive" : v <= 30 ? "text-negative" : "text-warning"
 
@@ -346,6 +366,18 @@ export default function StocksPage() {
           >
             <RefreshCw
               className={cn("h-3.5 w-3.5", isRefreshing && "animate-spin")}
+            />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setProfileDialogOpen(true)}
+            disabled={isFetchingProfiles}
+            className="h-9 w-9 shrink-0"
+            title="Get All Profiles"
+          >
+            <Building2
+              className={cn("h-3.5 w-3.5", isFetchingProfiles && "animate-pulse")}
             />
           </Button>
         </div>
@@ -1084,6 +1116,36 @@ export default function StocksPage() {
           setPage(1)
         }}
       />
+
+      <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Get All Stock Profiles</DialogTitle>
+            <DialogDescription>
+              This will fetch company profiles for all tickers from Stockbit. The
+              process runs in background and may take up to 30 minutes.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setProfileDialogOpen(false)}
+              className="rounded-sm"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setProfileDialogOpen(false)
+                handleRefreshAllProfiles()
+              }}
+              className="rounded-sm"
+            >
+              Start Fetch
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
