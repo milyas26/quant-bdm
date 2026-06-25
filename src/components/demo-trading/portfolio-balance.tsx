@@ -19,10 +19,6 @@ export const PortfolioBalance = ({
     ? Math.min((summary.totalAllocated / summary.initialCapital) * 100, 100)
     : 0
 
-  const chartData = [
-    { name: "allocated", value: allocationPercent, fill: "var(--primary)" },
-  ]
-
   const equityHistory = history.map((s) => s.equity)
   const minEquity = equityHistory.length > 0 ? Math.min(...equityHistory) : 0
   const maxEquity = equityHistory.length > 0 ? Math.max(...equityHistory) : 0
