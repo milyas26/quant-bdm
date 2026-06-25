@@ -115,8 +115,6 @@ export default function StocksPage() {
     accDist1D,
     accDist1W,
     accDist1M,
-    minScore,
-    maxScore,
     netBrokerFlowOperator,
     netBrokerFlowValue,
     setPage,
@@ -134,8 +132,6 @@ export default function StocksPage() {
     setAccDist1D,
     setAccDist1W,
     setAccDist1M,
-    setMinScore,
-    setMaxScore,
     setNetBrokerFlowOperator,
     setNetBrokerFlowValue,
     liquidity,
@@ -146,8 +142,6 @@ export default function StocksPage() {
   const [searchTerm, setSearchTerm] = useState(search)
   const [minPriceInput, setMinPriceInput] = useState(minPriceStr)
   const [maxPriceInput, setMaxPriceInput] = useState(maxPriceStr)
-  const [minScoreInput, setMinScoreInput] = useState(minScore)
-  const [maxScoreInput, setMaxScoreInput] = useState(maxScore)
   const [showFilters, setShowFilters] = useState(false)
   const [profileDialogOpen, setProfileDialogOpen] = useState(false)
 
@@ -169,16 +163,10 @@ export default function StocksPage() {
     setMaxPrice(maxPriceInput)
     setPage(1)
   }
-  const handleScoreUpdate = () => {
-    setMinScore(minScoreInput)
-    setMaxScore(maxScoreInput)
-  }
   const handleResetFilters = () => {
     setSearchTerm("")
     setMinPriceInput("")
     setMaxPriceInput("")
-    setMinScoreInput("")
-    setMaxScoreInput("")
     reset()
   }
 
@@ -187,9 +175,6 @@ export default function StocksPage() {
     setSearchTerm("")
     setMinPriceInput("")
     setMaxPriceInput("")
-    setMinScoreInput("70")
-    setMaxScoreInput("")
-    setMinScore("70")
     setNetBrokerFlowValue("0")
     setAccDist1D("-1")
     setAccDist1W("-1")
@@ -230,8 +215,6 @@ export default function StocksPage() {
       accDist1D,
       accDist1W,
       accDist1M,
-      minScore,
-      maxScore,
       netBrokerFlowOperator,
       netBrokerFlowValue,
       liquidity,
@@ -254,8 +237,6 @@ export default function StocksPage() {
         accDist1D: accDist1D ? parseFloat(accDist1D) : undefined,
         accDist1W: accDist1W ? parseFloat(accDist1W) : undefined,
         accDist1M: accDist1M ? parseFloat(accDist1M) : undefined,
-        minScore: minScore ? parseInt(minScore) : undefined,
-        maxScore: maxScore ? parseInt(maxScore) : undefined,
         netBrokerFlowOperator,
         netBrokerFlowValue: netBrokerFlowValue
           ? parseFloat(netBrokerFlowValue)
@@ -378,7 +359,7 @@ export default function StocksPage() {
           <CardContent className="grid animate-in grid-cols-1 gap-3 p-3 duration-150 fade-in slide-in-from-top-1 md:grid-cols-2 lg:grid-cols-4">
             <div className="flex flex-col gap-1.5">
               <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
-                Price & Score
+                Price
               </span>
               <div className="flex h-8 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
                 <span className="font-medium text-muted-foreground">Price</span>
@@ -401,33 +382,6 @@ export default function StocksPage() {
                   onChange={(e) => setMaxPriceInput(e.target.value)}
                   onBlur={handlePriceUpdate}
                   onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
-                />
-              </div>
-              <div className="flex h-8 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
-                <span className="font-medium text-muted-foreground">Score</span>
-                <span className="text-border">|</span>
-                <input
-                  className="w-full bg-transparent outline-none placeholder:text-muted-foreground/30"
-                  placeholder="Min"
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={minScoreInput}
-                  onChange={(e) => setMinScoreInput(e.target.value)}
-                  onBlur={handleScoreUpdate}
-                  onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
-                />
-                <span className="text-muted-foreground">-</span>
-                <input
-                  className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground/30"
-                  placeholder="Max"
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={maxScoreInput}
-                  onChange={(e) => setMaxScoreInput(e.target.value)}
-                  onBlur={handleScoreUpdate}
-                  onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
                 />
               </div>
             </div>

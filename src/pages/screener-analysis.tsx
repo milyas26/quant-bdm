@@ -64,8 +64,6 @@ export default function ScreenerAnalysis() {
     signals,
     bandarStatus,
     momentum,
-    minScore: minScoreStr,
-    maxScore: maxScoreStr,
     accDist1D,
     accDist1W,
     accDist1M,
@@ -81,8 +79,6 @@ export default function ScreenerAnalysis() {
     setSignals,
     setBandarStatus,
     setMomentum,
-    setMinScore,
-    setMaxScore,
     setAccDist1D,
     setAccDist1W,
     setAccDist1M,
@@ -104,8 +100,6 @@ export default function ScreenerAnalysis() {
   const [searchTerm, setSearchTerm] = useState(search)
   const [minPriceInput, setMinPriceInput] = useState(minPriceStr)
   const [maxPriceInput, setMaxPriceInput] = useState(maxPriceStr)
-  const [minScoreInput, setMinScoreInput] = useState(minScoreStr)
-  const [maxScoreInput, setMaxScoreInput] = useState(maxScoreStr)
   const [showFilters, setShowFilters] = useState(false)
 
   const dateRange: DateRange | undefined =
@@ -125,8 +119,6 @@ export default function ScreenerAnalysis() {
 
   const minPrice = minPriceStr ? parseInt(minPriceStr) : undefined
   const maxPrice = maxPriceStr ? parseInt(maxPriceStr) : undefined
-  const minScore = minScoreStr ? parseInt(minScoreStr) : undefined
-  const maxScore = maxScoreStr ? parseInt(maxScoreStr) : undefined
 
   // Sync debounced search to store
   useEffect(() => {
@@ -141,17 +133,10 @@ export default function ScreenerAnalysis() {
     setPage(1)
   }
 
-  const handleScoreUpdate = () => {
-    setMinScore(minScoreInput)
-    setMaxScore(maxScoreInput)
-  }
-
   const handleResetFilters = () => {
     setSearchTerm("")
     setMinPriceInput("")
     setMaxPriceInput("")
-    setMinScoreInput("")
-    setMaxScoreInput("")
     reset()
   }
 
@@ -160,9 +145,6 @@ export default function ScreenerAnalysis() {
     setSearchTerm("")
     setMinPriceInput("")
     setMaxPriceInput("")
-    setMinScoreInput("70")
-    setMaxScoreInput("")
-    setMinScore("70")
     setAccDist1D("-1")
     setAccDist1W("-1")
     setAccDist1M("-1")
@@ -187,8 +169,6 @@ export default function ScreenerAnalysis() {
       signals,
       bandarStatus,
       momentum,
-      minScore,
-      maxScore,
       accDist1D,
       accDist1W,
       accDist1M,
@@ -213,8 +193,6 @@ export default function ScreenerAnalysis() {
         signals,
         bandarStatus,
         momentum,
-        minScore,
-        maxScore,
         accDist1D: accDist1D ? parseInt(accDist1D) : undefined,
         accDist1W: accDist1W ? parseInt(accDist1W) : undefined,
         accDist1M: accDist1M ? parseInt(accDist1M) : undefined,
@@ -257,8 +235,6 @@ export default function ScreenerAnalysis() {
         signals,
         bandarStatus,
         momentum,
-        minScore,
-        maxScore,
         accDist1D: accDist1D ? parseInt(accDist1D) : undefined,
         accDist1W: accDist1W ? parseInt(accDist1W) : undefined,
         accDist1M: accDist1M ? parseInt(accDist1M) : undefined,
@@ -415,7 +391,7 @@ export default function ScreenerAnalysis() {
               <div className="grid animate-in grid-cols-1 gap-3 border-t pt-3 duration-200 fade-in slide-in-from-top-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 <div className="flex flex-col gap-1.5">
                   <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Price & Score
+                    Price
                   </span>
                   <div className="flex h-9 items-center rounded-sm border bg-background px-2.5 text-xs">
                     <span className="font-medium text-muted-foreground">
@@ -443,39 +419,6 @@ export default function ScreenerAnalysis() {
                       onBlur={handlePriceUpdate}
                       onKeyDown={(e) =>
                         e.key === "Enter" && handlePriceUpdate()
-                      }
-                    />
-                  </div>
-                  <div className="flex h-9 items-center rounded-sm border bg-background px-2.5 text-xs">
-                    <span className="font-medium text-muted-foreground">
-                      Score
-                    </span>
-                    <Separator orientation="vertical" className="mx-2 h-4" />
-                    <input
-                      className="w-full bg-transparent outline-none placeholder:text-muted-foreground/50"
-                      placeholder="Min"
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={minScoreInput}
-                      onChange={(e) => setMinScoreInput(e.target.value)}
-                      onBlur={handleScoreUpdate}
-                      onKeyDown={(e) =>
-                        e.key === "Enter" && handleScoreUpdate()
-                      }
-                    />
-                    <span className="text-muted-foreground">-</span>
-                    <input
-                      className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground/50"
-                      placeholder="Max"
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={maxScoreInput}
-                      onChange={(e) => setMaxScoreInput(e.target.value)}
-                      onBlur={handleScoreUpdate}
-                      onKeyDown={(e) =>
-                        e.key === "Enter" && handleScoreUpdate()
                       }
                     />
                   </div>

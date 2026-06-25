@@ -9,7 +9,6 @@ import {
   XAxis,
   YAxis,
   ComposedChart,
-  Line,
   Area,
   ReferenceLine,
 } from "recharts"

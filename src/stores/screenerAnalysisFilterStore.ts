@@ -13,8 +13,6 @@ export interface ScreenerAnalysisFilterState {
   signals: string[]
   bandarStatus: string[]
   momentum: string[]
-  minScore: string
-  maxScore: string
   accDist1D: string
   accDist1W: string
   accDist1M: string
@@ -39,8 +37,6 @@ export interface ScreenerAnalysisFilterState {
   setBandarStatus: (bandarStatus: string[]) => void
   setMomentum: (momentum: string[]) => void
   setSort: (sortBy: string, sortOrder: "asc" | "desc") => void
-  setMinScore: (minScore: string) => void
-  setMaxScore: (maxScore: string) => void
   setAccDist1D: (accDist1D: string) => void
   setAccDist1W: (accDist1W: string) => void
   setAccDist1M: (accDist1M: string) => void
@@ -66,8 +62,6 @@ const DEFAULT_STATE = {
   signals: [],
   bandarStatus: [],
   momentum: [],
-  minScore: "",
-  maxScore: "",
   accDist1D: "",
   accDist1W: "",
   accDist1M: "",
@@ -98,8 +92,6 @@ export const useScreenerAnalysisFilterStore =
         setBandarStatus: (bandarStatus) => set({ bandarStatus, page: 1 }),
         setMomentum: (momentum) => set({ momentum, page: 1 }),
         setSort: (sortBy, sortOrder) => set({ sortBy, sortOrder }),
-        setMinScore: (minScore) => set({ minScore, page: 1 }),
-        setMaxScore: (maxScore) => set({ maxScore, page: 1 }),
         setAccDist1D: (accDist1D) => set({ accDist1D, page: 1 }),
         setAccDist1W: (accDist1W) => set({ accDist1W, page: 1 }),
         setAccDist1M: (accDist1M) => set({ accDist1M, page: 1 }),
