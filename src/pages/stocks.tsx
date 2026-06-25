@@ -144,6 +144,7 @@ export default function StocksPage() {
   const [maxPriceInput, setMaxPriceInput] = useState(maxPriceStr)
   const [showFilters, setShowFilters] = useState(false)
   const [profileDialogOpen, setProfileDialogOpen] = useState(false)
+  const [refreshDialogOpen, setRefreshDialogOpen] = useState(false)
 
   const debouncedSearch = useDebounce(searchTerm, 500)
   const minPrice = minPriceStr ? parseInt(minPriceStr) : undefined
@@ -275,7 +276,7 @@ export default function StocksPage() {
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative min-w-48 flex-1">
-          <Search className="absolute top-2 left-2.5 h-3.5 w-3.5 text-muted-foreground" />
+          <Search className="absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
             ref={searchInputRef}
             placeholder="Search symbol or name..."
@@ -330,7 +331,7 @@ export default function StocksPage() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => handleRefreshAllTickers()}
+            onClick={() => setRefreshDialogOpen(true)}
             disabled={isRefreshing}
             className="h-9 w-9 shrink-0"
             title="Refresh Tickers"
@@ -361,7 +362,7 @@ export default function StocksPage() {
               <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
                 Price
               </span>
-              <div className="flex h-8 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
+              <div className="flex h-9 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
                 <span className="font-medium text-muted-foreground">Price</span>
                 <span className="text-border">|</span>
                 <input
@@ -441,7 +442,7 @@ export default function StocksPage() {
               <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
                 Flow & Date
               </span>
-              <div className="flex h-8 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
+              <div className="flex h-9 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
                 <Select
                   value={accDistOperator}
                   onValueChange={(val) =>
@@ -479,7 +480,7 @@ export default function StocksPage() {
                   onChange={(e) => setAccDist1M(e.target.value)}
                 />
               </div>
-              <div className="flex h-8 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
+              <div className="flex h-9 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
                 <Select
                   value={netBrokerFlowOperator}
                   onValueChange={(val) =>
@@ -984,6 +985,36 @@ export default function StocksPage() {
               className="rounded-sm"
             >
               Start Fetch
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={refreshDialogOpen} onOpenChange={setRefreshDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Refresh All Tickers</DialogTitle>
+            <DialogDescription>
+              This will recalculate screener data for all tickers. The process
+              runs in background and may take several minutes.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setRefreshDialogOpen(false)}
+              className="rounded-sm"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setRefreshDialogOpen(false)
+                handleRefreshAllTickers()
+              }}
+              className="rounded-sm"
+            >
+              Start Refresh
             </Button>
           </DialogFooter>
         </DialogContent>

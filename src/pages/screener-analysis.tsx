@@ -45,6 +45,14 @@ import { MultiSelect } from "@/components/multi-select"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Pagination } from "@/components/pagination"
 
 export default function ScreenerAnalysis() {
@@ -101,6 +109,7 @@ export default function ScreenerAnalysis() {
   const [minPriceInput, setMinPriceInput] = useState(minPriceStr)
   const [maxPriceInput, setMaxPriceInput] = useState(maxPriceStr)
   const [showFilters, setShowFilters] = useState(false)
+  const [generateDialogOpen, setGenerateDialogOpen] = useState(false)
 
   const dateRange: DateRange | undefined =
     startDate || endDate
@@ -296,7 +305,7 @@ export default function ScreenerAnalysis() {
             {/* Top Bar: Search, Presets, Filter Toggle */}
             <div className="flex flex-wrap items-center gap-2">
               <div className="relative min-w-50 flex-1">
-                <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   ref={searchInputRef}
                   id="search"
@@ -354,7 +363,7 @@ export default function ScreenerAnalysis() {
 
                 <div className="ml-1 flex items-center gap-1.5">
                   <Button
-                    onClick={() => generateMutation.mutate()}
+                    onClick={() => setGenerateDialogOpen(true)}
                     disabled={generateMutation.isPending}
                     size="sm"
                     className="h-9 shrink-0 cursor-pointer"
@@ -1038,6 +1047,37 @@ export default function ScreenerAnalysis() {
           setPage(1)
         }}
       />
+
+      <Dialog open={generateDialogOpen} onOpenChange={setGenerateDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Generate Screener Analysis</DialogTitle>
+            <DialogDescription>
+              This will generate forward-return analysis for all screener signals
+              with missing data. The process runs in background and may take
+              several minutes.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setGenerateDialogOpen(false)}
+              className="rounded-sm"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setGenerateDialogOpen(false)
+                generateMutation.mutate()
+              }}
+              className="rounded-sm"
+            >
+              Generate
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

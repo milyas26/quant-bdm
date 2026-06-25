@@ -228,7 +228,7 @@ export default function BrokerAccumulationPage() {
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative min-w-40 flex-1">
-          <Search className="absolute top-2 left-2.5 h-3.5 w-3.5 text-muted-foreground" />
+          <Search className="absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search symbol..."
             className="h-9 border-border bg-transparent pl-8 font-mono text-sm placeholder:text-muted-foreground/40"
@@ -356,7 +356,7 @@ export default function BrokerAccumulationPage() {
               <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
                 Price
               </span>
-              <div className="flex h-8 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
+              <div className="flex h-9 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
                 <span className="font-medium text-muted-foreground">Price</span>
                 <span className="text-border">|</span>
                 <input

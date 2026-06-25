@@ -104,7 +104,7 @@ export function MultiSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("h-auto min-h-10 w-full justify-between bg-background/50", className)}
+          className={cn("h-auto min-h-9 w-full justify-between bg-background/50", className)}
         >
           {selected.length > 0 ? (
             <div className="flex flex-wrap gap-1">{renderBadges()}</div>
