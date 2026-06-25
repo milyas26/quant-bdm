@@ -280,7 +280,7 @@ export default function StocksPage() {
           <Input
             ref={searchInputRef}
             placeholder="Search symbol or name..."
-            className="h-9 border-border bg-transparent pl-8 font-mono text-sm placeholder:text-muted-foreground/40"
+            className="h-9 border-border bg-transparent pl-8 font-mono text-xs placeholder:text-muted-foreground/40"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -510,10 +510,10 @@ export default function StocksPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className={cn(
-                        "h-7 flex-1 justify-start rounded-sm px-2 text-left font-mono text-[11px]",
-                        !date && "text-muted-foreground"
-                      )}
+                        className={cn(
+                            "h-9 flex-1 justify-start rounded-sm px-2 text-left font-mono text-[11px]",
+                            !date && "text-muted-foreground"
+                          )}
                     >
                       <CalendarIcon className="mr-1 h-3 w-3" />
                       {date ? format(parseISO(date), "dd MMM yy") : "Latest"}

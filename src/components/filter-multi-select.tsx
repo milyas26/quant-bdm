@@ -50,7 +50,7 @@ export function FilterMultiSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("h-9 w-full justify-between", className)}
+          className={cn("h-9 w-full justify-between text-xs", className)}
         >
           <div className="flex items-center gap-2 truncate">
             {title}

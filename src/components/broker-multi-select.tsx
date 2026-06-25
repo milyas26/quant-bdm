@@ -166,12 +166,12 @@ export function BrokerMultiSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("h-auto min-h-9 w-full justify-between", className)}
+          className={cn("h-auto min-h-9 w-full justify-between text-xs", className)}
         >
           {selected.length > 0 ? (
             <div className="flex flex-wrap gap-1">{renderBadges()}</div>
           ) : (
-            <span className="text-muted-foreground">{placeholder}</span>
+            <span className="text-xs text-muted-foreground">{placeholder}</span>
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -243,7 +243,7 @@ export function BrokerMultiSelect({
                             </div>
                             <div className="flex gap-2 w-full">
                               <span className="font-medium">{option.value}</span>
-                              <span className="text-sm text-muted-foreground">
+                              <span className="text-xs text-muted-foreground">
                                 {option.name}
                               </span>
                             </div>

@@ -231,7 +231,7 @@ export default function BrokerAccumulationPage() {
           <Search className="absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search symbol..."
-            className="h-9 border-border bg-transparent pl-8 font-mono text-sm placeholder:text-muted-foreground/40"
+            className="h-9 border-border bg-transparent pl-8 font-mono text-xs placeholder:text-muted-foreground/40"
             value={symbolSearch}
             onChange={(e) => {
               setSymbolSearch(e.target.value)
@@ -443,7 +443,8 @@ export default function BrokerAccumulationPage() {
       )}
 
       <div className="overflow-hidden rounded-sm border border-border">
-        <Table>
+        <div className="overflow-x-auto">
+          <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
               <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
@@ -596,7 +597,8 @@ export default function BrokerAccumulationPage() {
               ))
             )}
           </TableBody>
-        </Table>
+          </Table>
+        </div>
       </div>
 
       <Pagination

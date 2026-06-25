@@ -310,7 +310,7 @@ export default function ScreenerAnalysis() {
                   ref={searchInputRef}
                   id="search"
                   placeholder="Search symbol..."
-                  className="h-9 bg-background/50 py-2 pl-9"
+                  className="h-9 bg-background/50 py-2 pl-9 text-xs"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -647,8 +647,10 @@ export default function ScreenerAnalysis() {
           </div>
         </CardContent>
       </Card>
-      <Table>
-        <TableHeader>
+      <div className="overflow-hidden rounded-sm border border-border">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
           <TableRow>
             <TableHead>Ticker</TableHead>
             <TableHead>Date</TableHead>
@@ -1031,7 +1033,9 @@ export default function ScreenerAnalysis() {
             ))
           )}
         </TableBody>
-      </Table>
+          </Table>
+        </div>
+      </div>
 
       <Pagination
         page={page}

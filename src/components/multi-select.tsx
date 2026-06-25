@@ -104,12 +104,12 @@ export function MultiSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("h-auto min-h-9 w-full justify-between bg-background/50", className)}
+          className={cn("h-auto min-h-9 w-full justify-between bg-background/50 text-xs", className)}
         >
           {selected.length > 0 ? (
             <div className="flex flex-wrap gap-1">{renderBadges()}</div>
           ) : (
-            <span className="text-muted-foreground">{placeholder}</span>
+            <span className="text-xs text-muted-foreground">{placeholder}</span>
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -140,7 +140,7 @@ export function MultiSelect({
                     <div className="flex w-full items-center justify-between gap-2">
                       <span className="font-medium">{option.label}</span>
                       {option.description && (
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           {option.description}
                         </span>
                       )}
