@@ -17,6 +17,7 @@ export interface DemoTrade {
   isBreakout: boolean | null
   isVolumeSpike: boolean | null
   bandarStatus: string | null
+  notes: string | null
   ticker: {
     symbol: string
     name: string | null
@@ -25,10 +26,33 @@ export interface DemoTrade {
   }
   brokersBuy: { netbsBrokerCode: string }[]
   brokersSell: { netbsBrokerCode: string }[]
+  tradeIds: number[]
+  positionCount: number
 }
 
 export interface SimulateTradePayload {
   screenerId: number
   quantity?: number
   screenerDate?: string
+  notes?: string
+}
+
+export interface PortfolioSummary {
+  initialCapital: number
+  totalAllocated: number
+  totalUnrealizedPnL: number
+  totalRealizedPnL: number
+  availableBalance: number
+  totalEquity: number
+  totalReturn: number
+}
+
+export interface PortfolioSnapshot {
+  id: number
+  equity: number
+  availableBalance: number
+  allocatedBalance: number
+  realizedPnL: number
+  unrealizedPnL: number
+  createdAt: string
 }

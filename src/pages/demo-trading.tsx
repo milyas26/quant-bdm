@@ -3,8 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   getActiveTrades,
   getTradeHistory,
-  closeTrade,
+  closeTradeBySymbol,
   captureSnapshots,
+  getPortfolioSummary,
+  getBalanceHistory,
 } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -15,11 +17,12 @@ import {
   SummaryCards,
   TradesTable,
   HistorySummary,
+  PortfolioBalance,
 } from "@/components/demo-trading"
 
 export default function DemoTradingPage() {
   const queryClient = useQueryClient()
-  const [closingId, setClosingId] = useState<number | null>(null)
+  const [closingSymbol, setClosingSymbol] = useState<string | null>(null)
 
   const { data: activeTrades = [], isLoading: loadingActive } = useQuery({
     queryKey: ["demo-trades", "active"],
@@ -32,21 +35,38 @@ export default function DemoTradingPage() {
     queryFn: getTradeHistory,
   })
 
+  const { data: portfolioSummary = null, isLoading: loadingSummary } = useQuery(
+    {
+      queryKey: ["demo-trades", "summary"],
+      queryFn: getPortfolioSummary,
+      refetchInterval: 60_000,
+    }
+  )
+
+  const { data: balanceHistory = [] } = useQuery({
+    queryKey: ["demo-trades", "balance-history"],
+    queryFn: getBalanceHistory,
+    refetchInterval: 60_000,
+  })
+
   const { mutate: handleClose, isPending: isClosing } = useMutation({
-    mutationFn: closeTrade,
-    onMutate: (id) => setClosingId(id),
-    onSuccess: () => {
-      toast.success("Trade closed")
+    mutationFn: closeTradeBySymbol,
+    onMutate: (symbol) => setClosingSymbol(symbol),
+    onSuccess: (result) => {
+      toast.success(`${result.symbol} closed (${result.closedCount} posisi)`)
       queryClient.invalidateQueries({ queryKey: ["demo-trades"] })
     },
     onError: (err: any) =>
       toast.error(err?.response?.data?.error ?? "Failed to close trade"),
-    onSettled: () => setClosingId(null),
+    onSettled: () => setClosingSymbol(null),
   })
 
   const { mutate: handleSnapshot, isPending: isSnapshotting } = useMutation({
     mutationFn: captureSnapshots,
-    onSuccess: () => toast.success("Snapshots captured"),
+    onSuccess: () => {
+      toast.success("Snapshots captured")
+      queryClient.invalidateQueries({ queryKey: ["demo-trades"] })
+    },
     onError: () => toast.error("Failed to capture snapshots"),
   })
 
@@ -88,6 +108,12 @@ export default function DemoTradingPage() {
         </div>
       </div>
 
+      <PortfolioBalance
+        summary={portfolioSummary}
+        history={balanceHistory}
+        loading={loadingSummary}
+      />
+
       <SummaryCards trades={activeTrades} loading={loadingActive} />
 
       <Tabs defaultValue="active">
@@ -122,9 +148,9 @@ export default function DemoTradingPage() {
           <TradesTable
             trades={activeTrades}
             showCloseButton
-            onClose={(id) => handleClose(id)}
+            onClose={(symbol) => handleClose(symbol)}
             isClosing={isClosing}
-            closingId={closingId}
+            closingSymbol={closingSymbol}
             loading={loadingActive}
           />
         </TabsContent>

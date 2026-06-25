@@ -20,14 +20,14 @@ import { useNavigate } from "react-router-dom"
 interface TradesTableProps {
   trades: DemoTrade[]
   showCloseButton: boolean
-  onClose?: (id: number) => void
+  onClose?: (symbol: string) => void
   isClosing?: boolean
-  closingId?: number | null
+  closingSymbol?: string | null
   loading?: boolean
 }
 
-export const TradesTable = ({ trades, showCloseButton, onClose, isClosing, closingId, loading }: TradesTableProps) => {
-  const colCount = showCloseButton ? 11 : 10
+export const TradesTable = ({ trades, showCloseButton, onClose, isClosing, closingSymbol, loading }: TradesTableProps) => {
+  const colCount = showCloseButton ? 12 : 11
   const [confirmTrade, setConfirmTrade] = useState<DemoTrade | null>(null)
   const navigate = useNavigate()
 
@@ -57,6 +57,7 @@ export const TradesTable = ({ trades, showCloseButton, onClose, isClosing, closi
               <TableHead className="h-8 text-right font-mono text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">PnL</TableHead>
               <TableHead className="h-8 font-mono text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Signals</TableHead>
               <TableHead className="h-8 font-mono text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Brokers</TableHead>
+              <TableHead className="h-8 font-mono text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Notes</TableHead>
               <TableHead className="h-8 font-mono text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Entry Time</TableHead>
               {showCloseButton && <TableHead className="h-8 w-10" />}
             </TableRow>
@@ -103,6 +104,11 @@ export const TradesTable = ({ trades, showCloseButton, onClose, isClosing, closi
                       </div>
                     </TableCell>
                     <TableCell>
+                      <span className="block max-w-36 truncate text-[10px] font-mono text-muted-foreground" title={trade.notes ?? undefined}>
+                        {trade.notes || "-"}
+                      </span>
+                    </TableCell>
+                    <TableCell>
                       <div className="text-[10px] font-mono whitespace-nowrap text-muted-foreground">
                         {trade.screenerDate ? format(new Date(trade.screenerDate), "dd MMM yy") : format(new Date(trade.entryTime), "dd MMM yy")}
                       </div>
@@ -113,8 +119,8 @@ export const TradesTable = ({ trades, showCloseButton, onClose, isClosing, closi
                     {showCloseButton && (
                       <TableCell className="pr-2">
                         <Button size="sm" variant="outline" className="h-6 rounded-sm border-destructive/30 px-1.5 text-[10px] font-mono text-destructive hover:border-destructive/50 hover:bg-destructive/10"
-                          disabled={isClosing && closingId === trade.id} onClick={() => setConfirmTrade(trade)}>
-                          {isClosing && closingId === trade.id ? <RefreshCw className="h-2.5 w-2.5 animate-spin" /> : <X className="h-2.5 w-2.5" />}
+                          disabled={isClosing && closingSymbol === trade.symbol} onClick={() => setConfirmTrade(trade)}>
+                          {isClosing && closingSymbol === trade.symbol ? <RefreshCw className="h-2.5 w-2.5 animate-spin" /> : <X className="h-2.5 w-2.5" />}
                         </Button>
                       </TableCell>
                     )}
@@ -132,7 +138,11 @@ export const TradesTable = ({ trades, showCloseButton, onClose, isClosing, closi
             <AlertDialogTitle>Tutup Posisi?</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="w-full space-y-3">
-                <p>Apakah kamu yakin ingin menutup posisi ini?</p>
+                <p>
+                  {confirmTrade && confirmTrade.positionCount > 1
+                    ? `Apakah kamu yakin ingin menutup ${confirmTrade.positionCount} posisi ${confirmTrade.symbol} sekaligus?`
+                    : "Apakah kamu yakin ingin menutup posisi ini?"}
+                </p>
                 {confirmTrade && (
                   <div className="w-full space-y-1.5 rounded-sm border border-border bg-card p-3 text-sm">
                     <div className="flex justify-between"><span className="text-muted-foreground">Symbol</span><span className="font-semibold">{confirmTrade.symbol}</span></div>
@@ -146,7 +156,7 @@ export const TradesTable = ({ trades, showCloseButton, onClose, isClosing, closi
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="cursor-pointer rounded-sm">Batal</AlertDialogCancel>
-            <AlertDialogAction className="cursor-pointer rounded-sm" onClick={() => { if (confirmTrade) { onClose?.(confirmTrade.id); setConfirmTrade(null) } }}>Ya, Tutup</AlertDialogAction>
+            <AlertDialogAction className="cursor-pointer rounded-sm" onClick={() => { if (confirmTrade) { onClose?.(confirmTrade.symbol); setConfirmTrade(null) } }}>Ya, Tutup</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
