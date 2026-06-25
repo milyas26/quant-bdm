@@ -48,9 +48,6 @@ const DATE_PRESETS = [
   { label: "2W", value: "2w" },
 ] as const
 
-const scoreColor = (v: number) =>
-  v >= 70 ? "text-positive" : v <= 30 ? "text-negative" : "text-warning"
-
 export default function BrokerAccumulationPage() {
   const navigate = useNavigate()
   const [showFilters, setShowFilters] = useState(false)
@@ -65,8 +62,6 @@ export default function BrokerAccumulationPage() {
     limit,
     minPrice,
     maxPrice,
-    minScore,
-    maxScore,
     signals,
     bandarStatus,
     momentum,
@@ -79,8 +74,6 @@ export default function BrokerAccumulationPage() {
     setLimit,
     setMinPrice,
     setMaxPrice,
-    setMinScore,
-    setMaxScore,
     setSignals,
     setBandarStatus,
     setMomentum,
@@ -91,8 +84,6 @@ export default function BrokerAccumulationPage() {
   const debouncedSymbol = useDebounce(symbolSearch, 500)
   const [minPriceInput, setMinPriceInput] = useState(minPrice)
   const [maxPriceInput, setMaxPriceInput] = useState(maxPrice)
-  const [minScoreInput, setMinScoreInput] = useState(minScore)
-  const [maxScoreInput, setMaxScoreInput] = useState(maxScore)
 
   const { data: brokerGroup } = useQuery({
     queryKey: ["brokers"],
@@ -162,8 +153,6 @@ export default function BrokerAccumulationPage() {
       if (!s) return true
       if (minPrice && s.price < parseInt(minPrice)) return false
       if (maxPrice && s.price > parseInt(maxPrice)) return false
-      if (minScore && s.smartMoneyScore < parseInt(minScore)) return false
-      if (maxScore && s.smartMoneyScore > parseInt(maxScore)) return false
       if (signals.length > 0) {
         const hasBreakout = signals.includes("Breakout") && s.isBreakout
         const hasSpike = signals.includes("Spike") && s.isVolumeSpike
@@ -180,8 +169,6 @@ export default function BrokerAccumulationPage() {
     data,
     minPrice,
     maxPrice,
-    minScore,
-    maxScore,
     signals,
     bandarStatus,
     momentum,
@@ -191,8 +178,6 @@ export default function BrokerAccumulationPage() {
   const hasActiveFilters = !!(
     minPrice ||
     maxPrice ||
-    minScore ||
-    maxScore ||
     signals.length ||
     bandarStatus.length ||
     momentum.length ||
@@ -213,10 +198,6 @@ export default function BrokerAccumulationPage() {
     setMinPrice(minPriceInput)
     setMaxPrice(maxPriceInput)
   }
-  const handleScoreUpdate = () => {
-    setMinScore(minScoreInput)
-    setMaxScore(maxScoreInput)
-  }
   const handleStepDate = (direction: 1 | -1) => {
     const current = parseISO(cutoffDate)
     const next = direction === 1 ? addDays(current, 1) : subDays(current, 1)
@@ -225,12 +206,8 @@ export default function BrokerAccumulationPage() {
   const handleResetFilters = () => {
     setMinPriceInput("")
     setMaxPriceInput("")
-    setMinScoreInput("")
-    setMaxScoreInput("")
     setMinPrice("")
     setMaxPrice("")
-    setMinScore("")
-    setMaxScore("")
     setSignals([])
     setBandarStatus([])
     setMomentum([])
@@ -377,7 +354,7 @@ export default function BrokerAccumulationPage() {
           <CardContent className="grid animate-in grid-cols-1 gap-3 p-3 duration-150 fade-in slide-in-from-top-1 md:grid-cols-2 lg:grid-cols-4">
             <div className="flex flex-col gap-1.5">
               <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
-                Price & Score
+                Price
               </span>
               <div className="flex h-8 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
                 <span className="font-medium text-muted-foreground">Price</span>
@@ -400,33 +377,6 @@ export default function BrokerAccumulationPage() {
                   onChange={(e) => setMaxPriceInput(e.target.value)}
                   onBlur={handlePriceUpdate}
                   onKeyDown={(e) => e.key === "Enter" && handlePriceUpdate()}
-                />
-              </div>
-              <div className="flex h-8 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
-                <span className="font-medium text-muted-foreground">Score</span>
-                <span className="text-border">|</span>
-                <input
-                  className="w-full bg-transparent outline-none placeholder:text-muted-foreground/30"
-                  placeholder="Min"
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={minScoreInput}
-                  onChange={(e) => setMinScoreInput(e.target.value)}
-                  onBlur={handleScoreUpdate}
-                  onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
-                />
-                <span className="text-muted-foreground">-</span>
-                <input
-                  className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground/30"
-                  placeholder="Max"
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={maxScoreInput}
-                  onChange={(e) => setMaxScoreInput(e.target.value)}
-                  onBlur={handleScoreUpdate}
-                  onKeyDown={(e) => e.key === "Enter" && handleScoreUpdate()}
                 />
               </div>
             </div>
@@ -511,9 +461,6 @@ export default function BrokerAccumulationPage() {
                 Net Lot
               </TableHead>
               <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                Score
-              </TableHead>
-              <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
                 Status
               </TableHead>
               <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
@@ -525,7 +472,7 @@ export default function BrokerAccumulationPage() {
             {!paginatedData.length ? (
               <TableRow className="border-border">
                 <TableCell
-                  colSpan={7}
+                  colSpan={6}
                   className="h-24 text-center font-mono text-sm text-muted-foreground"
                 >
                   {isLoading ? "Loading..." : "No results"}
@@ -602,20 +549,6 @@ export default function BrokerAccumulationPage() {
                     <span className="font-mono text-[12px]">
                       {formatNumber(item.totalNetLot)} lot
                     </span>
-                  </TableCell>
-                  <TableCell className="py-2">
-                    {item.screener ? (
-                      <span
-                        className={cn(
-                          "font-mono text-[13px] font-bold",
-                          scoreColor(item.screener.smartMoneyScore)
-                        )}
-                      >
-                        {item.screener.smartMoneyScore}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground">-</span>
-                    )}
                   </TableCell>
                   <TableCell className="py-2">
                     {item.screener ? (

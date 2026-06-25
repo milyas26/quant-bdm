@@ -13,8 +13,6 @@ export interface GetScreenerAnalysisParams {
   bandarStatus?: string[];
   momentum?: string[];
   sortOrder?: string;
-  minScore?: number;
-  maxScore?: number;
   accDist1D?: number;
   accDist1W?: number;
   accDist1M?: number;
@@ -50,7 +48,6 @@ export interface ScreenerAnalysisData {
     bandarStatus: string;
     isBreakout: boolean;
     isVolumeSpike: boolean;
-    smartMoneyScore: string;
   };
   return1D: string | null;
   return3D: string | null;

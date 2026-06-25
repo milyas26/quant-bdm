@@ -1,6 +1,6 @@
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
-import { StatusBadge, ScoreBadge } from "@/components/indicators"
+import { StatusBadge } from "@/components/indicators"
 import { cn } from "@/lib/utils"
 import {
   CartesianGrid,
@@ -44,7 +44,6 @@ const CustomTooltip = ({ active, payload }: any) => {
             <span className={cn("font-mono text-[9px]", item.momentum === "Uptrend" && "text-positive", item.momentum === "Downtrend" && "text-negative", !item.momentum || item.momentum === "Sideways" ? "text-muted-foreground" : "")}>
               {item.momentum}
             </span>
-            <ScoreBadge score={item.smartMoneyScore} className="text-[10px]" />
           </div>
         </div>
 
@@ -270,16 +269,7 @@ export function HistoricalScreener({
         {showCandlestick ? (
           <HistoricalPriceChart
             data={candlestickData}
-            inventoryDatasets={[
-              {
-                label: "Smart Money Score",
-                data: chartData.map((d) => ({
-                  date: d.date,
-                  value: d.smartMoneyScore,
-                })),
-                color: "rgb(22, 163, 74)",
-              },
-            ]}
+            inventoryDatasets={[]}
             height={700}
           />
         ) : (
@@ -305,12 +295,6 @@ export function HistoricalScreener({
                 domain={["auto", "auto"]}
                 tick={{ fontSize: 10 }}
               />
-              <YAxis
-                yAxisId="right"
-                orientation="right"
-                domain={[0, 100]}
-                tick={{ fontSize: 10 }}
-              />
               <Tooltip
                 content={<CustomTooltip />}
                 cursor={{
@@ -329,14 +313,6 @@ export function HistoricalScreener({
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 6 }}
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="smartMoneyScore"
-                stroke="#16a34a"
-                strokeWidth={1.5}
-                dot={false}
               />
               {hoveredData && (
                 <ReferenceLine
@@ -394,7 +370,6 @@ export function HistoricalScreener({
                   >
                     {item.momentum}
                   </Badge>
-                  <ScoreBadge score={item.smartMoneyScore} className="text-[10px]" />
                 </div>
               </div>
 

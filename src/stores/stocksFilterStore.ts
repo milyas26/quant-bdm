@@ -18,8 +18,6 @@ export interface StocksFilterState {
   accDist1D: string
   accDist1W: string
   accDist1M: string
-  minScore: string
-  maxScore: string
   netBrokerFlowOperator: "gt" | "lt"
   netBrokerFlowValue: string
   liquidity: string[]
@@ -42,8 +40,6 @@ export interface StocksFilterState {
   setAccDist1D: (v: string) => void
   setAccDist1W: (v: string) => void
   setAccDist1M: (v: string) => void
-  setMinScore: (v: string) => void
-  setMaxScore: (v: string) => void
   setNetBrokerFlowOperator: (op: "gt" | "lt") => void
   setNetBrokerFlowValue: (v: string) => void
   setLiquidity: (liquidity: string[]) => void
@@ -57,7 +53,7 @@ const DEFAULT_STATE = {
   watchlistId: null as number | null,
   minPrice: "",
   maxPrice: "",
-  sortBy: "smartMoneyScore",
+  sortBy: "netBrokerFlow",
   sortOrder: "desc" as const,
   signals: [],
   bandarStatus: [],
@@ -67,8 +63,6 @@ const DEFAULT_STATE = {
   accDist1D: "",
   accDist1W: "",
   accDist1M: "",
-  minScore: "",
-  maxScore: "",
   netBrokerFlowOperator: "gt" as const,
   netBrokerFlowValue: "",
   liquidity: [],
@@ -96,8 +90,6 @@ export const useStocksFilterStore = create<StocksFilterState>()(
       setAccDist1D: (accDist1D) => set({ accDist1D, page: 1 }),
       setAccDist1W: (accDist1W) => set({ accDist1W, page: 1 }),
       setAccDist1M: (accDist1M) => set({ accDist1M, page: 1 }),
-      setMinScore: (minScore) => set({ minScore, page: 1 }),
-      setMaxScore: (maxScore) => set({ maxScore, page: 1 }),
       setNetBrokerFlowOperator: (netBrokerFlowOperator) => set({ netBrokerFlowOperator, page: 1 }),
       setNetBrokerFlowValue: (netBrokerFlowValue) => set({ netBrokerFlowValue, page: 1 }),
       setLiquidity: (liquidity) => set({ liquidity, page: 1 }),

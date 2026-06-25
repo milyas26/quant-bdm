@@ -14,7 +14,7 @@ import { useDebounce } from "@/hooks/use-debounce"
 import { useInView } from "react-intersection-observer"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
-import { StatusBadge, ScoreBadge } from "@/components/indicators"
+import { StatusBadge } from "@/components/indicators"
 
 interface CommandMenuProps {
   open: boolean
@@ -228,9 +228,6 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
 
                   <div className="hidden flex-col items-end sm:flex">
                     <StatusBadge status={ticker.bandarStatus || "Neutral"} />
-                    <span className="mt-0.5">
-                      <ScoreBadge score={ticker.smartMoneyScore || 0} className="text-[10px]" />
-                    </span>
                   </div>
                 </div>
               </CommandItem>

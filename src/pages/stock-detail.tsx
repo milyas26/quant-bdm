@@ -35,7 +35,6 @@ import { AddToWatchlistDialog } from "@/components/add-to-watchlist-dialog"
 import { Badge } from "@/components/ui/badge"
 import { BrokerInventory } from "@/components/broker-inventory"
 import { HistoricalScreener } from "@/components/historical-screener"
-import { PvaAnalysis } from "@/components/pva-analysis"
 import { RetailExhaustionChart } from "@/components/retail-exhaustion-chart"
 import { FloorPriceChart } from "@/components/floor-price-chart"
 import { WhaleDetection } from "@/components/whale-detection"
@@ -441,20 +440,7 @@ export default function StockDetail() {
       )}
 
       <div className="space-y-6">
-        {screenerTicker && (
-          <PvaAnalysis
-            pvaTrend={screenerTicker.pvaTrend}
-            pvaScore={screenerTicker.pvaScore}
-            volumeAnomaly={screenerTicker.volumeAnomaly}
-            correctionHealth={screenerTicker.correctionHealth}
-            volumeDistributionRisk={screenerTicker.volumeDistributionRisk}
-            volumeChangeRatio={screenerTicker.volumeChangeRatio}
-            washTradingRisk={screenerTicker.washTradingRisk}
-            washTradingScore={screenerTicker.washTradingScore}
-            distributionRisk={screenerTicker.distributionRisk}
-            repoPatternDetected={screenerTicker.repoPatternDetected}
-          />
-        )}
+
         <BrokerInventory selectedTicker={selectedTicker} />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <FloorPriceChart symbol={selectedTicker} />

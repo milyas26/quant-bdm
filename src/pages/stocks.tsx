@@ -62,14 +62,7 @@ import { format, parseISO } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import { SimulateBuyButton } from "@/components/simulate-buy-button"
 import { Pagination } from "@/components/pagination"
-import {
-  Bookmark,
-  Activity,
-  BarChart2,
-  Shuffle,
-  ArrowDownRight,
-  AlertTriangle,
-} from "lucide-react"
+import { Bookmark } from "lucide-react"
 
 const formatNumber = (num: number) => {
   if (Math.abs(num) >= 1_000_000_000)
@@ -288,9 +281,6 @@ export default function StocksPage() {
       onError: (error) =>
         toast.error(`Failed to start profile fetch: ${(error as Error).message}`),
     })
-
-  const scoreColor = (v: number) =>
-    v >= 70 ? "text-positive" : v <= 30 ? "text-negative" : "text-warning"
 
   const changeColor = (v: number) =>
     v > 0 ? "text-positive" : v < 0 ? "text-negative" : "text-muted-foreground"
@@ -709,19 +699,6 @@ export default function StocksPage() {
                 </TableHead>
                 <TableHead
                   className="h-8 cursor-pointer font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
-                  onClick={() => handleSort("smartMoneyScore")}
-                >
-                  <div className="flex items-center gap-1">
-                    Score{" "}
-                    <SortIcon
-                      column="smartMoneyScore"
-                      sortBy={sortBy}
-                      sortOrder={sortOrder}
-                    />
-                  </div>
-                </TableHead>
-                <TableHead
-                  className="h-8 cursor-pointer font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
                   onClick={() => handleSort("momentum")}
                 >
                   <div className="flex items-center gap-1">
@@ -732,9 +709,6 @@ export default function StocksPage() {
                       sortOrder={sortOrder}
                     />
                   </div>
-                </TableHead>
-                <TableHead className="h-8 font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
-                  Remora
                 </TableHead>
                 <TableHead className="h-8 font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
                   Top Brokers
@@ -772,7 +746,7 @@ export default function StocksPage() {
               {isLoading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={14}
+                    colSpan={12}
                     className="h-32 text-center font-mono text-sm text-muted-foreground"
                   >
                     Loading...
@@ -781,7 +755,7 @@ export default function StocksPage() {
               ) : isError ? (
                 <TableRow>
                   <TableCell
-                    colSpan={14}
+                    colSpan={12}
                     className="h-32 text-center font-mono text-sm text-destructive"
                   >
                     {(error as Error).message}
@@ -790,7 +764,7 @@ export default function StocksPage() {
               ) : data?.data.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={14}
+                    colSpan={12}
                     className="h-32 text-center font-mono text-sm text-muted-foreground"
                   >
                     No results
@@ -929,16 +903,6 @@ export default function StocksPage() {
                     <TableCell className="py-2">
                       <span
                         className={cn(
-                          "font-mono text-[13px] font-bold",
-                          scoreColor(ticker.smartMoneyScore)
-                        )}
-                      >
-                        {ticker.smartMoneyScore}
-                      </span>
-                    </TableCell>
-                    <TableCell className="py-2">
-                      <span
-                        className={cn(
                           "font-mono text-[11px] font-medium",
                           ticker.momentum === "Uptrend" && "text-positive",
                           ticker.momentum === "Downtrend" && "text-negative"
@@ -946,82 +910,6 @@ export default function StocksPage() {
                       >
                         {ticker.momentum}
                       </span>
-                    </TableCell>
-                    <TableCell className="py-2">
-                      <div className="flex flex-col gap-0.5 font-mono text-[10px] whitespace-nowrap">
-                        <div
-                          title="PVA Trend"
-                          className={cn(
-                            "flex items-center gap-1 font-medium",
-                            ticker.pvaTrend === "UPTREND"
-                              ? "text-positive"
-                              : ticker.pvaTrend === "DOWNTREND"
-                                ? "text-negative"
-                                : ticker.pvaTrend === "MIXED"
-                                  ? "text-warning"
-                                  : "text-muted-foreground"
-                          )}
-                        >
-                          <Activity className="h-2.5 w-2.5 shrink-0" />
-                          {ticker.pvaTrend ?? "-"}
-                        </div>
-                        {ticker.volumeAnomaly &&
-                          ticker.volumeAnomaly !== "NONE" && (
-                            <div
-                              title="Volume Anomaly"
-                              className={cn(
-                                "flex items-center gap-1 font-medium",
-                                ticker.volumeAnomaly === "EXTREME"
-                                  ? "text-negative"
-                                  : ticker.volumeAnomaly === "STRONG"
-                                    ? "text-warning"
-                                    : "text-positive"
-                              )}
-                            >
-                              <BarChart2 className="h-2.5 w-2.5 shrink-0" />
-                              {ticker.volumeAnomaly}
-                            </div>
-                          )}
-                        {ticker.washTradingRisk &&
-                          ticker.washTradingRisk !== "LOW" && (
-                            <div
-                              title="Wash Trading"
-                              className={cn(
-                                "flex items-center gap-1 font-medium",
-                                ticker.washTradingRisk === "HIGH"
-                                  ? "text-negative"
-                                  : "text-warning"
-                              )}
-                            >
-                              <Shuffle className="h-2.5 w-2.5 shrink-0" />
-                              {ticker.washTradingRisk}
-                            </div>
-                          )}
-                        {ticker.distributionRisk != null &&
-                          ticker.distributionRisk > 30 && (
-                            <div
-                              title="Distribution Risk"
-                              className={cn(
-                                "flex items-center gap-1 font-medium",
-                                ticker.distributionRisk > 60
-                                  ? "text-negative"
-                                  : "text-warning"
-                              )}
-                            >
-                              <ArrowDownRight className="h-2.5 w-2.5 shrink-0" />
-                              {ticker.distributionRisk.toFixed(0)}%
-                            </div>
-                          )}
-                        {ticker.repoPatternDetected && (
-                          <div
-                            title="Repo Pattern"
-                            className="flex items-center gap-1 font-medium text-destructive"
-                          >
-                            <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
-                            Repo
-                          </div>
-                        )}
-                      </div>
                     </TableCell>
                     <TableCell
                       className="py-2"

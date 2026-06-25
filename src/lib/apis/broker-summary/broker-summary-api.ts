@@ -233,11 +233,9 @@ export interface BrokerAccumulationSearchResult {
     isVolumeSpike: boolean
     netBrokerFlow: number
     bandarStatus: string
-    smartMoneyScore: number
     momentum: string
     isBreakout: boolean
     liquidityScore: string
-    pvaTrend: string | null
   } | null
   brokers: Array<{
     brokerCode: string

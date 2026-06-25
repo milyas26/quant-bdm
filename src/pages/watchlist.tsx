@@ -34,7 +34,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { cn, getBrokerCodeClass } from "@/lib/utils"
-import { StatusBadge, ScoreBadge } from "@/components/indicators"
+import { StatusBadge } from "@/components/indicators"
 import { toast } from "sonner"
 import {
   Plus,
@@ -480,9 +480,6 @@ export default function WatchlistPage() {
                         Status
                       </TableHead>
                       <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                        Score
-                      </TableHead>
-                      <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
                         Mom
                       </TableHead>
                       <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
@@ -597,16 +594,6 @@ export default function WatchlistPage() {
                           </TableCell>
                           <TableCell>
                             {s ? <StatusBadge status={s.bandarStatus} /> : "-"}
-                          </TableCell>
-                          <TableCell>
-                            {s ? (
-                              <ScoreBadge
-                                score={Number(s.smartMoneyScore)}
-                                className="text-[12px]"
-                              />
-                            ) : (
-                              "-"
-                            )}
                           </TableCell>
                           <TableCell>
                             {s ? (

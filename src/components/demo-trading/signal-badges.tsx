@@ -1,7 +1,6 @@
 import type { DemoTrade } from "@/lib/api"
 import { Badge } from "@/components/ui/badge"
 import { StatusBadge } from "@/components/indicators"
-import { ScoreBadge } from "@/components/indicators"
 
 interface SignalBadgesProps {
   trade: DemoTrade
@@ -27,15 +26,6 @@ export const SignalBadges = ({ trade }: SignalBadgesProps) => (
     {trade.bandarStatus && (
       <div>
         <StatusBadge status={trade.bandarStatus} />
-      </div>
-    )}
-    {trade.smartMoneyScore != null && (
-      <div className="flex items-center gap-1 font-mono text-[9px]">
-        <span className="text-muted-foreground">Scr:</span>
-        <ScoreBadge
-          score={Number(trade.smartMoneyScore)}
-          className="text-[9px]"
-        />
       </div>
     )}
   </div>

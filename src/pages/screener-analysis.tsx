@@ -15,7 +15,7 @@ import { DatePickerWithRange } from "@/components/date-range-picker"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { StatusBadge, ScoreBadge } from "@/components/indicators"
+import { StatusBadge } from "@/components/indicators"
 import { cn, getBrokerCodeClass } from "@/lib/utils"
 import {
   Table,
@@ -31,11 +31,6 @@ import {
   Download,
   X,
   SlidersHorizontal,
-  Activity,
-  BarChart2,
-  Shuffle,
-  ArrowDownRight,
-  AlertTriangle,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -712,7 +707,6 @@ export default function ScreenerAnalysis() {
             <TableHead>Acc/Dist (%)</TableHead>
             <TableHead>Bandar Status</TableHead>
             <TableHead>Insight</TableHead>
-            <TableHead>Remora</TableHead>
             <TableHead>Top Brokers</TableHead>
             <TableHead className="text-center">Returns (%)</TableHead>
             <TableHead className="text-right">Peak Return</TableHead>
@@ -721,14 +715,14 @@ export default function ScreenerAnalysis() {
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={12} className="h-24 text-center">
+              <TableCell colSpan={11} className="h-24 text-center">
                 Loading analysis data...
               </TableCell>
             </TableRow>
           ) : isError ? (
             <TableRow>
               <TableCell
-                colSpan={12}
+                colSpan={11}
                 className="text-negative h-24 text-center"
               >
                 Error: {(error as Error).message}
@@ -737,7 +731,7 @@ export default function ScreenerAnalysis() {
           ) : !data || data.data.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={12}
+                colSpan={11}
                 className="h-24 text-center text-muted-foreground"
               >
                 No analysis data found
@@ -951,14 +945,7 @@ export default function ScreenerAnalysis() {
                   />
                 </TableCell>
                 <TableCell>
-                  <div className="flex flex-col gap-1 text-[11px] whitespace-nowrap">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-6 text-muted-foreground/70">Scr:</span>
-                      <ScoreBadge
-                        score={Number(row.screener?.smartMoneyScore || 0)}
-                        className="text-[11px]"
-                      />
-                    </div>
+                    <div className="flex flex-col gap-1 text-[11px] whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
                       <span className="w-6 text-muted-foreground/70">Mom:</span>
                       <span
@@ -989,84 +976,6 @@ export default function ScreenerAnalysis() {
                         {row.screener?.liquidityScore || "-"}
                       </span>
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-col gap-0.5 text-[11px] whitespace-nowrap">
-                    <div
-                      title="Price Volume Analysis"
-                      className={cn(
-                        "flex items-center gap-1 font-mono font-medium",
-                        row.screener?.pvaTrend === "UPTREND"
-                          ? "text-positive"
-                          : row.screener?.pvaTrend === "DOWNTREND"
-                            ? "text-negative"
-                            : row.screener?.pvaTrend === "MIXED"
-                              ? "text-warning"
-                              : "text-muted-foreground"
-                      )}
-                    >
-                      <Activity className="h-3 w-3 shrink-0" />
-                      <span>{row.screener?.pvaTrend ?? "-"}</span>
-                    </div>
-                    {row.screener?.volumeAnomaly &&
-                      row.screener.volumeAnomaly !== "NONE" && (
-                        <div
-                          title="Volume Anomaly"
-                          className={cn(
-                            "flex items-center gap-1 font-mono font-medium",
-                            row.screener.volumeAnomaly === "EXTREME"
-                              ? "text-negative"
-                              : row.screener.volumeAnomaly === "STRONG"
-                                ? "text-warning"
-                                : "text-warning"
-                          )}
-                        >
-                          <BarChart2 className="h-3 w-3 shrink-0" />
-                          <span>{row.screener.volumeAnomaly}</span>
-                        </div>
-                      )}
-                    {row.screener?.washTradingRisk &&
-                      row.screener.washTradingRisk !== "LOW" && (
-                        <div
-                          title="Wash Trading Risk"
-                          className={cn(
-                            "flex items-center gap-1 font-mono font-medium",
-                            row.screener.washTradingRisk === "HIGH"
-                              ? "text-negative"
-                              : "text-warning"
-                          )}
-                        >
-                          <Shuffle className="h-3 w-3 shrink-0" />
-                          <span>{row.screener.washTradingRisk}</span>
-                        </div>
-                      )}
-                    {row.screener?.distributionRisk != null &&
-                      Number(row.screener.distributionRisk) > 30 && (
-                        <div
-                          title="Distribution Risk"
-                          className={cn(
-                            "flex items-center gap-1 font-mono font-medium",
-                            Number(row.screener.distributionRisk) > 60
-                              ? "text-negative"
-                              : "text-warning"
-                          )}
-                        >
-                          <ArrowDownRight className="h-3 w-3 shrink-0" />
-                          <span>
-                            {Number(row.screener.distributionRisk).toFixed(0)}%
-                          </span>
-                        </div>
-                      )}
-                    {row.screener?.repoPatternDetected && (
-                      <div
-                        title="Repo Pattern Detected"
-                        className="text-negative flex items-center gap-1 font-medium"
-                      >
-                        <AlertTriangle className="h-3 w-3 shrink-0" />
-                        <span>Repo</span>
-                      </div>
-                    )}
                   </div>
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>

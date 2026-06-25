@@ -7,7 +7,6 @@ export interface ScreenerSnapshot {
   isVolumeSpike: boolean
   netBrokerFlow: number
   bandarStatus: string
-  smartMoneyScore: number
   momentum: string
   isBreakout: boolean
   date: string

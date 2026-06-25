@@ -175,14 +175,6 @@ export function SimulateBuyButton({ ticker }: SimulateBuyButtonProps) {
 
           {/* Detail scores */}
           <div className="px-1">
-            <InfoRow
-              label="Smart Money Score"
-              value={
-                <span className={cn(ticker.smartMoneyScore >= 70 ? "text-positive" : ticker.smartMoneyScore >= 40 ? "text-warning" : "text-negative")}>
-                  {ticker.smartMoneyScore.toFixed(1)}
-                </span>
-              }
-            />
             <InfoRow label="Liquidity Score" value={ticker.liquidityScore} />
             <InfoRow
               label="Net Broker Flow"

@@ -13,7 +13,6 @@ export interface DemoTrade {
   pnl: number
   pnlPercent: number
   signalScore: number | null
-  smartMoneyScore: number | null
   runnerScore: number | null
   isBreakout: boolean | null
   isVolumeSpike: boolean | null
