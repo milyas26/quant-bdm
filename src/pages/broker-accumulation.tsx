@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
 import { cn, formatNumber, getBrokerCodeClass } from "@/lib/utils"
 import { StatusBadge } from "@/components/indicators"
 import { BrokerMultiSelect } from "@/components/broker-multi-select"
