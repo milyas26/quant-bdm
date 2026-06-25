@@ -34,7 +34,7 @@ export function Pagination({
   limit,
   totalItems,
   currentItems,
-  limitOptions = [10, 25, 50, 100],
+  limitOptions = [10, 15, 25, 50, 100],
   showItems = true,
   isLoading = false,
   onPageChange,

@@ -316,7 +316,6 @@ export default function BrokerAccumulationPage() {
           >
             <ChevronRight className="h-3.5 w-3.5" />
           </Button>
-          <Separator orientation="vertical" className="mx-0.5 h-5" />
           {DATE_PRESETS.map((p) => (
             <Button
               key={p.value}
@@ -328,7 +327,6 @@ export default function BrokerAccumulationPage() {
               {p.label}
             </Button>
           ))}
-          <Separator orientation="vertical" className="mx-0.5 h-5" />
           <Button
             variant={showFilters ? "default" : "outline"}
             size="sm"

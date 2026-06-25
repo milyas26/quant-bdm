@@ -48,7 +48,7 @@ export interface StocksFilterState {
 
 const DEFAULT_STATE = {
   page: 1,
-  limit: 10,
+  limit: 15,
   search: "",
   watchlistId: null as number | null,
   minPrice: "",

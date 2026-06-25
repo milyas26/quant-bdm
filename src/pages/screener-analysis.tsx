@@ -350,7 +350,6 @@ export default function ScreenerAnalysis() {
                 >
                   + Breakout
                 </Button>
-                <Separator orientation="vertical" className="mx-1 h-5" />
                 <Button
                   variant={showFilters ? "default" : "outline"}
                   size="sm"

@@ -99,7 +99,7 @@ export default function Layout() {
 
         <div className={cn("px-2 py-2 border-b border-border", collapsed && "hidden")}>
           <div className="relative">
-            <Search className="absolute top-1.5 left-2 h-3 w-3 text-muted-foreground" />
+            <Search className="absolute top-2 left-2 h-3 w-3 text-muted-foreground" />
             <Input
               className="h-7 pl-6 pr-2 text-[11px] bg-transparent border-border font-mono placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:border-muted-foreground"
               placeholder="/stock"
