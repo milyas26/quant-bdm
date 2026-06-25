@@ -5,8 +5,8 @@ import axios, {
 
 // Create Axios instance with default config
 export const api: AxiosInstance = axios.create({
-  // baseURL: "https://quantbdm-api.bikin.site/",
-  baseURL: "http://localhost:8000/",
+  baseURL: "https://quantbdm-api.bikin.site/",
+  // baseURL: "http://localhost:8000/",
   headers: {
     "Content-Type": "application/json",
   },
