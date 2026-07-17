@@ -264,6 +264,7 @@ export const searchBrokerAccumulation = async (
   symbol?: string,
   cutoffDate?: string,
   watchlistIds?: number[],
+  direction?: "buy" | "sell",
 ) => {
   const params: Record<string, string | undefined> = { from, to }
   if (brokers.length > 0) {
@@ -277,6 +278,9 @@ export const searchBrokerAccumulation = async (
   }
   if (watchlistIds && watchlistIds.length > 0) {
     params.watchlistIds = watchlistIds.join(",")
+  }
+  if (direction) {
+    params.direction = direction
   }
   const { data } = await api.get<BrokerAccumulationSearchResponse>("/broker-accumulation-search", {
     params,

@@ -20,7 +20,7 @@ import type { BrokerOption } from "@/components/broker-multi-select"
 import { MultiSelect } from "@/components/multi-select"
 import type { MultiSelectOption } from "@/components/multi-select"
 import { FilterMultiSelect } from "@/components/filter-multi-select"
-import { useBrokerAccumulationStore } from "@/stores/brokerAccumulationStore"
+import { useBrokerAccumulationStore, DUMB_MONEY_CODES } from "@/stores/brokerAccumulationStore"
 import { useMemo, useState, useEffect } from "react"
 import { useDebounce } from "@/hooks/use-debounce"
 import {
@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/popover"
 import { format, parseISO, addDays, subDays } from "date-fns"
 import type { BrokerAccumulationSearchResult } from "@/lib/apis/broker-summary/broker-summary-api"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const DATE_PRESETS = [
   { label: "3D", value: "3d" },
@@ -51,6 +52,7 @@ export default function BrokerAccumulationPage() {
   const navigate = useNavigate()
   const [showFilters, setShowFilters] = useState(false)
   const {
+    type,
     brokerCodes,
     watchlistIds,
     preset,
@@ -65,6 +67,7 @@ export default function BrokerAccumulationPage() {
     bandarStatus,
     momentum,
     liquidity,
+    setType,
     setBrokerCodes,
     setWatchlistIds,
     setPreset,
@@ -126,6 +129,7 @@ export default function BrokerAccumulationPage() {
   const { data, isLoading } = useQuery({
     queryKey: [
       "broker-accumulation-search",
+      type,
       brokerCodes,
       from,
       to,
@@ -140,7 +144,8 @@ export default function BrokerAccumulationPage() {
         to,
         debouncedSymbol || undefined,
         cutoffDate,
-        watchlistIds.length > 0 ? watchlistIds : undefined
+        watchlistIds.length > 0 ? watchlistIds : undefined,
+        type === "distribution" ? "sell" : "buy",
       ),
     enabled: !!from && !!to,
   })
@@ -216,12 +221,28 @@ export default function BrokerAccumulationPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="font-mono text-lg font-bold tracking-tight">
-          Broker Accumulation
-        </h1>
+        <div className="flex items-center gap-4">
+          <h1 className="font-mono text-lg font-bold tracking-tight">
+            {type === "accumulation" ? "Broker Accumulation" : "Broker Distribution"}
+          </h1>
+          <Tabs
+            value={type}
+            onValueChange={(v) => setType(v as "accumulation" | "distribution")}
+          >
+            <TabsList className="h-7">
+              <TabsTrigger value="accumulation" className="px-2.5 font-mono text-[11px]">
+                Accumulation
+              </TabsTrigger>
+              <TabsTrigger value="distribution" className="px-2.5 font-mono text-[11px]">
+                Distribution
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
         <p className="mt-0.5 text-[12px] text-muted-foreground">
-          Cari saham yang diakumulasi broker tertentu dalam rentang waktu yang
-          dipilih.
+          {type === "accumulation"
+            ? "Cari saham yang diakumulasi broker tertentu dalam rentang waktu yang dipilih."
+            : `Cari saham yang didistribusi broker dumb money (${DUMB_MONEY_CODES.join(", ")}) dalam rentang waktu yang dipilih.`}
         </p>
       </div>
 
@@ -249,13 +270,30 @@ export default function BrokerAccumulationPage() {
             searchPlaceholder="Cari..."
           />
         </div>
-        <div className="max-w-xs min-w-56 flex-1">
-          <BrokerMultiSelect
-            options={brokerOptions}
-            selected={brokerCodes}
-            onChange={setBrokerCodes}
-            placeholder="Pilih broker..."
-          />
+        <div className={cn("max-w-xs min-w-56 flex-1", type === "distribution" && "flex items-center gap-1.5")}>
+          {type === "distribution" ? (
+            <>
+              <span className="font-mono text-[11px] text-muted-foreground">
+                Brokers:
+              </span>
+              {DUMB_MONEY_CODES.map((code) => (
+                <Badge
+                  key={code}
+                  variant="secondary"
+                  className="h-5 rounded-sm px-1.5 font-mono text-[9px] text-negative bg-destructive/10"
+                >
+                  {code}
+                </Badge>
+              ))}
+            </>
+          ) : (
+            <BrokerMultiSelect
+              options={brokerOptions}
+              selected={brokerCodes}
+              onChange={setBrokerCodes}
+              placeholder="Pilih broker..."
+            />
+          )}
         </div>
         <div className="flex items-center gap-1">
           <Button
@@ -453,7 +491,7 @@ export default function BrokerAccumulationPage() {
                 Price
               </TableHead>
               <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                Net Value
+                {type === "accumulation" ? "Net Value" : "Net Sell"}
               </TableHead>
               <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
                 Net Lot
@@ -539,8 +577,12 @@ export default function BrokerAccumulationPage() {
                     )}
                   </TableCell>
                   <TableCell className="py-2">
-                    <span className="text-positive font-mono text-[12px] font-semibold">
-                      +{formatNumber(item.totalNetVal)}
+                    <span className={cn(
+                      "font-mono text-[12px] font-semibold",
+                      type === "accumulation" ? "text-positive" : "text-negative"
+                    )}>
+                      {type === "accumulation" ? "+" : "-"}
+                      {formatNumber(Math.abs(item.totalNetVal))}
                     </span>
                   </TableCell>
                   <TableCell className="py-2">

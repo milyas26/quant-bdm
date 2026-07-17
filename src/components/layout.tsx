@@ -29,7 +29,7 @@ const navItems = [
   { title: "Screener", url: "/", icon: LayoutDashboard },
   { title: "History", url: "/history", icon: History },
   { title: "Watchlist", url: "/watchlist", icon: Bookmark },
-  { title: "Streak", url: "/broker-accumulation", icon: TrendingUp },
+  { title: "Streak", url: "/broker-streak", icon: TrendingUp },
   { title: "Portfolio", url: "/portfolio", icon: Briefcase },
   { title: "Guide", url: "/guide", icon: BookOpen },
 ]

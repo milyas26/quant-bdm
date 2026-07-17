@@ -2,7 +2,10 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { format, subDays, parseISO } from "date-fns"
 
+export const DUMB_MONEY_CODES = ["XL", "XC", "YP", "PD"]
+
 export interface BrokerAccumulationFilterState {
+  type: "accumulation" | "distribution"
   brokerCodes: string[]
   watchlistIds: number[]
   preset: "3d" | "1w" | "2w" | "custom"
@@ -24,6 +27,7 @@ export interface BrokerAccumulationFilterState {
   momentum: string[]
   liquidity: string[]
 
+  setType: (type: "accumulation" | "distribution") => void
   setBrokerCodes: (codes: string[]) => void
   setWatchlistIds: (ids: number[]) => void
   setPreset: (preset: "3d" | "1w" | "2w" | "custom") => void
@@ -55,6 +59,7 @@ const getPresetFrom = (preset: "3d" | "1w" | "2w" | "custom", cutoff?: string) =
 }
 
 const DEFAULT_STATE = {
+  type: "accumulation" as const,
   brokerCodes: [] as string[],
   watchlistIds: [] as number[],
   preset: "1w" as const,
@@ -78,6 +83,11 @@ export const useBrokerAccumulationStore = create<BrokerAccumulationFilterState>(
     (set) => ({
       ...DEFAULT_STATE,
 
+      setType: (type) => set({
+        type,
+        brokerCodes: type === "distribution" ? [...DUMB_MONEY_CODES] : [],
+        page: 1,
+      }),
       setBrokerCodes: (brokerCodes) => set({ brokerCodes, page: 1 }),
       setWatchlistIds: (watchlistIds) => set({ watchlistIds, page: 1 }),
       setPreset: (preset) => set((state) => ({
