@@ -5,12 +5,12 @@ const SECRET_CODE = "SupriSpinach2026"
 
 export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
-    () => sessionStorage.getItem(SESSION_KEY) === "true"
+    () => localStorage.getItem(SESSION_KEY) === "true"
   )
 
   const login = useCallback((code: string): boolean => {
     if (code === SECRET_CODE) {
-      sessionStorage.setItem(SESSION_KEY, "true")
+      localStorage.setItem(SESSION_KEY, "true")
       setIsAuthenticated(true)
       return true
     }
@@ -18,7 +18,7 @@ export function useAuth() {
   }, [])
 
   const logout = useCallback(() => {
-    sessionStorage.removeItem(SESSION_KEY)
+    localStorage.removeItem(SESSION_KEY)
     setIsAuthenticated(false)
   }, [])
 
