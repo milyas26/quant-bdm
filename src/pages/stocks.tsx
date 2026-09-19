@@ -7,6 +7,7 @@ import {
   refreshAllTickers,
   getWatchlists,
   refreshAllProfiles,
+  refreshAllKeystats,
 } from "@/lib/api"
 import { AddToWatchlistDialog } from "@/components/add-to-watchlist-dialog"
 import { useStocksFilterStore } from "@/stores/stocksFilterStore"
@@ -37,6 +38,7 @@ import {
   ArrowUpDown,
   SlidersHorizontal,
   Building2,
+  BarChart3,
 } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
 import { Badge } from "@/components/ui/badge"
@@ -144,6 +146,7 @@ export default function StocksPage() {
   const [maxPriceInput, setMaxPriceInput] = useState(maxPriceStr)
   const [showFilters, setShowFilters] = useState(false)
   const [profileDialogOpen, setProfileDialogOpen] = useState(false)
+  const [statsDialogOpen, setStatsDialogOpen] = useState(false)
   const [refreshDialogOpen, setRefreshDialogOpen] = useState(false)
 
   const debouncedSearch = useDebounce(searchTerm, 500)
@@ -264,6 +267,15 @@ export default function StocksPage() {
         toast.error(`Failed to start profile fetch: ${(error as Error).message}`),
     })
 
+  const { mutate: handleRefreshAllKeystats, isPending: isFetchingKeystats } =
+    useMutation({
+      mutationFn: refreshAllKeystats,
+      onSuccess: () =>
+        toast.success("Started fetching all stock keystats in background."),
+      onError: (error) =>
+        toast.error(`Failed to start keystats fetch: ${(error as Error).message}`),
+    })
+
   const changeColor = (v: number) =>
     v > 0 ? "text-positive" : v < 0 ? "text-negative" : "text-muted-foreground"
 
@@ -350,6 +362,18 @@ export default function StocksPage() {
           >
             <Building2
               className={cn("h-3.5 w-3.5", isFetchingProfiles && "animate-pulse")}
+            />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setStatsDialogOpen(true)}
+            disabled={isFetchingKeystats}
+            className="h-9 w-9 shrink-0"
+            title="Get All Keystats"
+          >
+            <BarChart3
+              className={cn("h-3.5 w-3.5", isFetchingKeystats && "animate-pulse")}
             />
           </Button>
         </div>
@@ -981,6 +1005,37 @@ export default function StocksPage() {
               onClick={() => {
                 setProfileDialogOpen(false)
                 handleRefreshAllProfiles()
+              }}
+              className="rounded-sm"
+            >
+              Start Fetch
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={statsDialogOpen} onOpenChange={setStatsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Get All Stock Keystats</DialogTitle>
+            <DialogDescription>
+              This will fetch financial key statistics for all tickers from
+              Stockbit. The process runs in background and may take up to 30
+              minutes.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setStatsDialogOpen(false)}
+              className="rounded-sm"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setStatsDialogOpen(false)
+                handleRefreshAllKeystats()
               }}
               className="rounded-sm"
             >
