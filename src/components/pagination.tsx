@@ -62,7 +62,7 @@ export function Pagination({
       <div className="flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
         {showItems && (
           <span>
-            {currentItems} of {totalItems}
+            {currentItems * page} of {totalItems}
           </span>
         )}
         <Select
