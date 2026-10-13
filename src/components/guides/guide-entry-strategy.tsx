@@ -94,7 +94,7 @@ export default function GuideEntryStrategy() {
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div>
-                  <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Ciri-ciri</div>
+                  <div className="mb-2 text-xs font-medium text-muted-foreground">Ciri-ciri</div>
                   <ul className="space-y-1.5">
                     {ciri.map((c) => (
                       <li key={c} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -106,7 +106,7 @@ export default function GuideEntryStrategy() {
                 </div>
 
                 <div>
-                  <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Kelebihan</div>
+                  <div className="mb-2 text-xs font-medium text-muted-foreground">Kelebihan</div>
                   <ul className="space-y-1.5">
                     {pros.map((p) => (
                       <li key={p} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -118,7 +118,7 @@ export default function GuideEntryStrategy() {
                 </div>
 
                 <div>
-                  <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Kekurangan</div>
+                  <div className="mb-2 text-xs font-medium text-muted-foreground">Kekurangan</div>
                   <ul className="space-y-1.5">
                     {cons.map((c) => (
                       <li key={c} className="flex items-start gap-2 text-sm text-muted-foreground">

@@ -17,13 +17,13 @@ export const StatCard = ({ label, value, sub, icon: Icon, valueClass, loading }:
       <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-muted">
         <Icon className="h-3 w-3 text-muted-foreground" />
       </div>
-      <CardTitle className="text-[10px] font-mono font-medium tracking-wider text-muted-foreground uppercase">{label}</CardTitle>
+      <CardTitle className="text-[11px] font-medium text-muted-foreground">{label}</CardTitle>
     </CardHeader>
     <CardContent className="px-3">
       {loading ? <Skeleton className="mt-1 h-6 w-16" /> : (
         <>
           <p className={cn("text-lg font-mono font-bold tracking-tight", valueClass)}>{value}</p>
-          {sub && <p className="mt-0.5 text-[10px] text-muted-foreground">{sub}</p>}
+          {sub && <p className="mt-0.5 text-[11px] text-muted-foreground">{sub}</p>}
         </>
       )}
     </CardContent>

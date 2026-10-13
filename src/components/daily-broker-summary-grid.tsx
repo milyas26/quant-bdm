@@ -45,7 +45,8 @@ export function DailyBrokerSummaryGrid({
   const emptyEndCells = lastDay ? (lastDay.date.getDay() === 0 ? 6 : lastDay.date.getDay() - 1) : 0 // Adjust for Monday start
 
   return (
-    <div className="space-y-0 max-h-150 overflow-y-auto rounded border">
+    <div className="scrollbar-thin max-h-150 overflow-auto rounded-lg border">
+      <div className="min-w-[560px]">
       <div className="grid grid-cols-5 border-b border-border">
         {weekDays.map((day) => (
           <div
@@ -110,7 +111,7 @@ export function DailyBrokerSummaryGrid({
                   >
                     {day.dayNumber}
                   </div>
-                  <div className="text-[10px] leading-none text-muted-foreground">
+                  <div className="text-[11px] leading-none text-muted-foreground">
                     {day.month}
                   </div>
                 </div>
@@ -118,7 +119,7 @@ export function DailyBrokerSummaryGrid({
                 {/* Holiday indicator or main content */}
                 {!hasData ? (
                   <div className="flex flex-1 items-center justify-center">
-                    <span className="rounded bg-muted px-2 py-1 text-[10px] font-medium text-muted-foreground">
+                    <span className="rounded bg-muted px-2 py-1 text-[11px] font-medium text-muted-foreground">
                       Bursa Libur
                     </span>
                   </div>
@@ -135,7 +136,7 @@ export function DailyBrokerSummaryGrid({
                             >
                               <span
                                 className={cn(
-                                  "cursor-pointer text-[10px]",
+                                  "cursor-pointer text-[11px]",
                                   getBrokerCodeClass(buy.netbsBrokerCode),
                                   highlightedBroker === buy.netbsBrokerCode &&
                                     "rounded bg-yellow-200 p-1 dark:bg-yellow-900"
@@ -146,13 +147,13 @@ export function DailyBrokerSummaryGrid({
                               >
                                 {buy.netbsBrokerCode}
                               </span>
-                              <span className="text-[9px] text-muted-foreground">
+                              <span className="text-[10px] text-muted-foreground">
                                 {formatNumber(parseFloat(buy.bval))}
                               </span>
                             </div>
                           ))
                         ) : (
-                          <div className="text-[9px] text-muted-foreground/50">
+                          <div className="text-[10px] text-muted-foreground">
                             -
                           </div>
                         )}
@@ -167,7 +168,7 @@ export function DailyBrokerSummaryGrid({
                             >
                               <span
                                 className={cn(
-                                  "cursor-pointer text-[10px]",
+                                  "cursor-pointer text-[11px]",
                                   getBrokerCodeClass(sell.netbsBrokerCode),
                                   highlightedBroker === sell.netbsBrokerCode &&
                                     "rounded bg-yellow-200 p-1 dark:bg-yellow-900"
@@ -178,13 +179,13 @@ export function DailyBrokerSummaryGrid({
                               >
                                 {sell.netbsBrokerCode}
                               </span>
-                              <span className="text-[9px] text-muted-foreground">
+                              <span className="text-[10px] text-muted-foreground">
                                 {formatNumber(parseFloat(sell.sval))}
                               </span>
                             </div>
                           ))
                         ) : (
-                          <div className="text-[9px] text-muted-foreground/50">
+                          <div className="text-[10px] text-muted-foreground">
                             -
                           </div>
                         )}
@@ -202,6 +203,7 @@ export function DailyBrokerSummaryGrid({
             className="h-32 min-h-32 border-b border-l border-border bg-muted/20"
           />
         ))}
+      </div>
       </div>
     </div>
   )

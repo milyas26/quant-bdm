@@ -10,7 +10,7 @@ interface ChangeIndicatorProps {
 }
 
 const sizeMap = {
-  sm: "text-[10px]",
+  sm: "text-[11px]",
   md: "text-xs",
   lg: "text-sm",
 }
@@ -66,7 +66,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-sm px-1.5 py-0.5 text-[10px] font-mono font-medium",
+        "inline-flex items-center rounded-sm px-1.5 py-0.5 text-[11px] font-mono font-medium",
         status === "Accumulation" && "text-positive bg-positive border border-emerald-400/20",
         status === "Distribution" && "text-negative bg-negative border border-red-400/20",
         status === "Neutral" && "text-muted-foreground bg-muted border border-border",

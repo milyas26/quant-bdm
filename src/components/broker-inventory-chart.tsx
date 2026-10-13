@@ -146,7 +146,7 @@ export function BrokerInventoryChart({
 
   return (
     <div className={cn("relative h-[72px] w-full p-0", className)}>
-      <p className="absolute text-[10px] font-semibold text-muted-foreground">
+      <p className="absolute text-[11px] font-semibold text-muted-foreground">
         {title}
       </p>
       <Bar options={options} data={chartData} />

@@ -175,8 +175,8 @@ export function BrokerInventory({ selectedTicker }: BrokerInventoryProps) {
         <div className="text-negative">Error: {(error as Error).message}</div>
       )}
 
-      <div className="grid grid-cols-12 gap-2">
-        <div className="col-span-8">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        <div className="min-w-0 lg:col-span-8">
           <Tabs defaultValue="summary" className="w-full">
             <div className="mb-4 flex items-center justify-between">
               <TabsList>
@@ -203,7 +203,7 @@ export function BrokerInventory({ selectedTicker }: BrokerInventoryProps) {
             </TabsContent>
           </Tabs>
         </div>
-        <div className="col-span-4 space-y-2">
+        <div className="min-w-0 space-y-2 lg:col-span-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center space-x-2">
               <Switch

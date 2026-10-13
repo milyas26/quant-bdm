@@ -333,11 +333,11 @@ export default function ScreenerAnalysis() {
                 />
               </div>
 
-              <div className="hide-scrollbar flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+              <div className="flex flex-wrap items-center gap-1.5">
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="h-9 cursor-pointer font-mono text-[12px] font-medium"
+                  className="h-9 cursor-pointer text-[12px] font-medium"
                   onClick={() => handleApplyPerfectSetup(false)}
                 >
                   Perfect Setup
@@ -345,7 +345,7 @@ export default function ScreenerAnalysis() {
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="h-9 cursor-pointer font-mono text-[12px] font-medium whitespace-nowrap"
+                  className="h-9 cursor-pointer text-[12px] font-medium whitespace-nowrap"
                   onClick={() => handleApplyPerfectSetup(true)}
                 >
                   + Breakout
@@ -398,16 +398,16 @@ export default function ScreenerAnalysis() {
             {showFilters && (
               <div className="grid animate-in grid-cols-1 gap-3 border-t pt-3 duration-200 fade-in slide-in-from-top-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Price
                   </span>
-                  <div className="flex h-9 items-center rounded-sm border bg-background px-2.5 text-xs">
+                  <div className="flex h-9 items-center rounded-md border bg-background px-2.5 text-xs focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30">
                     <span className="font-medium text-muted-foreground">
                       Price
                     </span>
                     <Separator orientation="vertical" className="mx-2 h-4" />
                     <input
-                      className="w-full bg-transparent outline-none placeholder:text-muted-foreground/50"
+                      className="w-full bg-transparent outline-none placeholder:text-muted-foreground"
                       placeholder="Min"
                       type="number"
                       value={minPriceInput}
@@ -419,7 +419,7 @@ export default function ScreenerAnalysis() {
                     />
                     <span className="text-muted-foreground">-</span>
                     <input
-                      className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground/50"
+                      className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground"
                       placeholder="Max"
                       type="number"
                       value={maxPriceInput}
@@ -433,7 +433,7 @@ export default function ScreenerAnalysis() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Signals & Status
                   </span>
                   <FilterMultiSelect
@@ -458,7 +458,7 @@ export default function ScreenerAnalysis() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Momentum & Liquidity
                   </span>
                   <FilterMultiSelect
@@ -484,11 +484,11 @@ export default function ScreenerAnalysis() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Returns & Cutoff
                   </span>
 
-                  <div className="flex h-9 items-center gap-1 rounded-sm border bg-background px-2.5 text-xs">
+                  <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30">
                     <Select
                       value={accDistOperator}
                       onValueChange={(val) =>
@@ -504,7 +504,7 @@ export default function ScreenerAnalysis() {
                       </SelectContent>
                     </Select>
                     <Separator orientation="vertical" className="mx-1 h-3" />
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       A/D:
                     </span>
                     <input
@@ -530,7 +530,7 @@ export default function ScreenerAnalysis() {
                     />
                   </div>
 
-                  <div className="flex h-9 items-center gap-1 rounded-sm border bg-background px-2.5 text-xs">
+                  <div className="flex h-9 items-center gap-1 rounded-md border bg-background px-2.5 text-xs focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30">
                     <Select
                       value={peakReturnOperator}
                       onValueChange={(val) =>
@@ -546,7 +546,7 @@ export default function ScreenerAnalysis() {
                       </SelectContent>
                     </Select>
                     <Separator orientation="vertical" className="mx-1 h-3" />
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Peak:
                     </span>
                     <div className="flex flex-1 items-center gap-1">
@@ -588,7 +588,7 @@ export default function ScreenerAnalysis() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Date Range
                   </span>
                   <DatePickerWithRange
@@ -647,12 +647,12 @@ export default function ScreenerAnalysis() {
           </div>
         </CardContent>
       </Card>
-      <div className="overflow-hidden rounded-sm border border-border">
+      <div className="overflow-hidden rounded-lg border border-border bg-card">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
           <TableRow>
-            <TableHead>Ticker</TableHead>
+            <TableHead className="sticky-col">Ticker</TableHead>
             <TableHead>Date</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Vol / Val</TableHead>
@@ -697,16 +697,16 @@ export default function ScreenerAnalysis() {
                 className="cursor-pointer"
                 onClick={() => navigate(`/stock/${row.symbol}`)}
               >
-                <TableCell className="font-mono">
+                <TableCell className="sticky-col">
                   <div className="flex items-center gap-2">
                     {row.ticker?.logo ? (
                       <img
                         src={row.ticker?.logo}
                         alt={row.symbol}
-                        className="h-8 w-8 rounded-full object-cover"
+                        className="hidden h-7 w-7 rounded-full border border-border object-cover sm:block"
                       />
                     ) : (
-                      <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-muted font-mono text-[10px] font-bold text-muted-foreground">
+                      <div className="hidden h-7 w-7 items-center justify-center rounded-full bg-muted font-mono text-[11px] font-semibold text-muted-foreground sm:flex">
                         {row.symbol?.substring(0, 2)}
                       </div>
                     )}
@@ -723,7 +723,7 @@ export default function ScreenerAnalysis() {
                         )}
                       </span>
                       <span
-                        className="max-w-40 truncate text-[11px] text-muted-foreground"
+                        className="max-w-28 truncate sm:max-w-40 text-[11px] text-muted-foreground"
                         title={row.ticker?.name || "-"}
                       >
                         {row.ticker?.name || "-"}
@@ -767,7 +767,7 @@ export default function ScreenerAnalysis() {
                       Rp {formatNumber(Number(row.transactionValue || 0))}
                     </span>
                     {row.screener?.isVolumeSpike && (
-                      <span className="text-warning mt-0.5 font-mono text-[10px] font-bold">
+                      <span className="text-warning mt-0.5 font-mono text-[11px] font-bold">
                         Spike
                       </span>
                     )}
@@ -791,7 +791,7 @@ export default function ScreenerAnalysis() {
                     {row.netForeign !== undefined && (
                       <span
                         className={cn(
-                          "mt-0.5 font-mono text-[10px] font-medium tracking-tight",
+                          "mt-0.5 font-mono text-[11px] font-medium tracking-tight",
                           Number(row.netForeign) > 0
                             ? "text-positive"
                             : Number(row.netForeign) < 0
@@ -813,7 +813,7 @@ export default function ScreenerAnalysis() {
                 <TableCell>
                   <div className="flex flex-col gap-1 text-[11px] whitespace-nowrap">
                     <div className="flex items-center justify-between gap-1.5">
-                      <span className="text-muted-foreground/70">1D</span>
+                      <span className="text-muted-foreground">1D</span>
                       <span
                         className={cn(
                           "font-medium",
@@ -839,7 +839,7 @@ export default function ScreenerAnalysis() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-1.5">
-                      <span className="text-muted-foreground/70">1W</span>
+                      <span className="text-muted-foreground">1W</span>
                       <span
                         className={cn(
                           "font-medium",
@@ -865,7 +865,7 @@ export default function ScreenerAnalysis() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-1.5">
-                      <span className="text-muted-foreground/70">1M</span>
+                      <span className="text-muted-foreground">1M</span>
                       <span
                         className={cn(
                           "font-medium",
@@ -900,7 +900,7 @@ export default function ScreenerAnalysis() {
                 <TableCell>
                     <div className="flex flex-col gap-1 text-[11px] whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
-                      <span className="w-6 text-muted-foreground/70">Mom:</span>
+                      <span className="w-6 text-muted-foreground">Mom:</span>
                       <span
                         className={cn(
                           "font-mono font-medium",
@@ -915,7 +915,7 @@ export default function ScreenerAnalysis() {
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="w-6 text-muted-foreground/70">Liq:</span>
+                      <span className="w-6 text-muted-foreground">Liq:</span>
                       <span
                         className={cn(
                           "font-mono font-medium",
@@ -979,7 +979,7 @@ export default function ScreenerAnalysis() {
                       {["1D", "3D", "5D", "10D", "20D"].map((label) => (
                         <div
                           key={`head-${label}`}
-                          className="w-9 text-[10px] text-muted-foreground"
+                          className="w-9 text-[11px] text-muted-foreground"
                         >
                           {label}
                         </div>
@@ -993,7 +993,7 @@ export default function ScreenerAnalysis() {
                           <div
                             key={label}
                             className={cn(
-                              "w-9 truncate rounded p-1 font-mono text-[10px] font-medium tracking-tighter",
+                              "w-9 truncate rounded p-1 font-mono text-[11px] font-medium tracking-tighter",
                               Number(val) > 0
                                 ? "text-positive bg-emerald-400/10"
                                 : Number(val) < 0
@@ -1023,7 +1023,7 @@ export default function ScreenerAnalysis() {
                       {formatPercent(row.peakReturn)}
                     </span>
                     {row.daysToPeak && (
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-[11px] text-muted-foreground">
                         {row.daysToPeak} days
                       </span>
                     )}

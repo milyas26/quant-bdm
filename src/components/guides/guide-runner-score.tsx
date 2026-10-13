@@ -200,7 +200,7 @@ export default function GuideRunnerScore() {
               ))}
             </div>
             <div className="flex flex-col items-center justify-center rounded-sm border bg-muted/30 p-6">
-              <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Final Runner Score</div>
+              <div className="text-xs font-medium text-muted-foreground">Final Runner Score</div>
               <div className="mt-2 text-6xl font-black">92</div>
               <Badge className="mt-3 bg-emerald-600 text-white">Explosive Setup</Badge>
             </div>

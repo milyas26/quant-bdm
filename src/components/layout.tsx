@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom"
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
@@ -37,6 +37,7 @@ const navItems = [
 export default function Layout() {
   const isMobile = useIsMobile()
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const { logout } = useAuth()
   const [open, setOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
@@ -63,6 +64,10 @@ export default function Layout() {
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [isMobile])
 
+  const pageTitle = pathname.startsWith("/stock/")
+    ? decodeURIComponent(pathname.split("/")[2] ?? "")
+    : navItems.find((item) => item.url === pathname)?.title ?? "Extra info"
+
   const handleSearchSubmit = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && searchValue.trim()) {
       navigate(`/stock/${searchValue.trim().toUpperCase()}`)
@@ -82,8 +87,8 @@ export default function Layout() {
         collapsed && !inSheet ? "justify-center px-2" : "px-4"
       )}>
         {(!collapsed || inSheet) && (
-          <span className="font-mono text-sm font-bold tracking-tight text-foreground truncate">
-            quant<span className="text-[#c8a951]">/bdm</span>
+          <span className="font-mono text-sm font-semibold tracking-tight text-foreground truncate">
+            quant<span className="text-brand">/bdm</span>
           </span>
         )}
         {!inSheet && (
@@ -104,10 +109,11 @@ export default function Layout() {
 
       <div className={cn("px-2 py-2 border-b border-border", collapsed && !inSheet && "hidden")}>
         <div className="relative">
-          <Search className="absolute top-2 left-2 h-3 w-3 text-muted-foreground" />
+          <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
-            className="h-7 pl-6 pr-2 text-[11px] bg-transparent border-border font-mono placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:border-muted-foreground"
-            placeholder="/stock"
+            aria-label="Open ticker"
+            className="h-8 pl-8 pr-2 text-xs bg-background placeholder:normal-case placeholder:font-sans placeholder:text-muted-foreground"
+            placeholder="Ticker, then Enter"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={handleSearchSubmit}
@@ -115,7 +121,7 @@ export default function Layout() {
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto scrollbar-thin py-2 px-1.5">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto scrollbar-thin py-2 px-2">
         {navItems.map(({ title, url, icon: Icon }) => (
           <NavLink
             key={url}
@@ -124,11 +130,11 @@ export default function Layout() {
             onClick={onNavClick}
             className={({ isActive }) =>
               cn(
-                "flex items-center gap-2.5 rounded-sm px-2.5 py-1.5 text-[13px] font-medium transition-colors",
+                "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors",
                 (collapsed && !inSheet) ? "justify-center px-0" : "",
                 isActive
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  ? "bg-accent text-accent-foreground [&>svg]:text-brand"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
               )
             }
           >
@@ -165,7 +171,7 @@ export default function Layout() {
       )}
 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="flex h-10 shrink-0 items-center justify-between border-b border-border px-3 md:px-4 bg-card/50 backdrop-blur-sm">
+        <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-3 md:px-5 bg-background">
           <div className="flex items-center gap-2 md:gap-3">
             {isMobile && (
               <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
@@ -183,33 +189,36 @@ export default function Layout() {
                 </SheetContent>
               </Sheet>
             )}
-            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-              BDM Screener
-            </span>
+            <span className="text-sm font-medium text-muted-foreground">{pageTitle}</span>
           </div>
-          <div className="flex items-center gap-1.5 md:gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
+            {!isMobile && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setOpen(true)}
+                className="w-48 justify-start gap-2 font-normal text-muted-foreground"
+              >
+                <Search className="h-3.5 w-3.5" />
+                <span className="flex-1 text-left text-xs">Search</span>
+                <kbd className="rounded-sm border border-border bg-muted px-1.5 font-mono text-[11px]">⌘K</kbd>
+              </Button>
+            )}
             <ThemeSwitcher />
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 text-muted-foreground hover:text-foreground"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
               onClick={() => { logout(); navigate("/login", { replace: true }) }}
-              title="Logout"
+              title="Log out"
+              aria-label="Log out"
             >
-              <LogOut className="h-3.5 w-3.5" />
+              <LogOut className="h-4 w-4" />
             </Button>
-            {!isMobile && (
-              <Input
-                readOnly
-                onClick={() => setOpen(true)}
-                className="h-6 w-40 cursor-pointer text-[11px] text-center font-mono bg-transparent border-border text-muted-foreground hover:border-muted-foreground/50 placeholder:text-muted-foreground/30"
-                placeholder="Cmd+K"
-              />
-            )}
           </div>
         </header>
         <div className="flex-1 overflow-y-auto scrollbar-thin">
-          <div className="p-3 md:p-4">
+          <div className="mx-auto w-full max-w-[1600px] p-3 md:p-5">
             <Outlet />
           </div>
         </div>

@@ -81,28 +81,28 @@ const ExtraInfo = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-mono text-lg font-bold tracking-tight">
+        <h1 className="text-lg font-semibold tracking-tight">
           Extra Info
         </h1>
         <Button
           onClick={() => setIsAdding(!isAdding)}
           disabled={isAdding}
-          className="h-8 rounded-sm font-mono text-[11px]"
+          className="h-8 rounded-sm text-[11px]"
         >
           <Plus className="mr-1 h-3 w-3" /> Add
         </Button>
       </div>
-      <div className="overflow-hidden rounded-sm border border-border">
+      <div className="overflow-hidden rounded-lg border border-border bg-card">
         <Table>
           <TableHeader>
-            <TableRow className="border-border hover:bg-transparent">
-              <TableHead className="h-8 w-64 font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+            <TableRow>
+              <TableHead className="w-64">
                 Label
               </TableHead>
-              <TableHead className="h-8 font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+              <TableHead>
                 Value
               </TableHead>
-              <TableHead className="h-8 w-24 text-right font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+              <TableHead className="w-24 text-right">
                 Actions
               </TableHead>
             </TableRow>
@@ -117,7 +117,7 @@ const ExtraInfo = () => {
                     onChange={(e) =>
                       setNewValues({ ...newValues, label: e.target.value })
                     }
-                    className="h-8 rounded-sm font-mono"
+                    className="h-8 rounded-sm"
                   />
                 </TableCell>
                 <TableCell>
@@ -127,7 +127,7 @@ const ExtraInfo = () => {
                     onChange={(e) =>
                       setNewValues({ ...newValues, value: e.target.value })
                     }
-                    className="h-8 rounded-sm font-mono"
+                    className="h-8 rounded-sm"
                   />
                 </TableCell>
                 <TableCell className="text-right">
@@ -154,7 +154,7 @@ const ExtraInfo = () => {
               <TableRow>
                 <TableCell
                   colSpan={3}
-                  className="h-24 text-center font-mono text-sm text-muted-foreground"
+                  className="h-24 text-center text-sm text-muted-foreground"
                 >
                   <Loader2 className="mr-1 inline h-3 w-3 animate-spin" />{" "}
                   Loading...
@@ -164,9 +164,9 @@ const ExtraInfo = () => {
               <TableRow>
                 <TableCell
                   colSpan={3}
-                  className="h-24 text-center font-mono text-sm text-muted-foreground"
+                  className="h-24 text-center text-sm text-muted-foreground"
                 >
-                  No data
+                  No entries yet. Use Add to create the first one.
                 </TableCell>
               </TableRow>
             ) : (
@@ -182,7 +182,7 @@ const ExtraInfo = () => {
                             label: e.target.value,
                           })
                         }
-                        className="h-8 rounded-sm font-mono"
+                        className="h-8 rounded-sm"
                       />
                     ) : (
                       item.label
@@ -198,10 +198,10 @@ const ExtraInfo = () => {
                             value: e.target.value,
                           })
                         }
-                        className="h-8 rounded-sm font-mono"
+                        className="h-8 rounded-sm"
                       />
                     ) : (
-                      <p className="font-mono text-xs break-all text-muted-foreground">
+                      <p className="text-xs break-all text-muted-foreground">
                         {item.value}
                       </p>
                     )}

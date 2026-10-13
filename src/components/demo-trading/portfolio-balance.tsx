@@ -26,8 +26,8 @@ export const PortfolioBalance = ({
 
   if (loading) {
     return (
-      <div className="rounded-sm border border-border bg-card p-4">
-        <div className="flex items-start justify-between gap-6">
+      <div className="rounded-lg border border-border bg-card p-4">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-6">
           <div className="space-y-3">
             <Skeleton className="h-3 w-20" />
             <Skeleton className="h-7 w-40" />
@@ -46,7 +46,7 @@ export const PortfolioBalance = ({
   if (!summary) {
     return (
       <div className="flex items-center justify-center rounded-sm border border-border bg-card py-8">
-        <p className="font-mono text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           No portfolio data
         </p>
       </div>
@@ -54,12 +54,12 @@ export const PortfolioBalance = ({
   }
 
   return (
-    <div className="rounded-sm border border-border bg-card p-4">
-      <div className="flex items-start justify-between gap-6">
+    <div className="rounded-lg border border-border bg-card p-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-6">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <Wallet className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-[11px] font-medium text-muted-foreground">
               Total Equity
             </span>
           </div>
@@ -83,7 +83,7 @@ export const PortfolioBalance = ({
               {summary.totalReturn >= 0 ? "+" : ""}
               {summary.totalReturn.toFixed(2)}%
             </span>
-            <span className="font-mono text-[10px] text-muted-foreground">
+            <span className="font-mono text-[11px] text-muted-foreground">
               dari {fmtIDR(summary.initialCapital)}
             </span>
           </div>
@@ -104,9 +104,9 @@ export const PortfolioBalance = ({
           )}
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          <div className="rounded-sm border border-border bg-muted/30 px-3 py-2">
-            <div className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+          <div className="rounded-md border border-border bg-muted/30 px-3 py-2">
+            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
               <PiggyBank className="h-3 w-3" />
               Available
             </div>
@@ -122,21 +122,21 @@ export const PortfolioBalance = ({
             </p>
           </div>
 
-          <div className="rounded-sm border border-border bg-muted/30 px-3 py-2">
-            <div className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground">
+          <div className="rounded-md border border-border bg-muted/30 px-3 py-2">
+            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
               <BarChart3 className="h-3 w-3" />
               Allocated
             </div>
-            <p className="mt-0.5 font-mono text-sm font-bold tabular-nums text-muted-foreground">
+            <p className="mt-0.5 text-sm font-bold tabular-nums text-muted-foreground">
               {fmtIDR(summary.totalAllocated)}
             </p>
-            <p className="text-[10px] font-mono text-muted-foreground/60">
+            <p className="text-[11px] text-muted-foreground">
               {allocationPercent.toFixed(0)}% deployed
             </p>
           </div>
 
-          <div className="rounded-sm border border-border bg-muted/30 px-3 py-2">
-            <div className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground">
+          <div className="rounded-md border border-border bg-muted/30 px-3 py-2">
+            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
               <TrendingUp className="h-3 w-3" />
               PnL
             </div>
@@ -152,7 +152,7 @@ export const PortfolioBalance = ({
                 summary.totalUnrealizedPnL + summary.totalRealizedPnL
               )}
             </p>
-            <div className="flex gap-2 text-[10px] font-mono text-muted-foreground/60">
+            <div className="flex gap-2 text-[11px] text-muted-foreground">
               <span>
                 U: {fmtCurrency(summary.totalUnrealizedPnL)}
               </span>

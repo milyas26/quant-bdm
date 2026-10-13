@@ -40,13 +40,13 @@ const CustomTooltip = ({ active, payload }: any) => {
             {format(new Date(item.date), "dd MMM yyyy")}
           </span>
           <div className="flex items-center gap-1.5">
-            <span className={cn("font-mono text-[9px]", item.momentum === "Uptrend" && "text-positive", item.momentum === "Downtrend" && "text-negative", !item.momentum || item.momentum === "Sideways" ? "text-muted-foreground" : "")}>
+            <span className={cn("font-mono text-[10px]", item.momentum === "Uptrend" && "text-positive", item.momentum === "Downtrend" && "text-negative", !item.momentum || item.momentum === "Sideways" ? "text-muted-foreground" : "")}>
               {item.momentum}
             </span>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px]">
+        <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[11px]">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Price</span>
             <div className="flex items-center gap-1">
@@ -106,7 +106,7 @@ const CustomTooltip = ({ active, payload }: any) => {
             <StatusBadge status={item.bandarStatus} />
           </div>
         </div>
-        <div className="flex items-center justify-between border-t pt-1 text-[9px]">
+        <div className="flex items-center justify-between border-t pt-1 text-[10px]">
           <span className="text-muted-foreground">Acc/Dist:</span>
           <div className="flex gap-1.5">
             <span
@@ -146,10 +146,10 @@ const CustomTooltip = ({ active, payload }: any) => {
         </div>
 
         {/* Top Buyer/Seller */}
-        <div className="flex flex-col gap-1 border-t pt-1 text-[9px]">
+        <div className="flex flex-col gap-1 border-t pt-1 text-[10px]">
           <div className="flex w-full justify-between gap-2">
             <div className="flex w-1/2 flex-col gap-0.5">
-              <span className="text-[8px] font-semibold text-muted-foreground">
+              <span className="text-[10px] font-semibold text-muted-foreground">
                 Top Buyers
               </span>
               {item.topBuyers && item.topBuyers.length > 0 ? (
@@ -170,11 +170,11 @@ const CustomTooltip = ({ active, payload }: any) => {
                   </div>
                 ))
               ) : (
-                <span className="text-[8px] text-muted-foreground">-</span>
+                <span className="text-[10px] text-muted-foreground">-</span>
               )}
             </div>
             <div className="flex w-1/2 flex-col gap-0.5 border-l pl-2">
-              <span className="text-[8px] font-semibold text-muted-foreground">
+              <span className="text-[10px] font-semibold text-muted-foreground">
                 Top Sellers
               </span>
               {item.topSellers && item.topSellers.length > 0 ? (
@@ -195,7 +195,7 @@ const CustomTooltip = ({ active, payload }: any) => {
                   </div>
                 ))
               ) : (
-                <span className="text-[8px] text-muted-foreground">-</span>
+                <span className="text-[10px] text-muted-foreground">-</span>
               )}
             </div>
           </div>
@@ -247,9 +247,9 @@ export function HistoricalScreener({
   }))
 
   return (
-    <div className="grid grid-cols-12 gap-4">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
       <div
-        className={`col-span-9 h-[calc(100vh-280px)] ${showCandlestick ? "" : "rounded-sm border p-4"}`}
+        className={`h-[420px] min-w-0 lg:col-span-9 lg:h-[calc(100vh-280px)] ${showCandlestick ? "" : "rounded-lg border p-4"}`}
       >
         <div className="mb-4 flex items-center justify-end space-x-2">
           <Label htmlFor="chart-type" className="text-xs">
@@ -324,7 +324,7 @@ export function HistoricalScreener({
           </ResponsiveContainer>
         )}
       </div>
-      <div className="col-span-3 flex flex-col gap-2">
+      <div className="flex min-w-0 flex-col gap-2 lg:col-span-3">
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold">History</span>
           <Select
@@ -360,7 +360,7 @@ export function HistoricalScreener({
                   <Badge
                     variant="outline"
                     className={cn(
-                      "h-4 px-1 text-[9px] font-normal",
+                      "h-4 px-1 text-[10px] font-normal",
                       item.momentum === "Uptrend" &&
                         "border-emerald-400/20 bg-emerald-400/10 text-positive",
                       item.momentum === "Downtrend" &&
@@ -372,7 +372,7 @@ export function HistoricalScreener({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px]">
+              <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[11px]">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Price</span>
                   <div className="flex items-center gap-1">
@@ -438,7 +438,7 @@ export function HistoricalScreener({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between border-t pt-1 text-[9px]">
+              <div className="flex items-center justify-between border-t pt-1 text-[10px]">
                 <span className="text-muted-foreground">Acc/Dist:</span>
                 <div className="flex gap-1.5">
                   <span
@@ -477,10 +477,10 @@ export function HistoricalScreener({
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1 border-t pt-1 text-[9px]">
+              <div className="flex flex-col gap-1 border-t pt-1 text-[10px]">
                 <div className="flex w-full justify-between gap-2">
                   <div className="flex w-1/2 flex-col gap-0.5">
-                    <span className="text-[8px] font-semibold text-muted-foreground">
+                    <span className="text-[10px] font-semibold text-muted-foreground">
                       Top Buyers
                     </span>
                     {item.topBuyers && item.topBuyers.length > 0 ? (
@@ -501,11 +501,11 @@ export function HistoricalScreener({
                         </div>
                       ))
                     ) : (
-                      <span className="text-[8px] text-muted-foreground">-</span>
+                      <span className="text-[10px] text-muted-foreground">-</span>
                     )}
                   </div>
                   <div className="flex w-1/2 flex-col gap-0.5 border-l pl-2">
-                    <span className="text-[8px] font-semibold text-muted-foreground">
+                    <span className="text-[10px] font-semibold text-muted-foreground">
                       Top Sellers
                     </span>
                     {item.topSellers && item.topSellers.length > 0 ? (
@@ -526,7 +526,7 @@ export function HistoricalScreener({
                         </div>
                       ))
                     ) : (
-                      <span className="text-[8px] text-muted-foreground">-</span>
+                      <span className="text-[10px] text-muted-foreground">-</span>
                     )}
                   </div>
                 </div>

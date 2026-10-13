@@ -109,14 +109,14 @@ function SortableWatchlistItem({
         <div
           {...attributes}
           {...listeners}
-          className="cursor-grab touch-none text-muted-foreground/30 hover:text-muted-foreground active:cursor-grabbing"
+          className="cursor-grab touch-none text-muted-foreground hover:text-muted-foreground active:cursor-grabbing"
           onClick={(e) => e.stopPropagation()}
         >
           <GripVertical className="h-3 w-3" />
         </div>
         {isEditing ? (
           <Input
-            className="h-6 flex-1 rounded-sm px-1 font-mono text-xs"
+            className="h-6 flex-1 rounded-sm px-1 text-xs"
             value={editName}
             onChange={(e) => onEditNameChange(e.target.value)}
             onKeyDown={(e) => {
@@ -145,7 +145,7 @@ function SortableWatchlistItem({
       <div className="flex items-center gap-1">
         <Badge
           variant="secondary"
-          className="h-4 rounded-sm px-1 font-mono text-[9px]"
+          className="h-4 rounded-sm px-1 font-mono text-[10px]"
         >
           {watchlist._count.tickers}
         </Badge>
@@ -153,25 +153,25 @@ function SortableWatchlistItem({
           <Button
             variant="ghost"
             size="icon"
-            className="h-5 w-5 opacity-0 group-hover:opacity-100"
+            className="h-7 w-7 opacity-100 focus-visible:opacity-100 md:opacity-0 md:group-hover:opacity-100"
             onClick={(e) => {
               e.stopPropagation()
               onStartEdit()
             }}
           >
-            <Pencil className="h-2.5 w-2.5 text-muted-foreground" />
+            <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
           </Button>
         )}
         <Button
           variant="ghost"
           size="icon"
-          className="h-5 w-5 opacity-0 group-hover:opacity-100"
+          className="h-7 w-7 opacity-100 focus-visible:opacity-100 md:opacity-0 md:group-hover:opacity-100"
           onClick={(e) => {
             e.stopPropagation()
             onDelete()
           }}
         >
-          <Trash2 className="h-2.5 w-2.5 text-destructive" />
+          <Trash2 className="h-3.5 w-3.5 text-destructive" />
         </Button>
       </div>
     </div>
@@ -301,8 +301,8 @@ export default function WatchlistPage() {
   )
 
   return (
-    <div className="flex h-[calc(100vh-7rem)] gap-0 overflow-hidden rounded-sm border border-border bg-card">
-      <div className="flex w-56 shrink-0 flex-col border-r border-border">
+    <div className="flex flex-col gap-0 overflow-hidden rounded-lg border border-border bg-card md:h-[calc(100vh-7rem)] md:flex-row">
+      <div className="flex max-h-60 w-full shrink-0 flex-col border-b border-border md:max-h-none md:w-56 md:border-b-0 md:border-r">
         <div className="flex items-center justify-between border-b border-border px-3 py-2">
           <div className="flex items-center gap-2">
             <ListFilter className="h-3.5 w-3.5 text-muted-foreground" />
@@ -321,7 +321,7 @@ export default function WatchlistPage() {
           <div className="border-b border-border px-2 py-1.5">
             <div className="flex gap-1">
               <Input
-                className="h-7 flex-1 rounded-sm font-mono text-xs"
+                className="h-7 flex-1 rounded-sm text-xs"
                 placeholder="Name..."
                 value={newWatchlistName}
                 onChange={(e) => setNewWatchlistName(e.target.value)}
@@ -337,7 +337,7 @@ export default function WatchlistPage() {
               />
               <Button
                 size="sm"
-                className="h-7 rounded-sm px-2 font-mono text-[10px]"
+                className="h-7 rounded-sm px-2 text-[11px]"
                 onClick={() =>
                   newWatchlistName.trim() &&
                   handleCreateWatchlist({ name: newWatchlistName.trim() })
@@ -359,7 +359,7 @@ export default function WatchlistPage() {
           ) : localWatchlists.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10">
               <BookmarkX className="mb-2 h-6 w-6 text-muted-foreground/30" />
-              <p className="font-mono text-[10px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground">
                 No watchlists
               </p>
             </div>
@@ -412,11 +412,11 @@ export default function WatchlistPage() {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex min-h-[60vh] flex-1 flex-col overflow-hidden md:min-h-0">
         {!activeWatchlist ? (
           <div className="flex h-full flex-col items-center justify-center gap-3">
             <ListFilter className="h-10 w-10 text-muted-foreground/20" />
-            <p className="font-mono text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Select a watchlist
             </p>
           </div>
@@ -424,17 +424,17 @@ export default function WatchlistPage() {
           <>
             <div className="flex items-center justify-between border-b border-border px-4 py-2">
               <div>
-                <h2 className="font-mono text-sm font-semibold">
+                <h2 className="text-sm font-semibold">
                   {activeWatchlist.name}
                 </h2>
-                <p className="font-mono text-[10px] text-muted-foreground">
+                <p className="text-[11px] text-muted-foreground">
                   {activeWatchlist._count.tickers} tickers
                 </p>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 rounded-sm font-mono text-xs text-destructive hover:text-destructive"
+                className="h-7 rounded-sm text-xs text-destructive hover:text-destructive"
                 onClick={() =>
                   setDeleteWatchlistTarget({
                     id: activeWatchlist.id,
@@ -456,39 +456,39 @@ export default function WatchlistPage() {
               ) : (watchlistTickersData?.tickers.length ?? 0) === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center gap-2">
                   <BookmarkX className="h-8 w-8 text-muted-foreground/20" />
-                  <p className="font-mono text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Empty watchlist
                   </p>
                 </div>
               ) : (
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-border hover:bg-transparent">
-                      <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+                    <TableRow>
+                      <TableHead className="sticky-col">
                         Ticker
                       </TableHead>
-                      <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+                      <TableHead>
                         Price
                       </TableHead>
-                      <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+                      <TableHead>
                         Volume
                       </TableHead>
-                      <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+                      <TableHead>
                         Net Flow
                       </TableHead>
-                      <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+                      <TableHead>
                         Status
                       </TableHead>
-                      <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+                      <TableHead>
                         Mom
                       </TableHead>
-                      <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+                      <TableHead>
                         Brokers
                       </TableHead>
-                      <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+                      <TableHead>
                         Sector
                       </TableHead>
-                      <TableHead className="h-8 w-8"></TableHead>
+                      <TableHead className="w-8"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -500,16 +500,16 @@ export default function WatchlistPage() {
                           className="cursor-pointer border-border hover:bg-accent/50"
                           onClick={() => navigate(`/stock/${ticker.symbol}`)}
                         >
-                          <TableCell>
+                          <TableCell className="sticky-col">
                             <div className="flex items-center gap-2">
                               {ticker.logo ? (
                                 <img
                                   src={ticker.logo}
                                   alt={ticker.symbol}
-                                  className="h-6 w-6 rounded-full border border-border object-cover"
+                                  className="hidden h-6 w-6 rounded-full border border-border object-cover sm:block"
                                 />
                               ) : (
-                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted font-mono text-[10px]">
+                                <div className="hidden h-6 w-6 items-center justify-center rounded-full bg-muted font-mono text-[11px] sm:flex">
                                   {ticker.symbol?.[0]}
                                 </div>
                               )}
@@ -519,13 +519,16 @@ export default function WatchlistPage() {
                                   {s?.isBreakout && (
                                     <Badge
                                       variant="outline"
-                                      className="text-positive bg-positive h-4 rounded-sm border-emerald-400/20 px-1 font-mono text-[9px]"
+                                      className="text-positive bg-positive h-4 rounded-sm border-emerald-400/20 px-1 font-mono text-[10px]"
                                     >
                                       BO
                                     </Badge>
                                   )}
                                 </span>
-                                <span className="font-mono text-[10px] text-muted-foreground">
+                                <span
+                                  className="block max-w-28 truncate sm:max-w-40 text-[11px] text-muted-foreground"
+                                  title={ticker.name || undefined}
+                                >
                                   {ticker.name || "-"}
                                 </span>
                               </div>
@@ -539,7 +542,7 @@ export default function WatchlistPage() {
                                 </span>
                                 <span
                                   className={cn(
-                                    "ml-1.5 font-mono text-[10px]",
+                                    "ml-1.5 font-mono text-[11px]",
                                     Number(s.changePercentage) > 0
                                       ? "text-positive"
                                       : Number(s.changePercentage) < 0
@@ -565,7 +568,7 @@ export default function WatchlistPage() {
                                   )}
                                 </span>
                                 {s.isVolumeSpike && (
-                                  <span className="text-warning bg-warning ml-1 rounded-sm px-1 py-px font-mono text-[9px]">
+                                  <span className="text-warning bg-warning ml-1 rounded-sm px-1 py-px font-mono text-[10px]">
                                     Spike
                                   </span>
                                 )}
@@ -599,7 +602,7 @@ export default function WatchlistPage() {
                             {s ? (
                               <span
                                 className={cn(
-                                  "font-mono text-[10px]",
+                                  "font-mono text-[11px]",
                                   s.momentum === "Uptrend" && "text-positive",
                                   s.momentum === "Downtrend" && "text-negative"
                                 )}
@@ -612,12 +615,12 @@ export default function WatchlistPage() {
                           </TableCell>
                           <TableCell onClick={(e) => e.stopPropagation()}>
                             {s ? (
-                              <div className="flex max-w-32 flex-wrap gap-1">
+                              <div className="flex gap-1 whitespace-nowrap">
                                 {s.brokersBuy?.map((b: any, idx: number) => (
                                   <span
                                     key={b.netbsBrokerCode + "-" + idx}
                                     className={cn(
-                                      "rounded-sm bg-muted/50 px-1 py-0.5 font-mono text-[9px]",
+                                      "rounded-sm bg-muted/50 px-1 py-0.5 font-mono text-[10px]",
                                       getBrokerCodeClass(b.netbsBrokerCode)
                                     )}
                                   >
@@ -628,7 +631,7 @@ export default function WatchlistPage() {
                                   <span
                                     key={b.netbsBrokerCode + "-sell-" + idx}
                                     className={cn(
-                                      "rounded-sm bg-muted/50 px-1 py-0.5 font-mono text-[9px]",
+                                      "rounded-sm bg-muted/50 px-1 py-0.5 font-mono text-[10px]",
                                       getBrokerCodeClass(b.netbsBrokerCode)
                                     )}
                                   >
@@ -642,7 +645,7 @@ export default function WatchlistPage() {
                           </TableCell>
                           <TableCell>
                             {ticker.sector ? (
-                              <span className="font-mono text-[10px] text-muted-foreground">
+                              <span className="font-mono text-[11px] text-muted-foreground">
                                 {ticker.sector}
                               </span>
                             ) : (

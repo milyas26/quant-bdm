@@ -222,7 +222,7 @@ export default function BrokerAccumulationPage() {
     <div className="space-y-4">
       <div>
         <div className="flex items-center gap-4">
-          <h1 className="font-mono text-lg font-bold tracking-tight">
+          <h1 className="text-lg font-semibold tracking-tight">
             {type === "accumulation" ? "Broker Accumulation" : "Broker Distribution"}
           </h1>
           <Tabs
@@ -230,10 +230,10 @@ export default function BrokerAccumulationPage() {
             onValueChange={(v) => setType(v as "accumulation" | "distribution")}
           >
             <TabsList className="h-7">
-              <TabsTrigger value="accumulation" className="px-2.5 font-mono text-[11px]">
+              <TabsTrigger value="accumulation" className="px-2.5 text-[11px]">
                 Accumulation
               </TabsTrigger>
-              <TabsTrigger value="distribution" className="px-2.5 font-mono text-[11px]">
+              <TabsTrigger value="distribution" className="px-2.5 text-[11px]">
                 Distribution
               </TabsTrigger>
             </TabsList>
@@ -251,7 +251,7 @@ export default function BrokerAccumulationPage() {
           <Search className="absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search symbol..."
-            className="h-9 border-border bg-transparent pl-8 font-mono text-xs placeholder:text-muted-foreground/40"
+            className="h-9 border-border bg-transparent pl-8 text-xs placeholder:text-muted-foreground"
             value={symbolSearch}
             onChange={(e) => {
               setSymbolSearch(e.target.value)
@@ -280,7 +280,7 @@ export default function BrokerAccumulationPage() {
                 <Badge
                   key={code}
                   variant="secondary"
-                  className="h-5 rounded-sm px-1.5 font-mono text-[9px] text-negative bg-destructive/10"
+                  className="h-5 rounded-sm px-1.5 font-mono text-[10px] text-negative bg-destructive/10"
                 >
                   {code}
                 </Badge>
@@ -333,7 +333,7 @@ export default function BrokerAccumulationPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 w-full rounded-sm font-mono text-[11px]"
+                    className="h-7 w-full rounded-sm text-[11px]"
                     onClick={() =>
                       setCutoffDate(format(new Date(), "yyyy-MM-dd"))
                     }
@@ -358,7 +358,7 @@ export default function BrokerAccumulationPage() {
               key={p.value}
               variant={preset === p.value ? "default" : "outline"}
               size="sm"
-              className="h-9 rounded-sm font-mono text-[11px]"
+              className="h-9 rounded-sm text-[11px]"
               onClick={() => setPreset(p.value)}
             >
               {p.label}
@@ -367,7 +367,7 @@ export default function BrokerAccumulationPage() {
           <Button
             variant={showFilters ? "default" : "outline"}
             size="sm"
-            className="h-9 rounded-sm font-mono text-[11px]"
+            className="h-9 rounded-sm text-[11px]"
             onClick={() => setShowFilters(!showFilters)}
           >
             <SlidersHorizontal className="mr-1 h-3.5 w-3.5" />
@@ -375,7 +375,7 @@ export default function BrokerAccumulationPage() {
             {hasActiveFilters && (
               <Badge
                 variant="secondary"
-                className="ml-1 h-4 rounded-sm px-1 font-mono text-[9px]"
+                className="ml-1 h-4 rounded-sm px-1 font-mono text-[10px]"
               >
                 ON
               </Badge>
@@ -388,14 +388,14 @@ export default function BrokerAccumulationPage() {
         <Card className="border-border bg-card/50">
           <CardContent className="grid animate-in grid-cols-1 gap-3 p-3 duration-150 fade-in slide-in-from-top-1 md:grid-cols-2 lg:grid-cols-4">
             <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
+              <span className="text-xs font-medium text-muted-foreground">
                 Price
               </span>
-              <div className="flex h-9 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
+              <div className="flex h-9 items-center gap-1 rounded-md border border-border bg-transparent px-2 font-mono text-xs focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30">
                 <span className="font-medium text-muted-foreground">Price</span>
                 <span className="text-border">|</span>
                 <input
-                  className="w-full bg-transparent outline-none placeholder:text-muted-foreground/30"
+                  className="w-full bg-transparent outline-none placeholder:text-muted-foreground"
                   placeholder="Min"
                   type="number"
                   value={minPriceInput}
@@ -405,7 +405,7 @@ export default function BrokerAccumulationPage() {
                 />
                 <span className="text-muted-foreground">-</span>
                 <input
-                  className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground/30"
+                  className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground"
                   placeholder="Max"
                   type="number"
                   value={maxPriceInput}
@@ -416,7 +416,7 @@ export default function BrokerAccumulationPage() {
               </div>
             </div>
             <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
+              <span className="text-xs font-medium text-muted-foreground">
                 Signals & Status
               </span>
               <FilterMultiSelect
@@ -440,7 +440,7 @@ export default function BrokerAccumulationPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
+              <span className="text-xs font-medium text-muted-foreground">
                 Momentum & Liquidity
               </span>
               <FilterMultiSelect
@@ -469,7 +469,7 @@ export default function BrokerAccumulationPage() {
                 onClick={handleResetFilters}
                 size="sm"
                 variant="ghost"
-                className="h-7 rounded-sm px-2 font-mono text-[10px] text-destructive hover:bg-destructive/10"
+                className="h-7 rounded-sm px-2 text-[11px] text-destructive hover:bg-destructive/10"
               >
                 <X className="mr-1 h-3 w-3" />
                 Clear
@@ -479,27 +479,27 @@ export default function BrokerAccumulationPage() {
         </Card>
       )}
 
-      <div className="overflow-hidden rounded-sm border border-border">
+      <div className="overflow-hidden rounded-lg border border-border bg-card">
         <div className="overflow-x-auto">
           <Table>
           <TableHeader>
-            <TableRow className="border-border hover:bg-transparent">
-              <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+            <TableRow>
+              <TableHead className="sticky-col">
                 Ticker
               </TableHead>
-              <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+              <TableHead>
                 Price
               </TableHead>
-              <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+              <TableHead>
                 {type === "accumulation" ? "Net Value" : "Net Sell"}
               </TableHead>
-              <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+              <TableHead>
                 Net Lot
               </TableHead>
-              <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+              <TableHead>
                 Status
               </TableHead>
-              <TableHead className="h-8 font-mono text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+              <TableHead>
                 Brokers
               </TableHead>
             </TableRow>
@@ -509,9 +509,11 @@ export default function BrokerAccumulationPage() {
               <TableRow className="border-border">
                 <TableCell
                   colSpan={6}
-                  className="h-24 text-center font-mono text-sm text-muted-foreground"
+                  className="h-24 text-center text-sm text-muted-foreground"
                 >
-                  {isLoading ? "Loading..." : "No results"}
+                  {isLoading
+                    ? "Loading broker activity..."
+                    : "No accumulation found for this date and period. Try a longer period or an earlier date."}
                 </TableCell>
               </TableRow>
             ) : (
@@ -521,13 +523,13 @@ export default function BrokerAccumulationPage() {
                   className="cursor-pointer border-border hover:bg-accent/50"
                   onClick={() => navigate(`/stock/${item.symbol}`)}
                 >
-                  <TableCell className="py-2">
+                  <TableCell className="sticky-col py-2">
                     <div className="flex items-center gap-2">
                       {item.logo && (
                         <img
                           src={item.logo}
                           alt={item.symbol}
-                          className="h-7 w-7 rounded-full border border-border object-cover"
+                          className="hidden h-7 w-7 rounded-full border border-border object-cover sm:block"
                         />
                       )}
                       <div>
@@ -536,17 +538,17 @@ export default function BrokerAccumulationPage() {
                             {item.symbol}
                           </span>
                           {item.screener?.isBreakout && (
-                            <span className="text-positive rounded-sm bg-emerald-400/10 px-1 font-mono text-[9px]">
+                            <span className="text-positive rounded-sm bg-emerald-400/10 px-1 font-mono text-[10px]">
                               BO
                             </span>
                           )}
                           {item.screener?.isVolumeSpike && (
-                            <span className="text-warning rounded-sm bg-amber-400/10 px-1 font-mono text-[9px]">
+                            <span className="text-warning rounded-sm bg-amber-400/10 px-1 font-mono text-[10px]">
                               Spike
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-[11px] text-muted-foreground">
                           {item.name || "-"}
                         </span>
                       </div>
@@ -598,7 +600,7 @@ export default function BrokerAccumulationPage() {
                         </div>
                         <span
                           className={cn(
-                            "font-mono text-[9px]",
+                            "font-mono text-[10px]",
                             item.screener.momentum === "Uptrend" &&
                               "text-positive",
                             item.screener.momentum === "Downtrend" &&
@@ -622,7 +624,7 @@ export default function BrokerAccumulationPage() {
                         <div
                           key={b.brokerCode}
                           className={cn(
-                            "flex items-center gap-1 rounded-sm bg-muted/50 px-1.5 py-0.5 font-mono text-[10px]",
+                            "flex items-center gap-1 rounded-sm bg-muted/50 px-1.5 py-0.5 font-mono text-[11px]",
                             getBrokerCodeClass(b.brokerCode)
                           )}
                         >

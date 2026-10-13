@@ -12,11 +12,12 @@ export function ThemeSwitcher() {
     <Button
       variant="ghost"
       size="icon"
-      className="h-7 w-7 text-muted-foreground hover:text-foreground"
+      className="h-8 w-8 text-muted-foreground hover:text-foreground"
       onClick={() => setTheme(next)}
       title={`Theme: ${theme} (click for ${next})`}
+      aria-label={`Theme: ${theme}, switch to ${next}`}
     >
-      <Icon className="h-3.5 w-3.5" />
+      <Icon className="h-4 w-4" />
     </Button>
   )
 }

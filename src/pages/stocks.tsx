@@ -292,12 +292,12 @@ export default function StocksPage() {
           <Input
             ref={searchInputRef}
             placeholder="Search symbol or name..."
-            className="h-9 border-border bg-transparent pl-8 font-mono text-xs placeholder:text-muted-foreground/40"
+            className="h-9 border-border bg-transparent pl-8 text-xs placeholder:text-muted-foreground"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="max-w-56 min-w-40 flex-1">
+        <div className="w-full sm:w-auto sm:max-w-56 sm:min-w-40 sm:flex-1">
           <MultiSelect
             options={(watchlists ?? []).map((w) => ({
               value: String(w.id),
@@ -313,11 +313,11 @@ export default function StocksPage() {
             searchPlaceholder="Cari watchlist..."
           />
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
           <Button
             variant="secondary"
             size="sm"
-            className="h-9 font-mono text-[12px] font-medium tracking-tight"
+            className="h-9 text-[12px] font-medium tracking-tight"
             onClick={() => handleApplyPerfectSetup(false)}
           >
             <Bookmark className="mr-1 h-3 w-3" />
@@ -326,7 +326,7 @@ export default function StocksPage() {
           <Button
             variant="outline"
             size="sm"
-            className="h-9 font-mono text-[12px] font-medium tracking-tight"
+            className="h-9 text-[12px] font-medium tracking-tight"
             onClick={() => handleApplyPerfectSetup(true)}
           >
             + Breakout
@@ -335,7 +335,7 @@ export default function StocksPage() {
             variant={showFilters ? "default" : "outline"}
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
-            className="h-9 font-mono text-[12px]"
+            className="h-9 text-[12px]"
           >
             <SlidersHorizontal className="mr-1 h-3.5 w-3.5" />
             Filters
@@ -383,14 +383,14 @@ export default function StocksPage() {
         <Card className="border-border bg-card/50">
           <CardContent className="grid animate-in grid-cols-1 gap-3 p-3 duration-150 fade-in slide-in-from-top-1 md:grid-cols-2 lg:grid-cols-4">
             <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
+              <span className="text-xs font-medium text-muted-foreground">
                 Price
               </span>
-              <div className="flex h-9 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
+              <div className="flex h-9 items-center gap-1 rounded-md border border-border bg-transparent px-2 font-mono text-xs focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30">
                 <span className="font-medium text-muted-foreground">Price</span>
                 <span className="text-border">|</span>
                 <input
-                  className="w-full bg-transparent outline-none placeholder:text-muted-foreground/30"
+                  className="w-full bg-transparent outline-none placeholder:text-muted-foreground"
                   placeholder="Min"
                   type="number"
                   value={minPriceInput}
@@ -400,7 +400,7 @@ export default function StocksPage() {
                 />
                 <span className="text-muted-foreground">-</span>
                 <input
-                  className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground/30"
+                  className="w-full bg-transparent text-right outline-none placeholder:text-muted-foreground"
                   placeholder="Max"
                   type="number"
                   value={maxPriceInput}
@@ -412,7 +412,7 @@ export default function StocksPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
+              <span className="text-xs font-medium text-muted-foreground">
                 Signals & Status
               </span>
               <FilterMultiSelect
@@ -437,7 +437,7 @@ export default function StocksPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
+              <span className="text-xs font-medium text-muted-foreground">
                 Momentum & Liquidity
               </span>
               <FilterMultiSelect
@@ -463,17 +463,17 @@ export default function StocksPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
+              <span className="text-xs font-medium text-muted-foreground">
                 Flow & Date
               </span>
-              <div className="flex h-9 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
+              <div className="flex h-9 items-center gap-1 rounded-md border border-border bg-transparent px-2 font-mono text-xs focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30">
                 <Select
                   value={accDistOperator}
                   onValueChange={(val) =>
                     setAccDistOperator(val as "gt" | "lt")
                   }
                 >
-                  <SelectTrigger className="h-auto w-9 border-none bg-transparent px-0 py-0 text-[10px] focus:ring-0">
+                  <SelectTrigger className="h-auto w-9 border-none bg-transparent px-0 py-0 text-[11px] focus:ring-0">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -504,14 +504,14 @@ export default function StocksPage() {
                   onChange={(e) => setAccDist1M(e.target.value)}
                 />
               </div>
-              <div className="flex h-9 items-center gap-1 rounded-sm border border-border bg-transparent px-2 font-mono text-xs">
+              <div className="flex h-9 items-center gap-1 rounded-md border border-border bg-transparent px-2 font-mono text-xs focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30">
                 <Select
                   value={netBrokerFlowOperator}
                   onValueChange={(val) =>
                     setNetBrokerFlowOperator(val as "gt" | "lt")
                   }
                 >
-                  <SelectTrigger className="h-auto w-9 border-none bg-transparent px-0 py-0 text-[10px] focus:ring-0">
+                  <SelectTrigger className="h-auto w-9 border-none bg-transparent px-0 py-0 text-[11px] focus:ring-0">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -593,13 +593,13 @@ export default function StocksPage() {
         </Card>
       )}
 
-      <div className="overflow-hidden rounded-sm border border-border">
+      <div className="overflow-hidden rounded-lg border border-border bg-card">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
+              <TableRow>
                 <TableHead
-                  className="h-8 cursor-pointer font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
+                  className="sticky-col cursor-pointer"
                   onClick={() => handleSort("symbol")}
                 >
                   <div className="flex items-center gap-1">
@@ -612,7 +612,7 @@ export default function StocksPage() {
                   </div>
                 </TableHead>
                 <TableHead
-                  className="h-8 cursor-pointer font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
+                  className="cursor-pointer"
                   onClick={() => handleSort("price")}
                 >
                   <div className="flex items-center gap-1">
@@ -625,7 +625,7 @@ export default function StocksPage() {
                   </div>
                 </TableHead>
                 <TableHead
-                  className="h-8 cursor-pointer font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
+                  className="cursor-pointer"
                   onClick={() => handleSort("volume")}
                 >
                   <div className="flex items-center gap-1">
@@ -638,7 +638,7 @@ export default function StocksPage() {
                   </div>
                 </TableHead>
                 <TableHead
-                  className="h-8 cursor-pointer font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
+                  className="cursor-pointer"
                   onClick={() => handleSort("netBrokerFlow")}
                 >
                   <div className="flex items-center gap-1">
@@ -651,7 +651,7 @@ export default function StocksPage() {
                   </div>
                 </TableHead>
                 <TableHead
-                  className="h-8 cursor-pointer font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
+                  className="cursor-pointer"
                   onClick={() => handleSort("accumulationDistribution1D")}
                 >
                   <div className="flex items-center gap-1">
@@ -664,7 +664,7 @@ export default function StocksPage() {
                   </div>
                 </TableHead>
                 <TableHead
-                  className="h-8 cursor-pointer font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
+                  className="cursor-pointer"
                   onClick={() => handleSort("bandarStatus")}
                 >
                   <div className="flex items-center gap-1">
@@ -677,7 +677,7 @@ export default function StocksPage() {
                   </div>
                 </TableHead>
                 <TableHead
-                  className="h-8 cursor-pointer font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
+                  className="cursor-pointer"
                   onClick={() => handleSort("momentum")}
                 >
                   <div className="flex items-center gap-1">
@@ -689,11 +689,11 @@ export default function StocksPage() {
                     />
                   </div>
                 </TableHead>
-                <TableHead className="h-8 font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+                <TableHead>
                   Top Brokers
                 </TableHead>
                 <TableHead
-                  className="h-8 cursor-pointer font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
+                  className="cursor-pointer"
                   onClick={() => handleSort("liquidityScore")}
                 >
                   <div className="flex items-center gap-1">
@@ -706,7 +706,7 @@ export default function StocksPage() {
                   </div>
                 </TableHead>
                 <TableHead
-                  className="h-8 cursor-pointer font-mono text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
+                  className="cursor-pointer"
                   onClick={() => handleSort("sector")}
                 >
                   <div className="flex items-center gap-1">
@@ -718,7 +718,7 @@ export default function StocksPage() {
                     />
                   </div>
                 </TableHead>
-                <TableHead className="h-8 w-10"></TableHead>
+                <TableHead className="w-10"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -726,7 +726,7 @@ export default function StocksPage() {
                 <TableRow>
                   <TableCell
                     colSpan={12}
-                    className="h-32 text-center font-mono text-sm text-muted-foreground"
+                    className="h-32 text-center text-sm text-muted-foreground"
                   >
                     Loading...
                   </TableCell>
@@ -735,7 +735,7 @@ export default function StocksPage() {
                 <TableRow>
                   <TableCell
                     colSpan={12}
-                    className="h-32 text-center font-mono text-sm text-destructive"
+                    className="h-32 text-center text-sm text-destructive"
                   >
                     {(error as Error).message}
                   </TableCell>
@@ -744,9 +744,12 @@ export default function StocksPage() {
                 <TableRow>
                   <TableCell
                     colSpan={12}
-                    className="h-32 text-center font-mono text-sm text-muted-foreground"
+                    className="h-32 text-center text-sm text-muted-foreground"
                   >
-                    No results
+                    <p>No tickers match these filters.</p>
+                    <Button variant="link" size="sm" onClick={handleResetFilters}>
+                      Reset filters
+                    </Button>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -760,7 +763,7 @@ export default function StocksPage() {
                       else navigate(`/stock/${ticker.symbol}`)
                     }}
                   >
-                    <TableCell className="py-2">
+                    <TableCell className="sticky-col py-2">
                       <div className="flex items-center gap-2">
                         <Button
                           variant="ghost"
@@ -775,8 +778,8 @@ export default function StocksPage() {
                             className={cn(
                               "h-3.5 w-3.5",
                               ticker.isOnWatchlist
-                                ? "fill-[#c8a951] text-[#c8a951]"
-                                : "text-muted-foreground/30"
+                                ? "fill-brand text-brand"
+                                : "text-muted-foreground"
                             )}
                           />
                         </Button>
@@ -784,21 +787,24 @@ export default function StocksPage() {
                           <img
                             src={ticker.logo}
                             alt={ticker.symbol}
-                            className="h-7 w-7 rounded-full border border-border object-cover"
+                            className="hidden h-7 w-7 rounded-full border border-border object-cover sm:block"
                           />
                         )}
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-[13px] font-bold text-foreground">
+                            <span className="font-mono text-[13px] font-semibold text-foreground">
                               {ticker.symbol}
                             </span>
                             {ticker.isBreakout && (
-                              <span className="text-positive bg-positive rounded-sm px-1 py-px font-mono text-[10px]">
+                              <span className="text-positive bg-positive rounded-sm px-1 py-px font-mono text-[11px]">
                                 BO
                               </span>
                             )}
                           </div>
-                          <span className="line-clamp-1 max-w-40 text-[10px] text-muted-foreground">
+                          <span
+                            className="block max-w-28 truncate sm:max-w-36 text-[11px] text-muted-foreground"
+                            title={ticker.name || undefined}
+                          >
                             {ticker.name || "-"}
                           </span>
                         </div>
@@ -806,7 +812,7 @@ export default function StocksPage() {
                     </TableCell>
                     <TableCell className="py-2">
                       <div>
-                        <span className="font-mono text-[13px] font-bold">
+                        <span className="font-mono text-[13px] font-semibold">
                           {ticker.price.toLocaleString()}
                         </span>
                         <span
@@ -825,12 +831,12 @@ export default function StocksPage() {
                         <span className="font-mono text-[12px]">
                           {formatNumber(ticker.volume)}
                         </span>
-                        <span className="ml-1 font-mono text-[10px] text-muted-foreground">
+                        <span className="ml-1 font-mono text-[11px] text-muted-foreground">
                           Rp{" "}
                           {formatNumber(Number(ticker.transactionValue || 0))}
                         </span>
                         {ticker.isVolumeSpike && (
-                          <span className="text-warning bg-warning ml-1 rounded-sm px-1 py-px font-mono text-[10px]">
+                          <span className="text-warning bg-warning ml-1 rounded-sm px-1 py-px font-mono text-[11px]">
                             Spike
                           </span>
                         )}
@@ -848,7 +854,7 @@ export default function StocksPage() {
                       </span>
                     </TableCell>
                     <TableCell className="py-2">
-                      <div className="flex flex-col gap-0.5 font-mono text-[10px]">
+                      <div className="flex flex-col gap-0.5 font-mono text-[11px]">
                         {[
                           { k: "1d", v: ticker.accumulationDistribution.d1 },
                           { k: "1w", v: ticker.accumulationDistribution.w1 },
@@ -894,8 +900,8 @@ export default function StocksPage() {
                       className="py-2"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="flex flex-col gap-1 font-mono text-[10px]">
-                        <div className="flex max-w-36 flex-wrap items-center gap-1">
+                      <div className="flex flex-col gap-1 font-mono text-[11px]">
+                        <div className="flex items-center gap-1 whitespace-nowrap">
                           {ticker.topBuyers?.length > 0 ? (
                             ticker.topBuyers.map((b: any, idx: number) => (
                               <span
@@ -912,7 +918,7 @@ export default function StocksPage() {
                             <span className="text-muted-foreground">-</span>
                           )}
                         </div>
-                        <div className="flex max-w-36 flex-wrap items-center gap-1">
+                        <div className="flex items-center gap-1 whitespace-nowrap">
                           {ticker.topSellers?.length > 0 ? (
                             ticker.topSellers.map((b: any, idx: number) => (
                               <span
@@ -935,7 +941,7 @@ export default function StocksPage() {
                       <Badge
                         variant="outline"
                         className={cn(
-                          "rounded-sm border-border font-mono text-[10px]",
+                          "rounded-sm border-border font-mono text-[11px]",
                           ticker.liquidityScore === "High" &&
                             "border-blue-400/20 bg-blue-400/10 text-blue-400",
                           ticker.liquidityScore === "Medium" &&
@@ -949,7 +955,7 @@ export default function StocksPage() {
                     </TableCell>
                     <TableCell className="py-2">
                       {ticker.sector ? (
-                        <span className="line-clamp-2 font-mono text-[10px] leading-tight text-muted-foreground">
+                        <span className="line-clamp-2 font-mono text-[11px] leading-tight text-muted-foreground">
                           {ticker.sector}
                         </span>
                       ) : (

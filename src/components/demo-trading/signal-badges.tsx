@@ -12,13 +12,13 @@ export const SignalBadges = ({ trade }: SignalBadgesProps) => (
       {trade.isBreakout && (
         <Badge
           variant="outline"
-          className="text-positive h-4 rounded-sm border-emerald-400/20 bg-emerald-400/10 px-1 py-0 font-mono text-[9px]"
+          className="text-positive h-4 rounded-sm border-emerald-400/20 bg-emerald-400/10 px-1 py-0 font-mono text-[10px]"
         >
           BO
         </Badge>
       )}
       {trade.isVolumeSpike && (
-        <span className="text-warning rounded-sm bg-amber-400/10 px-1 font-mono text-[9px] font-medium">
+        <span className="text-warning rounded-sm bg-amber-400/10 px-1 font-mono text-[10px] font-medium">
           Spike
         </span>
       )}

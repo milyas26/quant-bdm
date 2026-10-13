@@ -14,12 +14,12 @@ export default function GuideOverview() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[
-          { icon: TrendingUp, label: "Breakout harga", color: "text-indigo-500" },
-          { icon: BarChart2, label: "Volume expansion", color: "text-emerald-500" },
-          { icon: Users, label: "Broker accumulation", color: "text-blue-400" },
-          { icon: Zap, label: "Smart money activity", color: "text-yellow-500" },
-          { icon: Layers, label: "Liquidity strength", color: "text-purple-500" },
-          { icon: Activity, label: "Momentum", color: "text-rose-500" },
+          { icon: TrendingUp, label: "Breakout harga", color: "text-muted-foreground" },
+          { icon: BarChart2, label: "Volume expansion", color: "text-muted-foreground" },
+          { icon: Users, label: "Broker accumulation", color: "text-muted-foreground" },
+          { icon: Zap, label: "Smart money activity", color: "text-muted-foreground" },
+          { icon: Layers, label: "Liquidity strength", color: "text-muted-foreground" },
+          { icon: Activity, label: "Momentum", color: "text-muted-foreground" },
         ].map(({ icon: Icon, label, color }) => (
           <div
             key={label}

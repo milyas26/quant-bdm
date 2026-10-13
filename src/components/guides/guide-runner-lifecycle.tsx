@@ -120,7 +120,7 @@ export default function GuideRunnerLifecycle() {
               <CardDescription>{phase.description}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">Ciri-ciri</div>
+              <div className="text-xs font-medium text-muted-foreground mb-2">Ciri-ciri</div>
               <ul className="space-y-1.5">
                 {phase.ciri.map((c) => (
                   <li key={c} className="flex items-start gap-2 text-sm text-muted-foreground">

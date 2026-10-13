@@ -74,7 +74,7 @@ export default function DemoTradingPage() {
     <div className="space-y-5">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="font-mono text-lg font-bold tracking-tight">
+          <h1 className="text-lg font-semibold tracking-tight">
             Portfolio
           </h1>
           <p className="mt-0.5 text-[12px] text-muted-foreground">
@@ -85,7 +85,7 @@ export default function DemoTradingPage() {
           <Button
             variant="outline"
             size="sm"
-            className="h-8 rounded-sm font-mono text-[11px]"
+            className="h-8 rounded-sm text-[11px]"
             disabled={isSnapshotting}
             onClick={() => handleSnapshot()}
           >
@@ -98,7 +98,7 @@ export default function DemoTradingPage() {
           <Button
             variant="outline"
             size="sm"
-            className="h-8 rounded-sm font-mono text-[11px]"
+            className="h-8 rounded-sm text-[11px]"
             onClick={() =>
               queryClient.invalidateQueries({ queryKey: ["demo-trades"] })
             }
@@ -120,24 +120,24 @@ export default function DemoTradingPage() {
         <TabsList className="h-8 rounded-sm">
           <TabsTrigger
             value="active"
-            className="h-7 gap-1.5 rounded-sm font-mono text-[11px]"
+            className="h-7 gap-1.5 rounded-sm text-[11px]"
           >
             <Activity className="h-3 w-3" /> Active
             {!loadingActive && activeTrades.length > 0 && (
-              <Badge className="text-positive bg-positive h-4 min-w-4 rounded-sm border-emerald-400/20 px-1 text-[10px]">
+              <Badge className="text-positive bg-positive h-4 min-w-4 rounded-sm border-emerald-400/20 px-1 text-[11px]">
                 {activeTrades.length}
               </Badge>
             )}
           </TabsTrigger>
           <TabsTrigger
             value="history"
-            className="h-7 gap-1.5 rounded-sm font-mono text-[11px]"
+            className="h-7 gap-1.5 rounded-sm text-[11px]"
           >
             <History className="h-3 w-3" /> History
             {!loadingHistory && historyTrades.length > 0 && (
               <Badge
                 variant="secondary"
-                className="h-4 min-w-4 rounded-sm px-1 text-[10px]"
+                className="h-4 min-w-4 rounded-sm px-1 text-[11px]"
               >
                 {historyTrades.length}
               </Badge>

@@ -233,13 +233,13 @@ export function BrokerSummaryDashboard({
   return (
     <div className={cn("w-full", className)}>
       {isLoading && (
-        <div className="mb-2 text-sm text-blue-500 ">
-          Loading data...
+        <div className="mb-2 text-sm text-muted-foreground">
+          Loading broker summary...
         </div>
       )}
 
-      <div className="grid grid-cols-12 gap-2">
-        <div className="col-span-9 space-y-4 overflow-auto">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
+        <div className="min-w-0 space-y-4 xl:col-span-8">
           <TradingviewWidget symbol={selectedTicker} />
           <DailyBrokerSummaryGrid
             days={days}
@@ -249,7 +249,7 @@ export function BrokerSummaryDashboard({
             onBrokerClick={handleBrokerClick}
           />
         </div>
-        <div className="col-span-3 rounded-sm">
+        <div className="min-w-0 xl:col-span-4">
           <BrokerSummaryContent
             data={selectedDateData}
             selectedTicker={selectedTicker}

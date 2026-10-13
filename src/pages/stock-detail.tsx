@@ -9,7 +9,9 @@ import {
 } from "@/lib/api"
 import { SimulateBuyButton } from "@/components/simulate-buy-button"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { StatusBadge } from "@/components/indicators"
+import { fmtCurrency } from "@/lib/format"
 import { useState } from "react"
 import { format, startOfMonth, subMonths } from "date-fns"
 import { BrokerSummaryDashboard } from "@/components/broker-summary-dashboard"
@@ -27,12 +29,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useSearchParams } from "react-router-dom"
 import { ArrowLeft, RefreshCw, Download, Bookmark } from "lucide-react"
 import { AddToWatchlistDialog } from "@/components/add-to-watchlist-dialog"
-import { Badge } from "@/components/ui/badge"
 import { BrokerInventory } from "@/components/broker-inventory"
 import { HistoricalScreener } from "@/components/historical-screener"
 import { RetailExhaustionChart } from "@/components/retail-exhaustion-chart"
@@ -46,6 +48,7 @@ export default function StockDetail() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { ticker } = useParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const selectedTicker = ticker?.toUpperCase() || ""
   const [brokerCode, setBrokerCode] = useState("")
   const [refreshDialogOpen, setRefreshDialogOpen] = useState(false)
@@ -115,170 +118,206 @@ export default function StockDetail() {
       toast.error(`Failed to refresh: ${(error as Error).message}`),
   })
 
+  const latest = tickerInfo?.latestHistoricalData
+  const changePct = latest ? parseFloat(latest.change_percentage) : 0
+  const tab = searchParams.get("tab") ?? "flow"
+  const usesDateRange = tab === "flow" || tab === "signals"
+  const profile = stockProfile?.data
+  const address = profile?.address?.[0]
+
+  const handleExport = async () => {
+    try {
+      const data = await exportTickerData(
+        selectedTicker,
+        date?.from ? format(date.from, "yyyy-MM-dd") : undefined,
+        date?.to ? format(date.to, "yyyy-MM-dd") : undefined
+      )
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `${selectedTicker}_${format(new Date(), "yyyyMMdd")}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success("JSON exported")
+    } catch (error) {
+      toast.error(`Export failed: ${(error as Error).message}`)
+    }
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <AddToWatchlistDialog
         symbol={watchlistDialogOpen ? selectedTicker : null}
         onClose={() => setWatchlistDialogOpen(false)}
       />
 
-      <div className="flex items-start justify-between">
-        <div>
-          <Button
-            onClick={() => navigate("/")}
-            variant="ghost"
-            size="sm"
-            className="mb-3 -ml-2 font-mono text-xs text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="mr-1 h-3 w-3" /> Back
-          </Button>
-          <div className="flex items-center gap-4">
+      <div className="space-y-3">
+        <Button
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/"))}
+          variant="ghost"
+          size="sm"
+          className="-ml-2 h-7 text-xs text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Back
+        </Button>
+
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="flex min-w-0 items-start gap-3 md:gap-4">
             {tickerInfo?.logo && (
               <img
                 src={tickerInfo.logo}
-                alt={selectedTicker}
-                className="h-14 w-14 rounded-full border-2 border-border object-cover"
+                alt=""
+                className="h-11 w-11 shrink-0 rounded-full border border-border object-cover md:h-12 md:w-12"
               />
             )}
-            <div>
-              <div className="flex items-baseline gap-3">
-                <h1 className="font-mono text-2xl font-bold tracking-tight">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h1 className="font-mono text-2xl font-semibold tracking-tight">
                   {selectedTicker}
                 </h1>
-                {tickerInfo?.latestHistoricalData && (
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-mono text-xl font-bold">
-                      {parseInt(
-                        tickerInfo.latestHistoricalData.close
-                      ).toLocaleString()}
+                {latest && (
+                  <div className="flex items-baseline gap-2 font-mono">
+                    <span className="text-2xl font-semibold">
+                      {parseInt(latest.close).toLocaleString()}
                     </span>
                     <span
                       className={cn(
-                        "font-mono text-sm font-medium",
-                        parseFloat(
-                          tickerInfo.latestHistoricalData.change_percentage
-                        ) > 0
+                        "text-sm font-medium",
+                        changePct > 0
                           ? "text-positive"
-                          : parseFloat(
-                                tickerInfo.latestHistoricalData
-                                  .change_percentage
-                              ) < 0
+                          : changePct < 0
                             ? "text-negative"
                             : "text-muted-foreground"
                       )}
                     >
-                      {parseFloat(
-                        tickerInfo.latestHistoricalData.change_percentage
-                      ) > 0
-                        ? "+"
-                        : ""}
-                      {parseFloat(
-                        tickerInfo.latestHistoricalData.change_percentage
-                      ).toFixed(2)}
-                      %
+                      {changePct > 0 ? "+" : ""}
+                      {changePct.toFixed(2)}%
                     </span>
                   </div>
                 )}
               </div>
-              <div className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-0.5 truncate text-sm text-muted-foreground">
                 {tickerInfo?.name || "-"}
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                {tickerInfo?.sector && (
-                  <Badge
-                    variant="outline"
-                    className="rounded-sm font-mono text-[10px]"
-                  >
-                    {tickerInfo.sector}
-                  </Badge>
-                )}
-                {tickerInfo?.subSector && (
-                  <Badge
-                    variant="secondary"
-                    className="rounded-sm font-mono text-[10px]"
-                  >
-                    {tickerInfo.subSector}
-                  </Badge>
-                )}
-                {screenerTicker && (
-                  <SimulateBuyButton ticker={screenerTicker} />
-                )}
-              </div>
+              </p>
+              {(tickerInfo?.sector || tickerInfo?.subSector) && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {[tickerInfo?.sector, tickerInfo?.subSector]
+                    .filter(Boolean)
+                    .join(" / ")}
+                </p>
+              )}
             </div>
           </div>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 rounded-sm font-mono text-[11px]"
-            onClick={() => setWatchlistDialogOpen(true)}
-          >
-            <Bookmark
-              className={cn(
-                "h-3.5 w-3.5",
-                tickerInfo?.isOnWatchlist && "fill-[#c8a951] text-[#c8a951]"
-              )}
-            />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 rounded-sm font-mono text-[11px]"
-            onClick={async () => {
-              try {
-                const data = await exportTickerData(
-                  selectedTicker,
-                  date?.from ? format(date.from, "yyyy-MM-dd") : undefined,
-                  date?.to ? format(date.to, "yyyy-MM-dd") : undefined
-                )
-                const blob = new Blob([JSON.stringify(data, null, 2)], {
-                  type: "application/json",
-                })
-                const url = URL.createObjectURL(blob)
-                const a = document.createElement("a")
-                a.href = url
-                a.download = `${selectedTicker}_${format(new Date(), "yyyyMMdd")}.json`
-                a.click()
-                URL.revokeObjectURL(url)
-                toast.success("JSON exported")
-              } catch (error) {
-                toast.error(`Export failed: ${(error as Error).message}`)
-              }
-            }}
-          >
-            <Download className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            variant="default"
-            size="sm"
-            className="h-8 rounded-sm font-mono text-[11px]"
-            onClick={() => setRefreshDialogOpen(true)}
-          >
-            <RefreshCw className="mr-1 h-3.5 w-3.5" /> Refresh
-          </Button>
+
+          <div className="flex flex-wrap items-center gap-1.5">
+            {screenerTicker && <SimulateBuyButton ticker={screenerTicker} />}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setWatchlistDialogOpen(true)}
+            >
+              <Bookmark
+                className={cn(
+                  "h-3.5 w-3.5",
+                  tickerInfo?.isOnWatchlist && "fill-brand text-brand"
+                )}
+              />
+              {tickerInfo?.isOnWatchlist ? "In watchlist" : "Watchlist"}
+            </Button>
+            <Button
+              variant="outline"
+              size="icon-sm"
+              onClick={handleExport}
+              title="Export JSON for the selected date range"
+              aria-label="Export JSON"
+            >
+              <Download className="h-3.5 w-3.5" />
+            </Button>
+            <Button size="sm" onClick={() => setRefreshDialogOpen(true)}>
+              <RefreshCw className="h-3.5 w-3.5" /> Refresh
+            </Button>
+          </div>
         </div>
       </div>
+
+      {screenerTicker && (
+        <section aria-label="Latest screener signals" className="overflow-hidden rounded-lg border border-border bg-card">
+          <div className="flex items-center justify-between border-b border-border px-4 py-2">
+            <h2 className="text-xs font-medium text-muted-foreground">
+              Latest screener
+            </h2>
+            {screenerTicker.date && (
+              <span className="font-mono text-xs text-muted-foreground">
+                {format(new Date(screenerTicker.date), "d MMM yyyy")}
+              </span>
+            )}
+          </div>
+          <dl className="grid grid-cols-2 gap-px bg-border sm:grid-cols-3 lg:grid-cols-6">
+            <Stat label="Bandar status">
+              <StatusBadge status={screenerTicker.bandarStatus} />
+            </Stat>
+            <Stat label="Net broker flow">
+              <span className={cn("font-mono", signColor(screenerTicker.netBrokerFlow))}>
+                {fmtCurrency(screenerTicker.netBrokerFlow)}
+              </span>
+            </Stat>
+            <Stat label="Acc/Dist 1D · 1W · 1M">
+              <span className="flex gap-2 font-mono">
+                {[
+                  screenerTicker.accumulationDistribution.d1,
+                  screenerTicker.accumulationDistribution.w1,
+                  screenerTicker.accumulationDistribution.m1,
+                ].map((v, i) => (
+                  <span key={i} className={signColor(v)}>
+                    {v > 0 ? "+" : ""}
+                    {v.toFixed(1)}%
+                  </span>
+                ))}
+              </span>
+            </Stat>
+            <Stat label="Momentum">
+              <span className={cn(
+                screenerTicker.momentum === "Uptrend" && "text-positive",
+                screenerTicker.momentum === "Downtrend" && "text-negative"
+              )}>
+                {screenerTicker.momentum}
+              </span>
+            </Stat>
+            <Stat label="Liquidity">{screenerTicker.liquidityScore}</Stat>
+            <Stat label="Volume · Value">
+              <span className="font-mono">
+                {fmtCurrency(screenerTicker.volume).replace("+", "")}
+                <span className="text-muted-foreground">
+                  {" · "}Rp {fmtCurrency(Number(screenerTicker.transactionValue || 0)).replace("+", "")}
+                </span>
+              </span>
+              {screenerTicker.isVolumeSpike && (
+                <span className="text-warning ml-1.5 text-xs">Spike</span>
+              )}
+            </Stat>
+          </dl>
+        </section>
+      )}
 
       <Dialog open={refreshDialogOpen} onOpenChange={setRefreshDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Refresh {selectedTicker}</DialogTitle>
+            <DialogDescription>
+              Pick the date range of broker summary data to fetch again.
+            </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <p className="mb-3 text-sm text-muted-foreground">
-              Select date range for broker summary data.
-            </p>
-            <DatePickerWithRange
-              date={refreshDateRange}
-              setDate={setRefreshDateRange}
-            />
-          </div>
+          <DatePickerWithRange
+            date={refreshDateRange}
+            setDate={setRefreshDateRange}
+          />
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setRefreshDialogOpen(false)}
-              className="rounded-sm"
             >
               Cancel
             </Button>
@@ -289,182 +328,182 @@ export default function StockDetail() {
                 !refreshDateRange?.from ||
                 !refreshDateRange?.to
               }
-              className="rounded-sm"
             >
-              {refreshMutation.isPending ? (
-                <>
-                  <RefreshCw className="mr-1 h-3.5 w-3.5 animate-spin" />{" "}
-                  Refreshing...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-1 h-3.5 w-3.5" /> Refresh
-                </>
-              )}
+              <RefreshCw
+                className={cn("h-3.5 w-3.5", refreshMutation.isPending && "animate-spin")}
+              />
+              {refreshMutation.isPending ? "Refreshing..." : "Refresh"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <div className="flex items-center gap-2">
-        <DatePickerWithRange date={date} setDate={setDate} />
-        <Select
-          value={valueType}
-          onValueChange={(val) => setValueType(val as "Net" | "Gross")}
-        >
-          <SelectTrigger className="h-8 w-20 rounded-sm font-mono text-[11px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Net">Net</SelectItem>
-            <SelectItem value="Gross">Gross</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <BrokerSummaryDashboard
-        selectedTicker={selectedTicker}
-        date={date}
-        valueType={valueType}
-        onBrokerClick={setBrokerCode}
-        highlightedBroker={brokerCode}
-      />
-
-      {stockProfile ? (
-        <Card className="border-border bg-card/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="font-mono text-sm font-semibold tracking-wider text-muted-foreground uppercase">
-              Company Profile
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            {stockProfile.data?.background && (
-              <div>
-                <div className="mb-1 font-mono text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
-                  Business Background
-                </div>
-                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                  {stockProfile.data.background}
-                </p>
-              </div>
-            )}
-            {stockProfile.data?.address?.[0] && (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                {stockProfile.data.address[0].office && (
-                  <div>
-                    <div className="mb-1 font-mono text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
-                      Office
-                    </div>
-                    <p className="text-muted-foreground whitespace-pre-line">
-                      {stockProfile.data.address[0].office}
-                    </p>
-                  </div>
-                )}
-                <div className="space-y-2">
-                  {stockProfile.data.address[0].website && (
-                    <div>
-                      <div className="mb-1 font-mono text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
-                        Website
-                      </div>
-                      <a
-                        href={`https://${stockProfile.data.address[0].website}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-400 hover:underline"
-                      >
-                        {stockProfile.data.address[0].website}
-                      </a>
-                    </div>
-                  )}
-                  {stockProfile.data.address[0].phone && (
-                    <div>
-                      <div className="mb-1 font-mono text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
-                        Phone
-                      </div>
-                      <span className="text-muted-foreground">
-                        {stockProfile.data.address[0].phone}
-                      </span>
-                    </div>
-                  )}
-                  {stockProfile.data.address[0].fax && (
-                    <div>
-                      <div className="mb-1 font-mono text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
-                        Fax
-                      </div>
-                      <span className="text-muted-foreground">
-                        {stockProfile.data.address[0].fax}
-                      </span>
-                    </div>
-                  )}
-                  {stockProfile.data.address[0].email?.[0] && (
-                    <div>
-                      <div className="mb-1 font-mono text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
-                        Email
-                      </div>
-                      <a
-                        href={`mailto:${stockProfile.data.address[0].email[0]}`}
-                        className="text-blue-400 hover:underline"
-                      >
-                        {stockProfile.data.address[0].email[0]}
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-            {stockProfile.data?.listingDate && (
-              <div>
-                <div className="mb-1 font-mono text-[10px] font-semibold tracking-[0.15em] text-muted-foreground/60 uppercase">
-                  Listing Date
-                </div>
-                <span className="text-muted-foreground">
-                  {stockProfile.data.listingDate}
-                </span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="border-dashed border-border bg-card/30">
-          <CardContent className="flex items-center justify-center py-8">
-            <div className="text-center">
-              <p className="font-mono text-xs text-muted-foreground">
-                No profile data available
-              </p>
-              <p className="mt-1 font-mono text-[10px] text-muted-foreground/50">
-                Click "Get All Profiles" from the screener page to fetch
-              </p>
+      <Tabs
+        value={tab}
+        onValueChange={(value) =>
+          setSearchParams(
+            (prev) => {
+              prev.set("tab", value)
+              return prev
+            },
+            { replace: true }
+          )
+        }
+        className="gap-4"
+      >
+        <div className="flex flex-col gap-3 border-b border-border lg:flex-row lg:items-end lg:justify-between">
+          <TabsList className="scrollbar-thin -mb-px h-auto w-full justify-start gap-1 overflow-x-auto rounded-none bg-transparent p-0 lg:w-auto">
+            {DETAIL_TABS.map(({ value, label }) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="rounded-none border-b-2 border-transparent px-3 py-2.5 text-[13px] text-muted-foreground data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground"
+              >
+                {label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {usesDateRange && (
+            <div className="flex items-center gap-2 pb-3">
+              <DatePickerWithRange date={date} setDate={setDate} />
+              <Select
+                value={valueType}
+                onValueChange={(val) => setValueType(val as "Net" | "Gross")}
+              >
+                <SelectTrigger className="h-8 w-24 text-xs" aria-label="Value type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Net">Net</SelectItem>
+                  <SelectItem value="Gross">Gross</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="space-y-6">
-
-        <BrokerInventory selectedTicker={selectedTicker} />
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <FloorPriceChart symbol={selectedTicker} />
-          <RetailExhaustionChart symbol={selectedTicker} />
+          )}
         </div>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <WhaleDetection
-            symbol={selectedTicker}
-            from={date?.from ? format(date.from, "yyyy-MM-dd") : undefined}
-            to={date?.to ? format(date.to, "yyyy-MM-dd") : undefined}
+
+        <TabsContent value="flow">
+          <BrokerSummaryDashboard
+            selectedTicker={selectedTicker}
+            date={date}
+            valueType={valueType}
+            onBrokerClick={setBrokerCode}
+            highlightedBroker={brokerCode}
           />
-          <CohesionAnalysisChart symbol={selectedTicker} />
-        </div>
-        <div>
-          <div className="mb-3 font-mono text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-            Historical Screener
+        </TabsContent>
+
+        <TabsContent value="inventory">
+          <BrokerInventory selectedTicker={selectedTicker} />
+        </TabsContent>
+
+        <TabsContent value="signals" className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <FloorPriceChart symbol={selectedTicker} />
+            <RetailExhaustionChart symbol={selectedTicker} />
           </div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <WhaleDetection
+              symbol={selectedTicker}
+              from={date?.from ? format(date.from, "yyyy-MM-dd") : undefined}
+              to={date?.to ? format(date.to, "yyyy-MM-dd") : undefined}
+            />
+            <CohesionAnalysisChart symbol={selectedTicker} />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="history">
           <HistoricalScreener
             data={historicalScreenerData?.data || []}
             months={screenerMonths}
             onMonthsChange={setScreenerMonths}
           />
-        </div>
-      </div>
+        </TabsContent>
+
+        <TabsContent value="profile">
+          {profile ? (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <section className="lg:col-span-2">
+                <h2 className="mb-2 text-sm font-medium">Business background</h2>
+                <p className="max-w-prose text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
+                  {profile.background || "No background on file."}
+                </p>
+              </section>
+              <dl className="space-y-4 rounded-lg border border-border bg-card p-4 text-sm">
+                {profile.listingDate && (
+                  <ProfileField label="Listing date">{profile.listingDate}</ProfileField>
+                )}
+                {address?.office && (
+                  <ProfileField label="Office">
+                    <span className="whitespace-pre-line">{address.office}</span>
+                  </ProfileField>
+                )}
+                {address?.website && (
+                  <ProfileField label="Website">
+                    <a
+                      href={`https://${address.website}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-foreground underline underline-offset-4 hover:text-brand"
+                    >
+                      {address.website}
+                    </a>
+                  </ProfileField>
+                )}
+                {address?.phone && <ProfileField label="Phone">{address.phone}</ProfileField>}
+                {address?.fax && <ProfileField label="Fax">{address.fax}</ProfileField>}
+                {address?.email?.[0] && (
+                  <ProfileField label="Email">
+                    <a
+                      href={`mailto:${address.email[0]}`}
+                      className="text-foreground underline underline-offset-4 hover:text-brand"
+                    >
+                      {address.email[0]}
+                    </a>
+                  </ProfileField>
+                )}
+              </dl>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center">
+              <p className="text-sm text-muted-foreground">
+                No company profile saved for {selectedTicker} yet.
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Fetch it from the Screener page with the "Get All Profiles" button in the toolbar.
+              </p>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}
+
+const DETAIL_TABS = [
+  { value: "flow", label: "Broker flow" },
+  { value: "inventory", label: "Inventory" },
+  { value: "signals", label: "Signals" },
+  { value: "history", label: "History" },
+  { value: "profile", label: "Profile" },
+]
+
+const signColor = (v: number) =>
+  v > 0 ? "text-positive" : v < 0 ? "text-negative" : "text-muted-foreground"
+
+function Stat({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-card px-4 py-3">
+      <dt className="text-[11px] text-muted-foreground">{label}</dt>
+      <dd className="mt-1 text-sm font-medium">{children}</dd>
+    </div>
+  )
+}
+
+function ProfileField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <dt className="text-[11px] text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5">{children}</dd>
     </div>
   )
 }

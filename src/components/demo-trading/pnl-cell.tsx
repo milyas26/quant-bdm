@@ -12,8 +12,8 @@ export const PnlCell = ({ pnl, pnlPercent }: PnlCellProps) => {
         {positive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
         {fmtCurrency(pnl)}
       </span>
-      <span className="text-[10px] opacity-70">{positive ? "+" : ""}{pnlPercent.toFixed(2)}%</span>
-      <span className="text-[10px] opacity-50">{fmtIDR(pnl)}</span>
+      <span className="text-[11px] opacity-70">{positive ? "+" : ""}{pnlPercent.toFixed(2)}%</span>
+      <span className="text-[11px] opacity-50">{fmtIDR(pnl)}</span>
     </div>
   )
 }

@@ -50,7 +50,7 @@ export default function GuideExitStrategy() {
             <CardDescription>Sinyal bahwa smart money mulai melepas posisi.</CardDescription>
           </CardHeader>
           <CardContent className="pt-4 space-y-4">
-            <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">Exit ketika:</div>
+            <div className="text-xs font-medium text-muted-foreground mb-2">Exit ketika:</div>
             <ul className="space-y-3">
               <li className="flex items-start gap-2 text-sm text-muted-foreground">
                 <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400/20 text-amber-400" />
@@ -75,12 +75,12 @@ export default function GuideExitStrategy() {
           <CardHeader className="border-b">
             <div className="flex items-center gap-2">
               <div className="h-2.5 w-2.5 rounded-full bg-destructive" />
-              <CardTitle className="text-base text-negative ">Trend Failure</CardTitle>
+              <CardTitle className="text-base text-negative">Trend Failure</CardTitle>
             </div>
             <CardDescription>Stop loss untuk melindungi dari false breakout.</CardDescription>
           </CardHeader>
           <CardContent className="pt-4 space-y-4">
-            <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">Exit jika:</div>
+            <div className="text-xs font-medium text-muted-foreground mb-2">Exit jika:</div>
             <ul className="space-y-3">
               <li className="flex items-start gap-2 text-sm text-muted-foreground">
                 <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive" />

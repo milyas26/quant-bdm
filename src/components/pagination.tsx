@@ -94,14 +94,14 @@ export function Pagination({
         <Button
           variant="outline"
           size="sm"
-          className="h-7 rounded-sm font-mono text-[11px]"
+          className="h-7 rounded-sm text-[11px]"
           onClick={() => onPageChange(Math.max(1, page - 1))}
           disabled={page <= 1 || isLoading}
         >
           <ChevronLeft className="h-3 w-3" /> Prev
         </Button>
         <Input
-          className="h-7 w-14 rounded-sm text-center font-mono text-[11px]"
+          className="h-7 w-14 rounded-sm text-center text-[11px]"
           value={pageInput}
           type="number"
           onChange={(e) => setPageInput(e.target.value)}
@@ -114,7 +114,7 @@ export function Pagination({
         <Button
           variant="outline"
           size="sm"
-          className="h-7 rounded-sm font-mono text-[11px]"
+          className="h-7 rounded-sm text-[11px]"
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages || isLoading}
         >

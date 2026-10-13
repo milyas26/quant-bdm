@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/use-auth"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 export default function LoginPage() {
   const [code, setCode] = useState("")
@@ -22,48 +24,46 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-(--background)">
-      <div className="w-full max-w-sm px-8 py-10 border border-(--border) bg-(--card) rounded-(--radius) shadow-sm">
-        <div className="mb-8 text-center">
-          <div className="inline-block font-mono text-xs tracking-widest uppercase text-(--muted-foreground) mb-3">
-            BDM Research
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="w-full max-w-sm">
+        <div className="mb-8">
+          <div className="font-mono text-sm font-semibold tracking-tight">
+            quant<span className="text-brand">/bdm</span>
           </div>
-          <h1 className="text-2xl font-semibold text-(--foreground) tracking-tight font-[JetBrains_Mono_Variable,monospace]">
-            Enter Access Code
-          </h1>
+          <h1 className="mt-6 text-xl font-semibold tracking-tight">Sign in</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Enter your access code to open the screener.
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div
-            className={`transition-transform duration-100 ${shake ? "animate-[shake_0.4s_ease-in-out]" : ""}`}
-          >
-            <input
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className={shake ? "animate-[shake_0.4s_ease-in-out]" : ""}>
+            <label htmlFor="access-code" className="mb-1.5 block text-xs font-medium text-muted-foreground">
+              Access code
+            </label>
+            <Input
+              id="access-code"
               type="password"
               value={code}
               onChange={(e) => {
                 setCode(e.target.value)
                 setError(false)
               }}
-              placeholder="Access code"
               autoFocus
-              className={`w-full px-4 py-3 font-mono text-sm bg-(--background) border rounded-(--radius) outline-none transition-colors
-                text-(--foreground) placeholder:text-(--muted-foreground)
-                focus:border-(--ring)
-                ${error ? "border-red-500 focus:border-red-500" : "border-(--input)"}`}
+              aria-invalid={error}
+              aria-describedby={error ? "access-code-error" : undefined}
+              className="h-10"
             />
             {error && (
-              <p className="mt-1.5 text-xs text-red-500 font-mono">
-                Invalid access code.
+              <p id="access-code-error" className="mt-1.5 text-xs text-destructive">
+                That code did not match. Check it and try again.
               </p>
             )}
           </div>
 
-          <button
-            type="submit"
-            className="w-full py-3 px-4 bg-(--primary) text-(--primary-foreground) text-sm font-mono font-medium rounded-(--radius) hover:opacity-90 transition-opacity cursor-pointer"
-          >
-            Enter
-          </button>
+          <Button type="submit" className="h-10 w-full">
+            Sign in
+          </Button>
         </form>
       </div>
 

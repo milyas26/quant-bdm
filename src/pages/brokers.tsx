@@ -116,7 +116,7 @@ const Brokers = ({ search = "" }: BrokersProps) => {
                         {broker.code}
                       </p>
                       <p
-                        className="max-w-full truncate text-[10px] text-muted-foreground"
+                        className="max-w-full truncate text-[11px] text-muted-foreground"
                         title={broker.name}
                       >
                         {broker.name}

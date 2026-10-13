@@ -167,7 +167,7 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
                       </span>
                     )}
                     {ticker.sector && (
-                      <Badge variant="outline" className="text-[10px] py-0 h-5">
+                      <Badge variant="outline" className="text-[11px] py-0 h-5">
                         {ticker.sector}
                       </Badge>
                     )}
@@ -201,7 +201,7 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
                       {formatNumber(ticker.volume || 0)}
                     </span>
                     {ticker.isVolumeSpike && (
-                      <span className="text-[10px] font-bold text-warning">
+                      <span className="text-[11px] font-bold text-warning">
                         Spike
                       </span>
                     )}
@@ -221,7 +221,7 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
                       {(ticker.netBrokerFlow || 0) > 0 ? "+" : ""}
                       {formatNumber(ticker.netBrokerFlow || 0)}
                     </span>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Net Flow
                     </span>
                   </div>

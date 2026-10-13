@@ -180,7 +180,7 @@ export function RunnerCalculator({ collapsed: _collapsed }: { collapsed?: boolea
           <div className="rounded-sm border bg-muted/30 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                <div className="text-xs font-medium text-muted-foreground">
                   Runner Score
                 </div>
                 <div className="mt-1 text-4xl font-black">{totalScore}</div>
